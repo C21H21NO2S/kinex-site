@@ -74,7 +74,7 @@ def main():
         font.save(out)
         print(f'{name}.woff2  {out.stat().st_size / 1024:.0f} KiB')
         css.append(f"@font-face {{ font-family: '{family}'; src: url('/fonts/{name}.woff2') format('woff2'); font-weight: {weight}; font-style: {style}; font-display: swap; }}")
-    CSS.write_text('\n'.join(css) + '\n', encoding='utf-8')
+    CSS.write_text('\n'.join(css) + '\n', encoding='utf-8', newline='\n')
     print(f'{len(cjk)} CJK characters')
 
 if __name__ == '__main__':
