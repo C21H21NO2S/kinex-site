@@ -40,7 +40,9 @@ URL 参数（调试用）：`?lang=zh|en`、`?theme=dark|light`、`?q=high|mid|l
 
 ## 字体
 
-自托管、按需子集（约 540 KB）：Inter、Instrument Serif、JetBrains Mono、Noto Sans SC、Noto Serif SC，均为 SIL Open Font License。原始字体缓存在 `scripts/.font-src/`（不入库）。
+自托管、按需子集（约 540 KB）：Inter、Instrument Serif、JetBrains Mono、Noto Sans SC、Noto Serif SC（SIL Open Font License），以及中文标题强调字用的霞鹜新致宋 LXGW Neo ZhiSong（只含标题 `<em>` 里的字，约 4 KB）。原始字体缓存在 `scripts/.font-src/`（不入库）。
+
+霞鹜新致宋衍生自 IPA 字体，授权是 **IPA Font License 1.0**（不是 OFL）：子集字体算衍生程序，须随附许可证（已放在 `public/fonts/LXGW-Neo-ZhiSong-LICENSE.md`，随网站一起发布），字体名里不得出现「IPA」（子集保留原名 LXGW Neo ZhiSong，符合要求）。
 
 ## 结构
 

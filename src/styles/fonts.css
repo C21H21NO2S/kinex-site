@@ -5,3 +5,4 @@
 @font-face { font-family: 'JetBrains Mono'; src: url('/fonts/jetbrains-mono.woff2') format('woff2'); font-weight: 100 800; font-style: normal; font-display: swap; }
 @font-face { font-family: 'Noto Sans SC'; src: url('/fonts/noto-sans-sc.woff2') format('woff2'); font-weight: 100 900; font-style: normal; font-display: swap; }
 @font-face { font-family: 'Noto Serif SC'; src: url('/fonts/noto-serif-sc.woff2') format('woff2'); font-weight: 200 900; font-style: normal; font-display: swap; }
+@font-face { font-family: 'LXGW Neo ZhiSong'; src: url('/fonts/lxgw-neo-zhisong.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }

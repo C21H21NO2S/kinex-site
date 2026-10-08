@@ -168,7 +168,8 @@ export function initSync() {
       .to(lNote.querySelector('.sy-link'), { strokeDashoffset: 0, duration: .5, ease: 'power2.out' }, .6)
       .add(() => typeInto([lNote.querySelector('.sy-t')], noteText(), 1.1), .95)
       // 2. it syncs to the tablet and appears in the same place
-      .add(() => { setChip('laptop', 'saved'); setChip('tablet', 'syncing'); pill.classList.add('busy'); }, 2.2)
+      .add(() => pill.classList.add('busy'), 1.9) // the link brightens just before the change leaves
+      .add(() => { setChip('laptop', 'saved'); setChip('tablet', 'syncing'); }, 2.2)
       .add(() => sendPacket(true), 2.2)
       .add(() => { tNote.querySelector('.sy-t').textContent = noteText(); gsap.set(tNote.querySelector('.sy-link'), { strokeDashoffset: 0 }); }, 2.9)
       .to(tNote, { opacity: 1, duration: .45, ease: 'power2.out' }, 2.9)
@@ -180,7 +181,8 @@ export function initSync() {
       .to(tInk.querySelectorAll('.sy-ink')[0], { strokeDashoffset: 0, duration: .7, ease: 'power1.inOut' }, 4.3)
       .to(tInk.querySelectorAll('.sy-ink')[1], { strokeDashoffset: 0, duration: .35, ease: 'power1.inOut' }, 5.05)
       // 4. and syncs back to the laptop
-      .add(() => { setChip('tablet', 'saved'); setChip('laptop', 'syncing'); pill.classList.add('busy'); }, 5.6)
+      .add(() => pill.classList.add('busy'), 5.3)
+      .add(() => { setChip('tablet', 'saved'); setChip('laptop', 'syncing'); }, 5.6)
       .add(() => sendPacket(false), 5.6)
       .add(() => lInk.querySelectorAll('.sy-ink').forEach(p => gsap.set(p, { strokeDashoffset: 0 })), 6.3)
       .to(lInk, { opacity: 1, duration: .45, ease: 'power2.out' }, 6.3)

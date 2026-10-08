@@ -31,10 +31,20 @@ history.scrollRestoration = 'manual';
 const loader = $('#loader');
 $('#loaderMark').innerHTML = loaderSVG(isDark());
 const loaderStart = performance.now();
+// the blurred hero preview (chosen and preloaded in index.html) covers the wait for the 3D scene
+const preview = $('#preview');
+preview.src = document.documentElement.dataset.preview || 'posters/preview-dark-l.jpg';
+const previewReady = preview.decode().then(() => true, () => false);
+let previewOn = false;
+function hidePreview() { if (!previewOn) return; previewOn = false; preview.classList.add('off'); setTimeout(() => { preview.hidden = true; }, 1300); }
 
 async function exitLoader() {
   const minShow = reduceMotion ? 0 : 1450; // the mark finishes assembling
   await new Promise(r => setTimeout(r, Math.max(0, minShow - (performance.now() - loaderStart))));
+  // lift the loader onto the preview, never onto an empty background (wait a little for it on a slow link)
+  if (!scene && await Promise.race([previewReady, new Promise(r => setTimeout(() => r(false), 1500))])) {
+    previewOn = true; preview.classList.add('on'); document.documentElement.classList.add('has-preview');
+  }
   loader.classList.add('leaving');
   await new Promise(r => setTimeout(r, reduceMotion ? 0 : 420));
   loader.classList.add('done');
@@ -97,8 +107,10 @@ async function bootScene() {
   addEventListener('kx:theme', () => gsap.to(scene.T, { k: isDark() ? 1 : 0, duration: 1.1, ease: 'power2.inOut', onUpdate: () => scene.applyTheme(scene.T.k) }));
   scene.start();
   wireSceneScroll();
-  // the canvas fades in over the page background as the tablet flies in
-  requestAnimationFrame(() => requestAnimationFrame(() => document.documentElement.classList.add('gl-on')));
+  // with the preview up, the live scene appears under it already in its final pose and the preview fades off it
+  // (a focus pull); without one, the canvas fades in as the tablet flies in
+  if (previewOn) scene.state.intro = 1;
+  requestAnimationFrame(() => requestAnimationFrame(() => { document.documentElement.classList.add('gl-on'); hidePreview(); }));
   // after a long jump, land on the new story position instead of animating the 3D story through to it
   addEventListener('kx:jumped', () => { scene.snap(); paintStory(scene.state.p); if (scene.state.p < .02) replayHero(); });
   window.__scene = scene;
@@ -115,6 +127,7 @@ function wireSceneScroll() {
 }
 
 function fallbackPoster() {
+  hidePreview();
   const img = $('#poster');
   img.src = `posters/hero-${isDark() ? 'dark' : 'light'}.jpg`;
   img.hidden = false;
@@ -135,7 +148,8 @@ function replayHero() {
   await document.fonts.ready;
   initReveal();
   // until the scene drives the story overlays, the scroll position does
-  ScrollTrigger.create({ trigger: '#story', start: 'top top', end: 'bottom bottom', onUpdate: self => { if (!scene) paintStory(self.progress); } });
+  ScrollTrigger.create({ trigger: '#story', start: 'top top', end: 'bottom bottom', onUpdate: self => { if (scene) return; paintStory(self.progress); if (self.progress > .04) hidePreview(); } });
+  addEventListener('kx:theme', () => { if (previewOn) preview.src = preview.src.replace(/preview-(dark|light)/, `preview-${isDark() ? 'dark' : 'light'}`); });
   ScrollTrigger.sort();
   ScrollTrigger.refresh();
   await exitLoader();
@@ -144,6 +158,6 @@ function replayHero() {
   await nextFrame();
   try { await bootScene(); } catch (e) { console.error(e); fallbackPoster(); }
   ScrollTrigger.refresh();
-  if (scene && !reduceMotion) gsap.to(scene.state, { intro: 1, duration: 2.6, ease: 'power2.out' });
+  if (scene && !reduceMotion && scene.state.intro < 1) gsap.to(scene.state, { intro: 1, duration: 2.6, ease: 'power2.out' });
   else if (scene) scene.state.intro = 1;
 })();
