@@ -1,0 +1,28 @@
+// The E10 mark. Colours are fixed; on dark backgrounds the mark sits on its light hexagon plate.
+export const PIECES_LIGHT = [
+  'M47.58 5.4 Q50 4 52.42 5.4 L57.57 8.37 Q59.99 9.77 57.92 11.66 L34.07 33.4 Q32 35.29 32 32.49 L32 17.19 Q32 14.39 34.42 12.99 Z',
+  'M77.92 23.2 Q79.98 21.31 82.41 22.71 L87.41 25.6 Q89.84 27 89.84 29.8 L89.84 70.2 Q89.84 73 87.41 74.4 L80.53 78.37 Q78.1 79.77 76 77.92 L48.57 53.72 Q46.47 51.87 48.54 49.98 Z',
+  'M55.9 89.53 Q58 91.38 55.58 92.78 L52.42 94.6 Q50 96 47.58 94.6 L34.42 87.01 Q32 85.61 32 82.81 L32 71.23 Q32 68.43 34.1 70.29 Z',
+];
+export const PIECES_K = [
+  'M30 81.65 Q30 84.45 27.58 83.05 L12.59 74.4 Q10.16 73 10.16 70.2 L10.16 29.8 Q10.16 27 12.59 25.6 L27.58 16.95 Q30 15.55 30 18.35 Z',
+  'M59.74 12.7 Q61.81 10.82 64.23 12.22 L75.74 18.86 Q78.17 20.26 76.1 22.15 L31.07 63.2 Q29 65.09 29 62.29 L29 43.53 Q29 40.73 31.07 38.85 Z',
+  'M74.18 78.98 Q76.28 80.83 73.85 82.23 L62.26 88.92 Q59.83 90.32 57.73 88.47 L31.1 64.97 Q29 63.12 29 60.32 L29 41.92 Q29 39.12 31.1 40.97 Z',
+];
+const PLATE = 'M43.5 2.75 Q50 -1 56.5 2.75 L87.68 20.75 Q94.17 24.5 94.17 32 L94.17 68 Q94.17 75.5 87.68 79.25 L56.5 97.25 Q50 101 43.5 97.25 L12.32 79.25 Q5.83 75.5 5.83 68 L5.83 32 Q5.83 24.5 12.32 20.75 Z';
+let uid = 0;
+const defs = (id, kStops) => `<defs><radialGradient id="p${id}" cx="94" cy="2" r="118" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#7DEBFB"/><stop offset="0.1" stop-color="#67E8F9"/><stop offset="0.3" stop-color="#22D3EE"/><stop offset="0.56" stop-color="#0EA5E9"/><stop offset="0.84" stop-color="#2563EB"/><stop offset="1" stop-color="#4338CA"/></radialGradient><radialGradient id="k${id}" cx="94" cy="2" r="118" gradientUnits="userSpaceOnUse">${kStops}</radialGradient></defs>`;
+const K_E10 = '<stop offset="0" stop-color="#4740D4"/><stop offset="0.55" stop-color="#3730A3"/><stop offset="1" stop-color="#312E81"/>';
+const K_LAUNCH_DARK = '<stop offset="0" stop-color="#7C83FF"/><stop offset="0.55" stop-color="#5B5CEB"/><stop offset="1" stop-color="#4338CA"/>';
+
+// Static mark for the header/footer: E10 colours, plate shown only on dark (CSS).
+export function logoSVG() {
+  const id = 'kx' + (++uid);
+  return `<svg class="mark" viewBox="5.83 -1 88.34 102" role="img" aria-label="KineX">${defs(id, K_E10)}<path class="plate" d="${PLATE}" fill="#F5F5F7"/>${PIECES_LIGHT.map(d => `<path d="${d}" fill="url(#p${id})"/>`).join('')}${PIECES_K.map(d => `<path d="${d}" fill="url(#k${id})"/>`).join('')}</svg>`;
+}
+
+// Loader mark: pieces are separate groups so they can fly in. Dark uses the launch-animation K (lighter indigo).
+export function loaderSVG(dark) {
+  const all = PIECES_K.map(d => ['k', d]).concat(PIECES_LIGHT.map(d => ['p', d]));
+  return all.map(([t, d], i) => { const id = 'kl' + (++uid); return `<svg class="lp lp-${i}" viewBox="8 2 84 96" aria-hidden="true">${defs(id, dark ? K_LAUNCH_DARK : K_E10)}<path d="${d}" fill="url(#${t}${id})"/></svg>`; }).join('');
+}

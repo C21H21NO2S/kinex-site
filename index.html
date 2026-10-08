@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="zh-CN" data-lang="zh" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KineX 跃知 — 知识 跃然纸上</title>
+<meta name="description" content="KineX 把阅读、白板、手写和记忆放在一起：书、论文、网页和讲座放进同一块白板，划线、手写、连线，再在快忘的时候回来复习。">
+<meta name="theme-color" content="#06060A" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#E9E9EC" media="(prefers-color-scheme: light)">
+<meta property="og:title" content="KineX — Learning, in motion.">
+<meta property="og:description" content="Reading, an infinite board, real ink and spaced recall — together.">
+<meta property="og:image" content="/og.jpg">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script>
+  // set theme + language before first paint (no flash)
+  (function () {
+    var q = new URLSearchParams(location.search), r = document.documentElement, s = {};
+    try { s = JSON.parse(localStorage.getItem('kx-prefs') || '{}'); } catch (e) {}
+    var theme = q.get('theme') || s.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    var lang = q.get('lang') || s.lang || ((navigator.language || '').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en');
+    r.dataset.theme = theme === 'light' ? 'light' : 'dark';
+    r.dataset.lang = lang === 'en' ? 'en' : 'zh';
+    r.lang = lang === 'en' ? 'en' : 'zh-CN';
+  })();
+</script>
+<link rel="stylesheet" href="/src/styles/fonts.css">
+<link rel="stylesheet" href="/src/styles/main.css">
+<link rel="stylesheet" href="/src/styles/sections.css">
+</head>
+<body>
+<a class="skip" href="#read" data-i18n="skip">跳到正文</a>
+
+<!-- loader: the mark assembles from its pieces -->
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="loader-mark" id="loaderMark"></div>
+  <div class="loader-bar"><i id="loaderBar"></i></div>
+</div>
+
+<canvas id="gl" aria-hidden="true"></canvas>
+
+<header class="nav" id="nav">
+  <a class="brand" href="#top" aria-label="KineX"><span class="brand-mark" data-logo="22"></span><span>KineX</span></a>
+  <nav class="links" aria-label="Sections">
+    <a href="#read" data-i18n="nav.read">阅读</a>
+    <a href="#board" data-i18n="nav.board">白板</a>
+    <a href="#ink" data-i18n="nav.ink">笔迹</a>
+    <a href="#recall" data-i18n="nav.recall">记忆</a>
+    <a href="#sync" data-i18n="nav.sync">同步</a>
+  </nav>
+  <div class="nav-r">
+    <div class="seg" role="group" data-i18n-aria="nav.lang"><button data-set-lang="zh" lang="zh">中</button><button data-set-lang="en" lang="en">EN</button></div>
+    <button class="theme-btn" data-toggle-theme data-i18n-aria="nav.theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+        <mask id="moonmask"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/><circle class="moon-c" cx="26" cy="5" r="7" fill="#000"/></mask>
+        <circle cx="12" cy="12" r="5.2" fill="currentColor" stroke="none" mask="url(#moonmask)"/>
+        <g class="sun-rays"><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></g>
+      </svg>
+    </button>
+    <a class="pill magnetic" href="#join" data-link="beta"><span data-i18n="nav.cta">加入内测</span></a>
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menu"><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="menu" id="menu" hidden>
+  <nav>
+    <a href="#read"><i>01</i><span data-i18n="nav.read">阅读</span></a>
+    <a href="#board"><i>02</i><span data-i18n="nav.board">白板</span></a>
+    <a href="#ink"><i>03</i><span data-i18n="nav.ink">笔迹</span></a>
+    <a href="#recall"><i>04</i><span data-i18n="nav.recall">记忆</span></a>
+    <a href="#sync"><i>05</i><span data-i18n="nav.sync">同步</span></a>
+  </nav>
+  <a class="pill" href="#join" data-link="beta"><span data-i18n="nav.cta">加入内测</span></a>
+</div>
+
+<main id="top">
+  <!-- ============ 3D story (pinned) ============ -->
+  <section class="story" id="story" aria-label="KineX">
+    <div class="stage">
+      <div class="scrim scrim-l" id="scrimL"></div>
+      <div class="scrim scrim-b" id="scrimB"></div>
+      <div class="beat hero" data-from="0" data-to=".12">
+        <p class="kicker"><b></b><span data-i18n="hero.kicker">KineX 跃知 · 阅读 × 白板 × 手写 × 记忆</span></p>
+        <h1 class="display" data-i18n-html="hero.title">知识<br><em>跃然</em>纸上</h1>
+        <div class="row">
+          <p class="lede" data-i18n="hero.lede"></p>
+          <a class="pill magnetic" href="#join" data-link="beta"><span data-i18n="hero.cta">加入内测</span> <span aria-hidden="true">→</span></a>
+          <button class="ghost" data-link="film"><i aria-hidden="true">▶</i><span data-i18n="hero.film">短片 1:39</span></button>
+        </div>
+      </div>
+      <div class="beat chap" data-from=".19" data-to=".38">
+        <div class="idx"><span>01</span><span data-i18n="story.ink.idx">真实笔迹</span></div>
+        <h2 data-i18n-html="story.ink.title"></h2>
+        <p data-i18n="story.ink.body"></p>
+      </div>
+      <div class="beat chap" data-from=".44" data-to=".7">
+        <div class="idx"><span>02</span><span data-i18n="story.card.idx">摘录与回链</span></div>
+        <h2 data-i18n-html="story.card.title"></h2>
+        <p data-i18n="story.card.body"></p>
+      </div>
+      <div class="beat finale-beat" data-from=".82" data-to="1.2">
+        <h2 data-i18n-html="story.link.title"></h2>
+        <p data-i18n-html="story.link.body"></p>
+      </div>
+      <div class="story-foot">
+        <div class="marks">
+          <button class="mk" type="button" data-go=".29"><span class="n">01</span><i class="tk"><i></i></i><b data-i18n="story.m1">笔迹</b></button>
+          <button class="mk" type="button" data-go=".57"><span class="n">02</span><i class="tk"><i></i></i><b data-i18n="story.m2">摘录</b></button>
+          <button class="mk" type="button" data-go=".93"><span class="n">03</span><i class="tk"><i></i></i><b data-i18n="story.m3">连接</b></button>
+        </div>
+        <div class="meta"><span>Windows · Android</span><span data-i18n="hero.scroll">向下滚动</span></div>
+        <div class="bar"><i id="storyProg"></i></div>
+      </div>
+      <img class="poster" id="poster" alt="" hidden>
+    </div>
+  </section>
+
+  <!-- ============ 01 Read ============ -->
+  <section class="sec read" id="read">
+    <header class="sec-head wrap">
+      <div class="sec-idx"><span>01</span><span data-i18n="read.idx">阅读</span></div>
+      <h2 class="sec-title" data-i18n-html="read.title"></h2>
+      <p class="sec-lede" data-i18n="read.lede"></p>
+    </header>
+    <div class="rail-pin" id="readPin">
+      <div class="rail" id="readRail">
+        <article class="fmt" data-plate="pdf"><div class="plate-art"></div><div class="plate-txt"><span class="tag" data-i18n="read.pdf.tag">PDF</span><h3 data-i18n="read.pdf.title"></h3><p data-i18n="read.pdf.body"></p></div></article>
+        <article class="fmt" data-plate="epub"><div class="plate-art"></div><div class="plate-txt"><span class="tag" data-i18n="read.epub.tag"></span><h3 data-i18n="read.epub.title"></h3><p data-i18n="read.epub.body"></p></div></article>
+        <article class="fmt" data-plate="web"><div class="plate-art"></div><div class="plate-txt"><span class="tag" data-i18n="read.web.tag"></span><h3 data-i18n="read.web.title"></h3><p data-i18n="read.web.body"></p></div></article>
+        <article class="fmt" data-plate="md"><div class="plate-art"></div><div class="plate-txt"><span class="tag" data-i18n="read.md.tag"></span><h3 data-i18n="read.md.title"></h3><p data-i18n="read.md.body"></p></div></article>
+        <article class="fmt" data-plate="media"><div class="plate-art"></div><div class="plate-txt"><span class="tag" data-i18n="read.media.tag"></span><h3 data-i18n="read.media.title"></h3><p data-i18n="read.media.body"></p></div></article>
+        <article class="fmt" data-plate="search"><div class="plate-art"></div><div class="plate-txt"><span class="tag" data-i18n="read.search.tag"></span><h3 data-i18n="read.search.title"></h3><p data-i18n="read.search.body"></p></div></article>
+      </div>
+      <div class="rail-foot wrap"><span class="rail-count"><b id="readNum">01</b> / 06</span><span class="rail-track"><i id="readProg"></i></span><span data-i18n="read.hint">继续滚动</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 02 Board ============ -->
+  <section class="sec board" id="board">
+    <header class="sec-head wrap">
+      <div class="sec-idx"><span>02</span><span data-i18n="board.idx">白板</span></div>
+      <h2 class="sec-title" data-i18n-html="board.title"></h2>
+      <p class="sec-lede" data-i18n="board.lede"></p>
+    </header>
+    <div class="wrap board-wrap">
+      <div class="board-tools">
+        <div class="seg panes" role="group">
+          <button data-panes="1" aria-pressed="true"><svg viewBox="0 0 20 14" aria-hidden="true"><rect x=".75" y=".75" width="18.5" height="12.5" rx="2"/></svg><span data-i18n="board.p1">单块</span></button>
+          <button data-panes="2"><svg viewBox="0 0 20 14" aria-hidden="true"><rect x=".75" y=".75" width="8.5" height="12.5" rx="2"/><rect x="10.75" y=".75" width="8.5" height="12.5" rx="2"/></svg><span data-i18n="board.p2">两块并排</span></button>
+          <button data-panes="4"><svg viewBox="0 0 20 14" aria-hidden="true"><rect x=".75" y=".75" width="8.5" height="5.5" rx="1.5"/><rect x="10.75" y=".75" width="8.5" height="5.5" rx="1.5"/><rect x=".75" y="7.75" width="8.5" height="5.5" rx="1.5"/><rect x="10.75" y="7.75" width="8.5" height="5.5" rx="1.5"/></svg><span data-i18n="board.p4">四块并排</span></button>
+        </div>
+        <span class="hint"><i class="hint-dot"></i><span data-i18n="board.hint">拖动卡片试试</span></span>
+      </div>
+      <div class="boardstage" id="boardStage"></div>
+      <ul class="feats">
+        <li><b>Σ</b><span data-i18n="board.f1"></span></li>
+        <li><b>⧉</b><span data-i18n="board.f2"></span></li>
+        <li><b>↗</b><span data-i18n="board.f3"></span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ 03 Ink ============ -->
+  <section class="sec ink" id="ink">
+    <header class="sec-head wrap">
+      <div class="sec-idx"><span>03</span><span data-i18n="ink.idx">笔迹</span></div>
+      <h2 class="sec-title" data-i18n-html="ink.title"></h2>
+      <p class="sec-lede" data-i18n="ink.lede"></p>
+    </header>
+    <div class="wrap">
+      <div class="paper" id="paper">
+        <canvas id="inkCanvas" aria-label="Drawing pad"></canvas>
+        <p class="paper-hint" id="paperHint"><span data-i18n="ink.hint"></span></p>
+        <div class="brushes" role="toolbar">
+          <div class="brush-list" id="brushList"></div>
+          <div class="swatches" id="swatches"></div>
+          <div class="brush-acts"><button id="inkUndo" data-i18n="ink.undo">撤销</button><button id="inkClear" data-i18n="ink.clear">清空</button></div>
+        </div>
+      </div>
+      <p class="paper-note"><span class="dot"></span><span data-i18n="ink.pressure"></span></p>
+    </div>
+  </section>
+
+  <!-- ============ 04 Recall ============ -->
+  <section class="sec recall" id="recall">
+    <div class="wrap recall-grid">
+      <header class="sec-head-col">
+        <div class="sec-idx"><span>04</span><span data-i18n="recall.idx">记忆</span></div>
+        <h2 class="sec-title" data-i18n-html="recall.title"></h2>
+        <p class="sec-lede" data-i18n="recall.lede"></p>
+        <div class="minis">
+          <div><b data-i18n="recall.f1t"></b><p data-i18n="recall.f1"></p></div>
+          <div><b data-i18n="recall.f2t"></b><p data-i18n="recall.f2"></p></div>
+        </div>
+      </header>
+      <div class="deck-wrap">
+        <div class="deck-top"><span class="due"><i></i><span data-i18n="recall.due">今天复习</span></span><span class="deck-count" id="deckCount">1 / 3</span></div>
+        <div class="deck" id="deck"></div>
+        <div class="rate" id="rate">
+          <button class="show" id="showBtn" data-i18n="recall.show">显示答案</button>
+          <div class="grades" hidden>
+            <button data-g="1" data-i18n="recall.again">重来</button><button data-g="2" data-i18n="recall.hard">困难</button><button data-g="3" data-i18n="recall.good">良好</button><button data-g="4" data-i18n="recall.easy">简单</button>
+          </div>
+        </div>
+        <figure class="curve">
+          <svg id="curve" aria-hidden="true"></svg>
+          <figcaption><span class="lg on"><i></i><span data-i18n="recall.lgOn">按时复习</span></span><span class="lg off"><i></i><span data-i18n="recall.lgOff">不复习</span></span><span class="lg-note" data-i18n="recall.lgNote">FSRS 记忆模型示意</span></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 Sync ============ -->
+  <section class="sec sync" id="sync">
+    <header class="sec-head wrap">
+      <div class="sec-idx"><span>05</span><span data-i18n="sync.idx">同步</span></div>
+      <h2 class="sec-title" data-i18n-html="sync.title"></h2>
+      <p class="sec-lede" data-i18n="sync.lede"></p>
+    </header>
+    <div class="wrap">
+      <div class="diagram" id="diagram"></div>
+      <div class="badges">
+        <div class="badge"><span class="no">A</span><b data-i18n="sync.b1t"></b><p data-i18n="sync.b1"></p></div>
+        <div class="badge"><span class="no">B</span><b data-i18n="sync.b2t"></b><p data-i18n="sync.b2"></p></div>
+        <div class="badge"><span class="no">C</span><b><span data-i18n="sync.b3t"></span> <em class="soon" data-i18n="sync.testing">测试中</em></b><p data-i18n="sync.b3"></p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Join (3D constellation returns) ============ -->
+  <section class="join" id="join">
+    <div class="join-inner wrap">
+      <p class="kicker center"><b></b><span data-i18n="final.kicker">Windows · Android</span><b></b></p>
+      <h2 class="display center" data-i18n-html="final.title"></h2>
+      <p class="lede center" data-i18n="final.body"></p>
+      <div class="row center">
+        <a class="pill big magnetic" href="#join" data-link="beta"><span data-i18n="final.cta">加入内测</span> <span aria-hidden="true">→</span></a>
+        <button class="ghost" data-link="film"><i aria-hidden="true">▶</i><span data-i18n="final.film">看短片 1:39</span></button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-grid">
+    <div class="foot-brand"><span data-logo="28"></span><p data-i18n="foot.made"></p></div>
+    <div><h4 data-i18n="foot.product">产品</h4><a href="#read" data-i18n="nav.read"></a><a href="#board" data-i18n="nav.board"></a><a href="#ink" data-i18n="nav.ink"></a><a href="#recall" data-i18n="nav.recall"></a><a href="#sync" data-i18n="nav.sync"></a></div>
+    <div><h4 data-i18n="foot.more">更多</h4><button data-link="film" data-i18n="foot.film"></button><a href="#join" data-link="beta" data-i18n="nav.cta"></a><a href="#" data-link="github">GitHub</a><a href="#" data-link="privacy" data-i18n="foot.privacy"></a></div>
+    <div class="foot-r"><a href="#top" class="totop" data-i18n="foot.top">回到顶部</a></div>
+  </div>
+  <div class="wordmark" aria-hidden="true">KineX</div>
+  <div class="wrap foot-base"><span data-i18n="foot.rights"></span><span>Kinetic × Nexus</span></div>
+</footer>
+
+<div class="veil" id="veil" aria-hidden="true"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="cursor" id="cursor" aria-hidden="true"><i></i></div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
