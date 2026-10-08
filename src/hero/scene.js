@@ -21,7 +21,8 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   // threads skip tone mapping, and nothing is re-uploaded while scrolling.
   const renderer = new THREE.WebGLRenderer({ canvas, context, antialias: true, powerPreference: 'high-performance', alpha: false });
   renderer.autoClear = false;
-  const DPR = { high: Math.min(devicePixelRatio, 2), mid: Math.min(devicePixelRatio, 1.5), low: 1 }[tier];
+  // phones have 3x screens: below 2x the tablet's UI and the paper text turn soft, so only 'low' drops under it
+  const DPR = { high: Math.min(devicePixelRatio, 2), mid: Math.min(devicePixelRatio, 2), low: Math.min(devicePixelRatio, 1.5) }[tier];
   renderer.setPixelRatio(DPR);
   renderer.toneMapping = THREE.NeutralToneMapping;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -168,7 +169,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   };
   const blurMat = params => { const m = new THREE.MeshStandardMaterial(params); m.userData.bias = { value: 0 }; m.onBeforeCompile = blurHook; return m; };
   const texCache = new Map();
-  const texSize = tier === 'low' ? .6 : 1;
+  const texSize = tier === 'low' ? .8 : 1;
   function fragTexture(kind, i) {
     const k = `${kind}|${i}|${getLang()}`;
     if (texCache.has(k)) return texCache.get(k);
@@ -465,7 +466,8 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     }
     camera.position.copy(camPos); camera.lookAt(camLook); camera.updateProjectionMatrix();
     const focusDist = camera.position.distanceTo(p < .42 ? (p < .3 ? tablet.position : circleC) : (p < .72 ? lift.position : tablet.position));
-    const dofK = tier === 'low' ? 0 : (1 - seg(p, .66, .8)); // the constellation is shown sharp
+    // the constellation is shown sharp; on phones everything is small already, so the depth of field stays light
+    const dofK = tier === 'low' ? 0 : (1 - seg(p, .66, .8)) * (LY.portrait ? .35 : 1);
 
     // stylus
     const tipLocal = inkTip ? inkTip.clone() : (ink >= 1 ? inkEnd.clone() : inkStart.clone());

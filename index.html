@@ -30,9 +30,9 @@
     l.rel = 'preload'; l.as = 'image'; l.href = pv; document.head.appendChild(l); r.dataset.preview = pv;
   })();
 </script>
-<!-- start the fonts with the scripts and styles, not after the stylesheet has been read: one round trip less -->
+<!-- start the first-screen fonts with the scripts and styles, not after the stylesheet has been read (the serif face is
+     only drawn inside the 3D scene, so it loads with the scene instead of competing with the first screen) -->
 <link rel="preload" href="fonts/noto-sans-sc.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="fonts/noto-serif-sc.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/lxgw-neo-zhisong.woff2" as="font" type="font/woff2" crossorigin>

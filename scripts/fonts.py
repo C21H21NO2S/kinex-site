@@ -10,12 +10,19 @@ headlines. It is under the IPA Font License 1.0 (not OFL): its licence ships nex
 import pathlib, re, urllib.request, sys
 from fontTools import subset
 from fontTools.ttLib import TTFont
+from fontTools.varLib import instancer
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 CACHE = ROOT / 'scripts' / '.font-src'
 OUT = ROOT / 'public' / 'fonts'
 CSS = ROOT / 'src' / 'styles' / 'fonts.css'
 GF = 'https://raw.githubusercontent.com/google/fonts/main/ofl/'
+
+# Only the weight range the site actually uses is kept in each variable font (CSS and the 3D canvas textures).
+WGHT = {'inter': (400, 800), 'jetbrains-mono': (400, 600), 'noto-sans-sc': (400, 800), 'noto-serif-sc': (400, 600)}
+# The features browsers apply by default. Keeping every feature ('*') also kept the Japanese, Korean and
+# Traditional regional forms (locl), vertical forms and stylistic sets, none of which the site renders.
+FEATURES = ['ccmp', 'kern', 'liga', 'clig', 'calt', 'mark', 'mkmk', 'rlig', 'rvrn']
 
 FONTS = [
     # family, file in google/fonts, output name, weight range, style, script
@@ -61,19 +68,22 @@ def main():
                  else latin)
         opts = subset.Options()
         opts.flavor = 'woff2'
-        opts.layout_features = ['*']
-        opts.name_IDs = ['*']
+        opts.layout_features = FEATURES
+        opts.name_IDs = [0, 1, 2, 3, 4, 5, 6, 13, 14]  # names, version, copyright and licence
         opts.notdef_outline = True
         opts.drop_tables += ['DSIG']
         font = TTFont(src)
         sub = subset.Subsetter(options=opts)
         sub.populate(text=chars)
         sub.subset(font)
+        if name in WGHT and 'fvar' in font:
+            font = instancer.instantiateVariableFont(font, {'wght': WGHT[name]})
         out = OUT / f'{name}.woff2'
         font.flavor = 'woff2'
         font.save(out)
         print(f'{name}.woff2  {out.stat().st_size / 1024:.0f} KiB')
-        css.append(f"@font-face {{ font-family: '{family}'; src: url('/fonts/{name}.woff2') format('woff2'); font-weight: {weight}; font-style: {style}; font-display: swap; }}")
+        w = ' '.join(map(str, WGHT[name])) if name in WGHT else weight
+        css.append(f"@font-face {{ font-family: '{family}'; src: url('/fonts/{name}.woff2') format('woff2'); font-weight: {w}; font-style: {style}; font-display: swap; }}")
     CSS.write_text('\n'.join(css) + '\n', encoding='utf-8', newline='\n')
     print(f'{len(cjk)} CJK characters')
 

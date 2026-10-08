@@ -34,6 +34,7 @@ const loaderStart = performance.now();
 // the blurred hero preview (chosen and preloaded in index.html) covers the wait for the 3D scene
 const preview = $('#preview');
 preview.src = document.documentElement.dataset.preview || 'posters/preview-dark-l.jpg';
+preview.classList.toggle('portrait', /-p\.jpg$/.test(preview.src));
 const previewReady = preview.decode().then(() => true, () => false);
 let previewOn = false;
 function hidePreview() { if (!previewOn) return; previewOn = false; preview.classList.add('off'); setTimeout(() => { preview.hidden = true; }, 1300); }

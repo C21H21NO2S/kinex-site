@@ -106,6 +106,8 @@ html.has-preview #gl { transition: none; }
 .preview { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100lvh; object-fit: cover; z-index: 0; pointer-events: none; opacity: 0; filter: blur(16px) saturate(1.06); transform: scale(1.06); transition: opacity .8s cubic-bezier(.22, 1, .36, 1); }
 .preview.on { opacity: 1; }
 .preview.off { opacity: 0; transition-duration: 1.2s; }
+/* phones get a sharp 2x preview with only a light blur: it can be on screen for a while on a slow connection */
+.preview.portrait { filter: blur(3px) saturate(1.04); transform: scale(1.015); }
 /* the first reveal runs in CSS, so it stays smooth while the 3D scene is still compiling */
 html.intro .hero > * { animation: kx-rise 1.4s cubic-bezier(.16, 1, .3, 1) both; }
 html.intro .hero > :nth-child(2) { animation-delay: .08s; }
@@ -424,17 +426,16 @@ html[data-lang="zh"] .curve .ct { font-family: var(--f-cn); font-size: 11.5px; }
 .sy-cloud div span { font: 500 11.5px/1.4 var(--f-mono); color: var(--fg-3); letter-spacing: .04em; }
 .sy-cloud .soon { margin-left: 4px; vertical-align: 0; }
 .sy-note { position: absolute; z-index: 2; right: 4%; bottom: 6%; display: inline-flex; align-items: center; gap: 8px; font: 500 12.5px/1.3 var(--f-sans); color: var(--fg-2); }
+/* phones: laptop, then the tablet below it (no overlap), each with its status on the clear space above it */
 @media (max-width: 760px) {
-  .diagram { height: auto; aspect-ratio: auto; padding: 96px 0 84px; }
-  .sy-laptop { position: relative; left: auto; top: auto; width: 82%; margin: 0 0 0 6%; }
-  .sy-laptop .sy-meta { justify-content: flex-start; }
+  .diagram { height: auto; aspect-ratio: auto; padding: 92px 7% 30px; display: flex; flex-direction: column; align-items: center; }
+  .sy-dev { position: relative; left: auto; right: auto; top: auto; bottom: auto; }
+  .sy-laptop { width: 100%; }
+  .sy-tablet { width: 50%; margin-top: 96px; }
+  .sy-meta { justify-content: center; }
   .sy-tablet .sy-os { display: none; }
-  .sy-tablet { left: auto; right: 6%; top: auto; bottom: 64px; width: 34%; }
-  .sy-tablet .sy-meta b { display: none; }
-    .sy-cloud { right: 6%; top: 18px; padding: 10px 12px; }
-  .sy-note { left: 6%; bottom: 22px; right: 6%; }
-  .sy-tablet { width: 30%; bottom: 58px; }
-  .diagram { padding-bottom: 96px; }
+  .sy-cloud { right: 6%; top: 18px; padding: 10px 12px; }
+  .sy-note { position: relative; left: auto; right: auto; bottom: auto; margin-top: 30px; justify-content: center; text-align: center; }
 }
 .badges { margin-top: var(--gap); display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); }
 .badge { padding: 22px 0 0; border-top: 1px solid var(--rule); }

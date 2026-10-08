@@ -104,14 +104,20 @@ export function initSync() {
       const gap = (lid.right + tab.left) / 2 - hr.left;
       c = [2 * gap - mid[0], mid[1] - bow];
     } else {
-      // phones: the tablet overlaps the laptop, so the link dips under the laptop and into the tablet's side
-      a = [lid.left - hr.left + lid.width * .3, lid.bottom - hr.top + 10]; b = [tab.left - hr.left, tab.top - hr.top + tab.height * .7];
-      c = [(a[0] + b[0]) / 2, Math.max(a[1], b[1]) + 34];
+      // phones: the tablet sits below the laptop; the link leaves the laptop's base on the left and turns into the
+      // tablet's side, clear of the tablet's status line
+      a = [tab.left - hr.left - 24, lid.bottom - hr.top + 12]; b = [tab.left - hr.left - 2, tab.top - hr.top + tab.height * .35];
+      c = [a[0], b[1]];
     }
     wire.setAttribute('d', `M${a[0]},${a[1]} Q${c[0]},${c[1]} ${b[0]},${b[1]}`);
-    const apex = [.25 * a[0] + .5 * c[0] + .25 * b[0], .25 * a[1] + .5 * c[1] + .25 * b[1]];
+    // the pill rides on the arc's apex (on phones, on the straight drop between the two devices)
+    const at = t => [(1 - t) ** 2 * a[0] + 2 * (1 - t) * t * c[0] + t * t * b[0], (1 - t) ** 2 * a[1] + 2 * (1 - t) * t * c[1] + t * t * b[1]];
+    const apex = at(narrow ? .26 : .5);
     // the pill rides just above the apex (on phones, an icon on it), so the packets stay visible
-    pill.style.left = apex[0] + 'px'; pill.style.top = (narrow ? apex[1] : apex[1] - pill.offsetHeight / 2 - 10) + 'px';
+    if (narrow) { // in the clear gap between the laptop's base and the tablet's status line
+      const meta = $('.sy-tablet .sy-meta').getBoundingClientRect();
+      pill.style.left = a[0] + 'px'; pill.style.top = (lid.bottom + meta.top) / 2 - hr.top + 'px';
+    } else { pill.style.left = apex[0] + 'px'; pill.style.top = apex[1] - pill.offsetHeight / 2 - 10 + 'px'; }
     // the cloud links to both devices: out of the laptop's side and the tablet's side, arriving square on the card
     const H = r => ({ l: r.left - hr.left, r: r.right - hr.left, t: r.top - hr.top, b: r.bottom - hr.top, cx: r.left - hr.left + r.width / 2, cy: r.top - hr.top + r.height / 2, h: r.height });
     const L2 = H(lid), T2 = H(tab), C2 = H(cr), pts = [a, b];

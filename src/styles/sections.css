@@ -153,7 +153,8 @@ html[data-lang="zh"] .md .out h6 { font-family: var(--f-cn); }
 .bcard .port:hover, .bcard.linking .port:active { transform: scale(1.4); background: var(--blue); }
 .bcard.drag .port { opacity: 0; }
 .bcard.target { box-shadow: inset 0 0 0 1.5px var(--cyan), 0 0 0 5px color-mix(in oklab, var(--cyan) 16%, transparent), 0 18px 34px -20px rgba(0,0,0,.6); }
-@media (hover: none) { .bcard .port { opacity: .75; transform: scale(.9); } }
+/* touch: a card shows its link points once tapped, instead of every card showing them all the time */
+@media (hover: none) { .bcard .port { opacity: 0; } .bcard.touched .port { opacity: .85; transform: scale(1); } }
 .links-svg .hit { stroke: transparent; stroke-width: 16; fill: none; pointer-events: stroke; cursor: pointer; }
 .links-svg .lk .ln { transition: stroke .2s; }
 .links-svg .lk:hover .ln { stroke: var(--cyan); }
@@ -197,7 +198,7 @@ html[data-lang="en"] .recall .sec-title { font-size: clamp(44px, 5.2vw, 84px); }
 }
 
 @media (max-width: 700px) {
-  .boardstage { height: calc((100vw - 2 * var(--m) - 24px) * 1.81 + 54px); max-height: 820px; }
+  .boardstage { height: calc((100vw - 2 * var(--m) - 24px) * 1.476 + 54px); max-height: min(700px, 66vh); max-height: min(700px, 66svh); }
   .brushes { left: 10px; right: 10px; transform: none; max-width: none; bottom: 10px; padding: 6px; gap: 4px; flex-wrap: wrap; justify-content: space-between; }
   .brush-list { order: 1; width: 100%; justify-content: space-between; }
   .brush { width: auto; flex: 1; padding: 6px 2px 7px; font-size: 10px; }
@@ -205,7 +206,7 @@ html[data-lang="en"] .recall .sec-title { font-size: clamp(44px, 5.2vw, 84px); }
   .swatches { order: 2; border: 0; padding: 4px 6px; gap: 10px; }
   .brush-acts { order: 3; }
   .brush-acts button { padding: 8px 10px; }
-  .paper { height: min(78vh, 640px); }
+  .paper { height: min(56vh, 460px); height: min(56svh, 460px); } /* leaves room above and below to scroll past it with a finger */
   .paper-hint { top: 34%; padding: 0 24px; }
 }
 

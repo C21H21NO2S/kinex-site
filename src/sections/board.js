@@ -4,15 +4,15 @@ import { t, getLang } from '../core/prefs.js';
 import { slideSVG } from '../core/art.js';
 
 // logical board size; each pane scales it to fit. Pane 0 has a portrait layout for phones.
-const SIZE = { land: [1200, 660], port: [420, 760] };
+const SIZE = { land: [1200, 660], port: [420, 620] }; // the phone board stays short enough to scroll past
 let LW = 1200, LH = 660;
 const CARDS = [
-  { id: 'topic', x: 500, y: 64, p: [150, 40], cls: 'topic', body: () => t('board.c5') },
-  { id: 'quote', x: 90, y: 190, w: 270, p: [14, 110, 250], cls: 'q', k: 'board.c1k', body: () => t('board.c1') },
-  { id: 'concept', x: 520, y: 250, w: 240, p: [190, 250, 216], cls: 'big', k: 'board.c2k', body: () => t('board.c2') },
-  { id: 'video', x: 880, y: 110, w: 230, p: [14, 360, 200], k: 'board.c3k', body: () => `<div class="thumb">${slideSVG(getLang())}</div>${t('board.c3')}` },
-  { id: 'formula', x: 860, y: 420, w: 230, p: [226, 430, 180], cls: 'f', k: 'board.c4k', body: () => t('board.c4') },
-  { id: 'ink', x: 250, y: 430, w: 210, p: [200, 600, 196], k: 'story.ink.idx', body: () => '<svg class="bink" viewBox="0 0 200 70"><path d="M14 18 C 13 30, 14 44, 15 58"/><path d="M13 19 C 22 18, 31 17, 38 18"/><path d="M15 38 C 21 37, 27 37, 33 38"/><path d="M48 50 C 56 50, 64 46, 63 41 C 61 35, 50 36, 48 45 C 47 54, 55 61, 66 56"/><path d="M80 42 C 96 41, 110 41, 124 42 M116 35 L 125 42 L 116 50"/><path d="M152 18 L 156 31 L 170 32 L 159 40 L 163 53 L 152 45 L 141 53 L 145 40 L 134 32 L 148 31 Z"/></svg>' },
+  { id: 'topic', x: 500, y: 64, p: [150, 30], cls: 'topic', body: () => t('board.c5') },
+  { id: 'quote', x: 90, y: 190, w: 270, p: [14, 86, 250], cls: 'q', k: 'board.c1k', body: () => t('board.c1') },
+  { id: 'concept', x: 520, y: 250, w: 240, p: [190, 206, 216], cls: 'big', k: 'board.c2k', body: () => t('board.c2') },
+  { id: 'video', x: 880, y: 110, w: 230, p: [14, 282, 200], k: 'board.c3k', body: () => `<div class="thumb">${slideSVG(getLang())}</div>${t('board.c3')}` },
+  { id: 'formula', x: 860, y: 420, w: 230, p: [226, 340, 180], cls: 'f', k: 'board.c4k', body: () => t('board.c4') },
+  { id: 'ink', x: 250, y: 430, w: 210, p: [200, 470, 196], k: 'story.ink.idx', body: () => '<svg class="bink" viewBox="0 0 200 70"><path d="M14 18 C 13 30, 14 44, 15 58"/><path d="M13 19 C 22 18, 31 17, 38 18"/><path d="M15 38 C 21 37, 27 37, 33 38"/><path d="M48 50 C 56 50, 64 46, 63 41 C 61 35, 50 36, 48 45 C 47 54, 55 61, 66 56"/><path d="M80 42 C 96 41, 110 41, 124 42 M116 35 L 125 42 L 116 50"/><path d="M152 18 L 156 31 L 170 32 L 159 40 L 163 53 L 152 45 L 141 53 L 145 40 L 134 32 L 148 31 Z"/></svg>' },
 ];
 const LINKS = [['topic', 'quote'], ['topic', 'concept'], ['concept', 'video'], ['concept', 'formula'], ['quote', 'ink']];
 const PORTS = '<i class="port t"></i><i class="port r"></i><i class="port b"></i><i class="port l"></i>';
@@ -260,6 +260,7 @@ export function initBoard() {
         if (tick) { gsap.ticker.remove(tick); tick = null; }
         start = { px: e.clientX, py: e.clientY, x: pos[id].x, y: pos[id].y }; last = { x: e.clientX, y: e.clientY, t: performance.now() };
         el.classList.add('drag'); el.style.zIndex = 5;
+        panes[0].querySelectorAll('.bcard.touched').forEach(c => c !== el && c.classList.remove('touched')); el.classList.add('touched');
         stage.querySelector('.hint')?.remove();
         document.querySelector('.board .hint')?.classList.add('used');
       });
