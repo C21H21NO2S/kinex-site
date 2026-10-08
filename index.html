@@ -25,14 +25,13 @@
     r.dataset.theme = theme === 'light' ? 'light' : 'dark';
     r.dataset.lang = lang === 'en' ? 'en' : 'zh';
     r.lang = lang === 'en' ? 'en' : 'zh-CN';
-    // a small, blurred render of the hero shows while the live scene boots; fetch it with the first requests
-    var pv = 'posters/preview-' + r.dataset.theme + '-' + (innerWidth / innerHeight < .95 ? 'p' : 'l') + '.jpg', l = document.createElement('link');
-    l.rel = 'preload'; l.as = 'image'; l.href = pv; document.head.appendChild(l); r.dataset.preview = pv;
+    // the first screen stays hidden until its fonts are in (main.js lifts this; a CSS failsafe does after 2.5 s)
+    r.classList.add('booting');
   })();
 </script>
 <!-- start the first-screen fonts with the scripts and styles, not after the stylesheet has been read (the serif face is
      only drawn inside the 3D scene, so it loads with the scene instead of competing with the first screen) -->
-<link rel="preload" href="fonts/noto-sans-sc.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/noto-sans-sc-hero.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/lxgw-neo-zhisong.woff2" as="font" type="font/woff2" crossorigin>
@@ -43,14 +42,8 @@
 <body>
 <a class="skip" href="#read" data-i18n="skip">跳到正文</a>
 
-<!-- loader: the mark assembles from its pieces -->
-<div class="loader" id="loader" aria-hidden="true">
-  <div class="loader-mark" id="loaderMark"></div>
-  <div class="loader-bar"><i id="loaderBar"></i></div>
-</div>
-
 <canvas id="gl" aria-hidden="true"></canvas>
-<img class="preview" id="preview" alt="" aria-hidden="true" decoding="async">
+<div class="boot-sketch" id="boot-sketch" aria-hidden="true"></div>
 
 <header class="nav" id="nav">
   <a class="brand" href="#top" aria-label="KineX"><span class="brand-mark" data-logo="22"></span><span>KineX</span></a>

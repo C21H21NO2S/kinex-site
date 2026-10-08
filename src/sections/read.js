@@ -32,14 +32,14 @@ const ART = {
     </div>`,
   epub: () => `
     <div class="art epub">
-      <div class="spread">
+      <div class="spread${epubFont === 'wk' ? ' wk' : ''}">
         <div class="pg l"><span class="cap">${T('星', 'S')}</span><p class="serif-t">${T('星光走了几千年，才把这份记录带到你眼前。天文学家用光谱读出它的成分。', 'tarlight travels for millennia to bring you its record. Astronomers read its make-up from the spectrum.')}</p><div class="ln"></div><div class="ln m"></div></div>
         <div class="pg r"><p class="serif-t">${T('每一条暗线，都是一种元素留下的指纹：氢、钙、铁……', 'Every dark line is the fingerprint of an element: hydrogen, calcium, iron…')}</p><div class="ln"></div><div class="ln"></div><div class="ln s"></div><span class="pno">212</span></div>
       </div>
       <div class="aa">
         <div class="aa-h"><b>Aa</b><span>${T('阅读设置', 'Reading')}</span></div>
         <div class="aa-row"><span>A</span><div class="slider"><i></i></div><span class="big">A</span></div>
-        <div class="aa-fonts"><span class="on">${T('原版', 'Original')}</span><span>${T('黑体', 'Sans')}</span><span>${T('导入', 'Custom')}</span></div>
+        <div class="aa-fonts"><button type="button" data-font="orig"${epubFont === 'orig' ? ' class="on"' : ''}>${T('原版', 'Original')}</button><button type="button" data-font="wk"${epubFont === 'wk' ? ' class="on"' : ''}>${T('霞鹜文楷', 'LXGW WenKai')}</button><span>${T('导入', 'Custom')}</span></div>
       </div>
     </div>`,
   web: () => `
@@ -106,6 +106,8 @@ L = 4*pi*R**2*sigma*T**4
     </div>`,
 };
 
+// the e-book plate's typeface: LXGW WenKai, as KineX can set a book in, or the book's own
+let epubFont = 'wk';
 function paint() {
   document.querySelectorAll('article[data-plate]').forEach(pl => { pl.querySelector('.plate-art').innerHTML = ART[pl.dataset.plate](); });
 }
@@ -113,6 +115,15 @@ function paint() {
 export function initRead() {
   paint();
   addEventListener('kx:lang', paint);
+  document.querySelector('article[data-plate="epub"]')?.addEventListener('click', e => {
+    const b = e.target.closest('.aa-fonts [data-font]');
+    if (!b || b.dataset.font === epubFont) return;
+    epubFont = b.dataset.font;
+    const art = b.closest('.epub'), spread = art.querySelector('.spread');
+    art.querySelectorAll('.aa-fonts [data-font]').forEach(x => x.classList.toggle('on', x === b));
+    spread.classList.toggle('wk', epubFont === 'wk');
+    spread.classList.remove('swap'); void spread.offsetWidth; spread.classList.add('swap'); // the pages settle into the new face
+  });
   const pin = document.getElementById('readPin'), rail = document.getElementById('readRail');
   const num = document.getElementById('readNum'), prog = document.getElementById('readProg');
   const plates = [...rail.children];

@@ -13,7 +13,6 @@ const PLATE = 'M43.5 2.75 Q50 -1 56.5 2.75 L87.68 20.75 Q94.17 24.5 94.17 32 L94
 let uid = 0;
 const defs = (id, kStops) => `<defs><radialGradient id="p${id}" cx="94" cy="2" r="118" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#7DEBFB"/><stop offset="0.1" stop-color="#67E8F9"/><stop offset="0.3" stop-color="#22D3EE"/><stop offset="0.56" stop-color="#0EA5E9"/><stop offset="0.84" stop-color="#2563EB"/><stop offset="1" stop-color="#4338CA"/></radialGradient><radialGradient id="k${id}" cx="94" cy="2" r="118" gradientUnits="userSpaceOnUse">${kStops}</radialGradient></defs>`;
 const K_E10 = '<stop offset="0" stop-color="#4740D4"/><stop offset="0.55" stop-color="#3730A3"/><stop offset="1" stop-color="#312E81"/>';
-const K_LAUNCH_DARK = '<stop offset="0" stop-color="#7C83FF"/><stop offset="0.55" stop-color="#5B5CEB"/><stop offset="1" stop-color="#4338CA"/>';
 
 // Static mark for the header/footer: E10 colours, plate shown only on dark (CSS).
 export function logoSVG() {
@@ -21,8 +20,12 @@ export function logoSVG() {
   return `<svg class="mark" viewBox="5.83 -1 88.34 102" role="img" aria-label="KineX">${defs(id, K_E10)}<path class="plate" d="${PLATE}" fill="#F5F5F7"/>${PIECES_LIGHT.map(d => `<path d="${d}" fill="url(#p${id})"/>`).join('')}${PIECES_K.map(d => `<path d="${d}" fill="url(#k${id})"/>`).join('')}</svg>`;
 }
 
-// Loader mark: pieces are separate groups so they can fly in. Dark uses the launch-animation K (lighter indigo).
-export function loaderSVG(dark) {
-  const all = PIECES_K.map(d => ['k', d]).concat(PIECES_LIGHT.map(d => ['p', d]));
-  return all.map(([t, d], i) => { const id = 'kl' + (++uid); return `<svg class="lp lp-${i}" viewBox="8 2 84 96" aria-hidden="true">${defs(id, dark ? K_LAUNCH_DARK : K_E10)}<path d="${d}" fill="url(#${t}${id})"/></svg>`; }).join('');
+// The header mark as separate layers (plate, then each piece), so it can assemble in place on first load. Same
+// viewBox and colours as logoSVG(): once assembled it is indistinguishable from it.
+export function logoPiecesSVG() {
+  const svg = (cls, inner) => `<svg class="lp ${cls}" viewBox="5.83 -1 88.34 102" aria-hidden="true">${inner}</svg>`;
+  const id = 'kn' + (++uid);
+  return svg('lp-plate', `<path d="${PLATE}" fill="#F5F5F7"/>`)
+    + PIECES_K.map((d, i) => svg('lp-' + i, `${defs(id + i, K_E10)}<path d="${d}" fill="url(#k${id + i})"/>`)).join('')
+    + PIECES_LIGHT.map((d, i) => svg('lp-' + (i + 3), `${defs(id + 'p' + i, K_E10)}<path d="${d}" fill="url(#p${id + 'p' + i})"/>`)).join('');
 }

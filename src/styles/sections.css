@@ -29,6 +29,12 @@
 html[data-lang="en"] .epub .cap { font: italic 400 58px/.8 var(--f-serif); }
 .epub .serif-t { font-size: 12px; }
 html[data-lang="en"] .epub .serif-t { font-size: 13.5px; }
+.epub .spread.wk .serif-t, .epub .spread.wk .cap { font-family: "LXGW WenKai", var(--f-cn-serif); font-weight: 400; }
+.epub .spread.wk .serif-t { font-size: 12.5px; }
+html[data-lang="en"] .epub .spread.wk .serif-t { font-size: 13px; line-height: 1.55; }
+html[data-lang="en"] .epub .spread.wk .cap { font: 400 50px/.86 "LXGW WenKai", var(--f-serif); }
+.epub .spread.swap .pg { animation: kx-swap .5s var(--ease); }
+@keyframes kx-swap { from { opacity: .25; } }
 .epub .pno { position: absolute; bottom: 12px; right: 18px; font: 500 9px/1 var(--f-mono); color: #9B968A; }
 .epub .aa { position: absolute; right: 9%; bottom: 8%; width: 58%; padding: 14px; border-radius: 14px; background: var(--panel-2); box-shadow: inset 0 0 0 1px var(--card-line), 0 24px 40px -20px rgba(0,0,0,.6); color: var(--fg); transition: transform .8s var(--ease); }
 .fmt.hot .epub .aa { transform: translateY(-8px); }
@@ -40,7 +46,10 @@ html[data-lang="en"] .epub .serif-t { font-size: 13.5px; }
 .slider i { position: absolute; left: 0; width: 58%; height: 100%; background: var(--fg); border-radius: 2px; }
 .slider i::after { content: ""; position: absolute; right: -7px; top: -6px; width: 14px; height: 14px; border-radius: 50%; background: var(--fg); }
 .aa-fonts { margin-top: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.aa-fonts span { padding: 7px 0; text-align: center; border-radius: 8px; font-size: 11px; color: var(--fg-2); box-shadow: inset 0 0 0 1px var(--card-line); }
+.aa-fonts span, .aa-fonts button { padding: 7px 0; text-align: center; border-radius: 8px; font: inherit; font-size: 11px; color: var(--fg-2); background: none; border: 0; box-shadow: inset 0 0 0 1px var(--card-line); white-space: nowrap; transition: background .35s var(--ease), color .35s var(--ease), box-shadow .35s var(--ease); }
+.aa-fonts button { cursor: pointer; }
+.aa-fonts button:not(.on):hover { color: var(--fg); box-shadow: inset 0 0 0 1px var(--fg-3); }
+.aa-fonts button[data-font="wk"] { font-family: "LXGW WenKai", var(--f-cn-serif); }
 .aa-fonts .on { background: var(--fg); color: var(--bg); box-shadow: none; }
 
 /* Web clipping */

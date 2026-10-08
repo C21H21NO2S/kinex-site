@@ -6,6 +6,7 @@ import { Line2 } from 'three/addons/lines/Line2.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { makePage, makeCard, drawScreen, SCREEN, rng, VARIANTS } from './textures.js';
+import { heroPose, LINKED_POSE } from './pose.js';
 
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const smooth = t => t * t * (3 - 2 * t);
@@ -62,6 +63,11 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   const fill = new THREE.HemisphereLight(0x9aa6ff, 0x0a0a12, .35); scene.add(fill);
 
   // ---------------------------------------------------------------- tablet
+  // Cards are drawn in painter's order (see frame()), without testing depth against each other or the tablet, so
+  // they can never cut through one another. Everything in the scene therefore stays in the opaque queue, which is
+  // drawn in that order; the few blended things (card shadows, the screen's ink and sheen) blend from there.
+  const BLEND = { transparent: false, blending: THREE.CustomBlending, blendSrc: THREE.SrcAlphaFactor, blendDst: THREE.OneMinusSrcAlphaFactor };
+  const BLEND_ADD = { ...BLEND, blendDst: THREE.OneFactor };
   const tablet = new THREE.Group(); scene.add(tablet);
   const TW = 3.3, TH = 2.07, TD = .056, BEZ = .075, SW = TW - 2 * BEZ, SH = TH - 2 * BEZ, CR = .13;
   const rrShape = (w, h, r) => { const s = new THREE.Shape(), x = -w / 2, y = -h / 2; s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r); s.lineTo(x + w, y + h - r); s.quadraticCurveTo(x + w, y + h, x + w - r, y + h); s.lineTo(x + r, y + h); s.quadraticCurveTo(x, y + h, x, y + h - r); s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y); return s; };
@@ -81,8 +87,8 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   const camDot = new THREE.Mesh(new THREE.CircleGeometry(.012, 24), new THREE.MeshStandardMaterial({ color: 0x0b0d16, roughness: .2 }));
   camDot.position.set(0, TH / 2 - BEZ / 2, FRONT + .004); tablet.add(camDot);
   const sheenC = document.createElement('canvas'); sheenC.width = 512; sheenC.height = 512; { const c = sheenC.getContext('2d'), g = c.createLinearGradient(0, 0, 512, 512); g.addColorStop(.3, 'rgba(255,255,255,0)'); g.addColorStop(.42, 'rgba(255,255,255,.5)'); g.addColorStop(.5, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(0, 0, 512, 512); }
-  const sheen = new THREE.Mesh(planeUV(new THREE.ShapeGeometry(rrShape(SW, SH, .05), 24), SW, SH), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sheenC), transparent: true, opacity: .025, blending: THREE.AdditiveBlending, depthWrite: false }));
-  sheen.position.z = FRONT + .007; tablet.add(sheen);
+  const sheen = new THREE.Mesh(planeUV(new THREE.ShapeGeometry(rrShape(SW, SH, .05), 24), SW, SH), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sheenC), opacity: .025, ...BLEND_ADD, depthWrite: false }));
+  sheen.position.z = FRONT + .007; sheen.renderOrder = 3; tablet.add(sheen);
   // The screen UI is painted once per language. Uploading a 2D canvas to WebGL costs ~90 ms, so nothing on the
   // screen texture changes while scrolling; the pen's ink is a ribbon mesh revealed with a draw range.
   let screenInfo = null, screenLang = '';
@@ -136,7 +142,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     x.putImageData(img, 0, 0);
     const t = new THREE.CanvasTexture(c); t.wrapS = THREE.RepeatWrapping; t.anisotropy = 4; return t;
   })();
-  const inkMesh = new THREE.Mesh(inkGeo, new THREE.MeshBasicMaterial({ color: 0x0071E3, map: pencilTex, vertexColors: true, transparent: true, toneMapped: false, fog: false, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -8 }));
+  const inkMesh = new THREE.Mesh(inkGeo, new THREE.MeshBasicMaterial({ color: 0x0071E3, map: pencilTex, vertexColors: true, ...BLEND, toneMapped: false, fog: false, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -8 }));
   inkMesh.position.z = FRONT + .0045; inkMesh.renderOrder = 2; tablet.add(inkMesh);
   const PEN_Z = FRONT + .008;
   const inkStart = V(...toLocal(STROKES[0][0][0], STROKES[0][0][1]), PEN_Z), inkEnd = V(...toLocal(...STROKES.at(-1).at(-1).slice(0, 2)), PEN_Z);
@@ -169,20 +175,24 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   // in order, no two fragments carry the same content. Variant 0 of quote and flash belongs to the hero cards.
   const KINDS = ['page', 'quote', 'page', 'video', 'concept', 'page', 'flash', 'note', 'page', 'quote', 'concept', 'page', 'video', 'flash', 'page', 'note', 'quote', 'page', 'concept', 'video', 'page', 'flash', 'note', 'quote', 'concept', 'video'];
   const FIRST = { quote: 1, flash: 1 };
-  const backMat = new THREE.MeshStandardMaterial({ color: 0xefeadf, roughness: .95 });
+  const backMat = new THREE.MeshStandardMaterial({ color: 0xefeadf, roughness: .95, depthTest: false, depthWrite: false });
   const planeGeo = new THREE.PlaneGeometry(1, 1);
   const shadowTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d');
     x.filter = 'blur(14px)'; x.fillStyle = '#000'; x.fillRect(30, 30, 68, 68); const t = new THREE.CanvasTexture(c); return t; })();
-  const shadowMat = new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, opacity: .3, depthWrite: false, toneMapped: false });
+  const shadowMat = new THREE.MeshBasicMaterial({ map: shadowTex, ...BLEND, opacity: .3, depthTest: false, depthWrite: false, toneMapped: false });
   // a card is a front plane (its texture) and a back plane; two draw calls instead of six
   const rrGeos = new Map();
   const rrGeo = (w, h) => { const k = `${w.toFixed(3)}x${h.toFixed(3)}`; if (!rrGeos.has(k)) rrGeos.set(k, planeUV(new THREE.ShapeGeometry(rrShape(w, h, Math.min(w, h) * .045), 6), w, h)); return rrGeos.get(k); };
+  const cardOcc = [], cardOccMat = new THREE.MeshBasicMaterial({ colorWrite: false, side: THREE.DoubleSide });
   function cardMesh(w, h, mat) {
+    mat.depthTest = mat.depthWrite = false; // painter's order (frame())
     const g = new THREE.Group();
     const geo = rrGeo(w, h);
     const front = new THREE.Mesh(geo, mat); g.add(front);
     const back = new THREE.Mesh(geo, backMat); back.rotation.y = Math.PI; back.position.z = -.002; g.add(back);
     const sh = new THREE.Mesh(planeGeo, shadowMat); sh.scale.set(w * 1.9, h * 1.75, 1); sh.position.set(w * .03, -h * .06, -.06); sh.renderOrder = -1; g.add(sh);
+    // its depth, drawn before the threads so a card in front still hides them (the line scene is built later)
+    const occ = new THREE.Mesh(geo, cardOccMat); occ.matrixAutoUpdate = false; occ.renderOrder = -2; cardOcc.push([occ, g]);
     return g;
   }
   // cheap depth of field: sample the card texture from a blurrier mip level the further it is from focus
@@ -236,15 +246,15 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     scene.add(m);
   }
   const LINKED = [
-    ['ink', V(-1.32, 1.4, .55), new THREE.Euler(.06, .2, .05), 'hl', V(-.12, -.24, 0), 1],
-    ['cover', V(1.22, 1.5, .6), new THREE.Euler(.04, -.1, -.06), [1500, 200], V(.1, -.24, 0), -1],
-    ['flash', V(2.12, -.78, .55), new THREE.Euler(-.05, -.25, .04), [1420, 640], V(-.36, -.04, 0), -1],
+    ['ink', V(...LINKED_POSE[0].local), new THREE.Euler(...LINKED_POSE[0].tilt), 'hl', V(-.12, -.24, 0), 1],
+    ['cover', V(...LINKED_POSE[1].local), new THREE.Euler(...LINKED_POSE[1].tilt), [1500, 200], V(.1, -.24, 0), -1],
+    ['flash', V(...LINKED_POSE[2].local), new THREE.Euler(...LINKED_POSE[2].tilt), [1420, 640], V(-.36, -.04, 0), -1],
   ];
   const linkedCards = LINKED.map(([kind, local, tilt, src, anchor, bow], j) => {
     const tex = fragTexture(kind, 0), w = .78, h = w * tex.image.height / tex.image.width;
     const mat = blurMat({ map: tex, roughness: .85, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: .12 });
     const m = cardMesh(w, h, mat);
-    const f = { m, kind, variant: 0, mat, w, h, s0: 1, local, tilt, base: V(0, 0, 0), rot: new THREE.Euler(), phase: j * 2, speed: .25, graph: V(0, 0, 0), linked: true, src, anchor, bow };
+    const f = { m, kind, variant: 0, mat, w, h, s0: 1, local, tilt, base: V(0, 0, 0), rot: new THREE.Euler(), phase: LINKED_POSE[j].phase, speed: .25, graph: V(0, 0, 0), linked: true, src, anchor, bow };
     frags.push(f); scene.add(m); return f;
   });
   const liftTex = fragTexture('quote', 0);
@@ -262,7 +272,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   // Cards must never pass through each other: any two whose extents overlap while sitting at nearly the same depth
   // are pushed apart along the axis that needs the smallest move (usually depth, so the layout barely changes).
   function separate(items, depth) {
-    for (let it = 0; it < 40; it++) {
+    for (let it = 0; it < 120; it++) {
       let moved = false;
       for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++) {
         const A = items[i], B = items[j];
@@ -285,16 +295,19 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   function layout() {
     const aspect = vw() / vh(), portrait = aspect < .95;
     LY.portrait = portrait;
+    // the opening pose comes from pose.js, which the line sketch drawn before the scene uses too
+    const HP = heroPose(aspect);
+    LY.TPOS = V(...HP.TPOS); LY.TROT = new THREE.Euler(...HP.TROT);
+    LY.P0 = { pos: V(...HP.P0.pos), look: V(...HP.P0.look), fov: HP.P0.fov };
     if (!portrait) {
-      LY.TPOS = V(1.95, -.18, 0); LY.TROT = new THREE.Euler(-.2, -.3, 0);
-      LY.P0 = { pos: V(-.7, 1.7, 12.6), look: V(1.05, -.12, 0), fov: 20 };
       LY.P3 = { pos: V(.85, 4.1, 21), look: V(1.2, 1.15, -2), fov: 28 };
       LY.look1 = V(-1.6, -.45, 0); LY.d1 = 7.9; LY.look2 = V(-.62, -.1, 0); LY.d2 = 5.6;
-      LY.hub = V(1.25, 1.65, -3.4); LY.textZone = (sx, sy) => sx < .47 && sy > .3;
+      LY.hub = V(1.25, 1.65, -3.4);
+      // keep the cards off the first screen's copy (where it actually is), not off the whole left half
+      const rs = [...(document.querySelector('.hero')?.children || [])].map(c => { const rg = document.createRange(); rg.selectNodeContents(c); return rg.getBoundingClientRect(); }).filter(r => r.width && r.height);
+      const zx = rs.length ? Math.min(.6, Math.max(...rs.map(r => r.right)) / vw() + .04) : .47, zy = rs.length ? Math.max(.2, Math.min(...rs.map(r => r.top)) / vh() - .06) : .3;
+      LY.textZone = (sx, sy) => sx < zx && sy > zy;
     } else {
-      const H = 4.6 / aspect, d = H / (2 * Math.tan(THREE.MathUtils.degToRad(13)));
-      LY.TPOS = V(.25, .7, 0); LY.TROT = new THREE.Euler(-.18, -.22, 0);
-      LY.P0 = { pos: V(-.3, 1.6, d), look: V(.25, -.95 * H / 4.6 + .1, 0), fov: 26 };
       LY.P3 = { pos: V(.2, 3.2, 30 + 6 / aspect), look: V(.2, 1.4, -2), fov: 30 };
       LY.look1 = V(0, -1.5, 0); LY.d1 = 8.6; LY.look2 = V(0, -1.25, 0); LY.d2 = 8.2;
       LY.hub = V(.2, 2.2, -3.4); LY.textZone = (sx, sy) => sy > .52;
@@ -326,20 +339,35 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     frags.forEach((f, i) => {
       const a = i * 2.39996 + RG() * .6, r = 2.4 + Math.sqrt((i + .5) / frags.length) * 3.6 + RG() * .5;
       const sx = portrait ? .62 : 1.4, sy = portrait ? 1.25 : .55;
-      f.graph.set(LY.hub.x + Math.cos(a) * r * sx, LY.hub.y + Math.sin(a) * r * sy, LY.hub.z + (RG() - .5) * 3.0);
+      f.graph.set(LY.hub.x + Math.cos(a) * r * sx, LY.hub.y + Math.sin(a) * r * sy, LY.hub.z + (RG() - .5) * 1.2); // a shallow layer: deeper, cards slide over each other as the camera moves
     });
-    separate(frags.map(f => ({ p: f.graph, w: f.w * f.s0 * 1.38, h: f.h * f.s0 * 1.38 })).concat([{ p: LY.hub.clone(), w: TW * .75 + .1, h: TH * .75 + .1, fixed: true }]), .5);
+    // apart side by side, not just in depth: seen from the constellation camera no card may sit on another (the
+    // lifted excerpt lands in the constellation too)
+    LY.liftGraph = V(LY.hub.x - 2.85, LY.hub.y + .55, LY.hub.z + .4);
+    const liftH = 1.15 * liftTex.image.height / liftTex.image.width;
+    separate(frags.map(f => ({ p: f.graph, w: f.w * f.s0 * 1.38 + .32, h: f.h * f.s0 * 1.38 + .3 })).concat([{ p: LY.hub.clone(), w: TW * .75 + .3, h: TH * .75 + .3, fixed: true }, { p: LY.liftGraph, w: 1.15 + .32, h: liftH + .3, fixed: true }]), 99);
     // hub threads fan out evenly as seen from the constellation camera: for each direction, the card nearest an
     // ideal point on a ring around the tablet (straight down is left to the headline)
     const cam3 = new THREE.PerspectiveCamera(LY.P3.fov, aspect, .1, 120);
     cam3.position.copy(LY.P3.pos); cam3.lookAt(LY.P3.look); cam3.updateMatrixWorld(); cam3.updateProjectionMatrix();
     const scr = v => { const q = v.clone().project(cam3); return [q.x * aspect, q.y]; };
     const hs = scr(LY.hub), fs = frags.map(f => scr(f.graph));
+    // a card whose middle, or the point where its thread would land, sits behind a nearer card is no target: the
+    // thread would seem to end on the card in front
+    const half = f => { const c = f.graph, e = scr(V(c.x + f.w * f.s0 * .69, c.y + f.h * f.s0 * .69, c.z)), s = scr(c); return [Math.abs(e[0] - s[0]), Math.abs(e[1] - s[1])]; };
+    const covers = (j, x, y) => { const hj = half(frags[j]); return Math.abs(fs[j][0] - x) < hj[0] + .01 && Math.abs(fs[j][1] - y) < hj[1] + .01; };
+    const hidden = i => {
+      const di = frags[i].graph.distanceTo(cam3.position), hi = half(frags[i]), dx = hs[0] - fs[i][0], dy = hs[1] - fs[i][1];
+      const k = .9 * Math.min(hi[0] / Math.max(1e-6, Math.abs(dx)), hi[1] / Math.max(1e-6, Math.abs(dy))), ax = fs[i][0] + dx * k, ay = fs[i][1] + dy * k;
+      if (frags.some((g, j) => j !== i && g.graph.distanceTo(cam3.position) < di && (covers(j, fs[i][0], fs[i][1]) || covers(j, ax, ay)))) return true;
+      // nor may the thread's last stretch run behind another card: it would seem to end there
+      return [.05, .12, .2, .28].some(u => frags.some((g, j) => j !== i && covers(j, ax + (hs[0] - ax) * u, ay + (hs[1] - ay) * u)));
+    };
     hubTargets.length = 0;
     [0, 40, 90, 140, 180, 220, 320].forEach(deg => {
       const ix = hs[0] + Math.cos(deg * Math.PI / 180) * (portrait ? .42 : .62), iy = hs[1] + Math.sin(deg * Math.PI / 180) * (portrait ? .5 : .5);
       let best = null, bd = 1e9;
-      frags.forEach((f, i) => { if (hubTargets.includes(f)) return; const d = Math.hypot(fs[i][0] - ix, fs[i][1] - iy) + Math.abs(f.graph.z - LY.hub.z) * .03; if (d < bd) { bd = d; best = f; } });
+      frags.forEach((f, i) => { if (hubTargets.includes(f) || hidden(i)) return; const d = Math.hypot(fs[i][0] - ix, fs[i][1] - iy) + Math.abs(f.graph.z - LY.hub.z) * .03; if (d < bd) { bd = d; best = f; } });
       if (best) hubTargets.push(best);
     });
     graphEdges.length = 0;
@@ -349,6 +377,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   // ---------------------------------------------------------------- threads
   const lineMats = [];
   const lineScene = new THREE.Scene();
+  cardOcc.forEach(([o]) => lineScene.add(o));
   const haloMats = [];
   function makeLine(width = .9, halo = false) {
     const g = new LineGeometry(); g.setPositions(new Array(24 * 3).fill(0));
@@ -368,31 +397,64 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   const graphLines = frags.map(() => makeLine());
   const hubLines = [0, 1, 2, 3, 4, 5, 6].map(() => makeLine(.9, true));
   const pulseGeo = new THREE.SphereGeometry(.022, 12, 8);
-  const pulseColor = new THREE.Color(2.2, 4.5, 5);
-  const pulseHaloMat = new THREE.MeshBasicMaterial({ color: 0x22d3ee, toneMapped: false, transparent: true, opacity: 0, depthTest: true, depthWrite: false, blending: THREE.AdditiveBlending });
+  const pulseColor = new THREE.Color(.45, .95, 1.05);
+  // the glow around a travelling pulse: a soft radial falloff, not a flat disc
+  const glowTex = (() => {
+    const c = document.createElement('canvas'); c.width = c.height = 64;
+    const x = c.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+    [[0, 1], [.18, .62], [.42, .2], [.7, .05], [1, 0]].forEach(([o, a]) => g.addColorStop(o, `rgba(255,255,255,${a})`));
+    x.fillStyle = g; x.fillRect(0, 0, 64, 64);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  })();
+  const pulseHaloMat = new THREE.SpriteMaterial({ map: glowTex, color: 0x22d3ee, toneMapped: false, transparent: true, opacity: 0, depthTest: true, depthWrite: false, blending: THREE.AdditiveBlending });
   const pulseHaloMats = [];
   const pulses = heroLinks.concat(hubLines).map((_, i) => {
     const s = new THREE.Mesh(pulseGeo, new THREE.MeshBasicMaterial({ color: pulseColor, toneMapped: false, transparent: true, depthTest: true, depthWrite: false }));
     const hm = pulseHaloMat.clone(); pulseHaloMats.push(hm);
-    const h = new THREE.Mesh(pulseGeo, hm); h.scale.setScalar(2.6); s.add(h); s.userData.halo = h;
-    s.scale.setScalar(1.35);
+    const h = new THREE.Sprite(hm); h.scale.setScalar(.2); s.add(h); s.userData.halo = h;
     s.userData.ph = i * .37 % 1; lineScene.add(s); return s;
   });
+  // anchors where the hero threads meet the screen and the cards: a small dot in a faint ring, lying on the surface
+  const anchorDot = new THREE.CircleGeometry(.015, 24), anchorRing = new THREE.RingGeometry(.027, .032, 40);
+  const anchorMats = [];
+  const anchors = heroLinks.map(() => [0, 1].map(() => {
+    const dot = new THREE.MeshBasicMaterial({ color: 0x22d3ee, toneMapped: false, transparent: true, opacity: 0, depthTest: true, depthWrite: false }), ring = dot.clone();
+    anchorMats.push(dot, ring);
+    const g = new THREE.Group(); g.add(new THREE.Mesh(anchorDot, dot), new THREE.Mesh(anchorRing, ring)); g.visible = false; lineScene.add(g); return g;
+  }));
+  // k: how far it has appeared — the dot grows in and its ring closes in on it, a quiet lock-on
+  function setAnchor(g, pos, quat, opacity, k = 1) {
+    const e = 1 - (1 - k) ** 3;
+    g.visible = opacity * k > .01;
+    if (!g.visible) return;
+    g.position.copy(pos); g.quaternion.copy(quat);
+    g.children[0].scale.setScalar(.45 + .55 * e); g.children[0].material.opacity = opacity * .9 * Math.min(1, k * 1.6);
+    g.children[1].scale.setScalar(1 + 1.3 * (1 - e)); g.children[1].material.opacity = opacity * .38 * e;
+  }
   const tA = V(0, 0, 0), tC = V(0, 0, 0);
   const PTS = new Float32Array(24 * 3);
-  function arc(line, a, b, lift, opacity, pulse, t, ctrl) {
-    line.visible = opacity > .01;
+  // a thread from a to b (a quadratic arc); end < 1 draws only its first part, along the final curve, and the pulse
+  // then rides the tip (tip: its strength); once whole, the pulse travels along it (travel: its strength)
+  function arc(line, a, b, lift, opacity, pulse, t, ctrl, end = 1, tip = 0, travel = 1) {
+    line.visible = opacity > .01 && end > .002;
     if (line.userData.halo) line.userData.halo.visible = line.visible && T.k > .02;
     if (pulse) pulse.visible = line.visible;
     if (!line.visible) return;
     tC.copy(a).lerp(b, .5); if (ctrl) tC.add(ctrl); else { tC.y += lift; tC.z += lift * .6; }
-    for (let i = 0; i < 24; i++) { const u = i / 23, v = 1 - u, j = i * 3; PTS[j] = v * v * a.x + 2 * v * u * tC.x + u * u * b.x; PTS[j + 1] = v * v * a.y + 2 * v * u * tC.y + u * u * b.y; PTS[j + 2] = v * v * a.z + 2 * v * u * tC.z + u * u * b.z; }
+    for (let i = 0; i < 24; i++) { const u = i / 23 * end, v = 1 - u, j = i * 3; PTS[j] = v * v * a.x + 2 * v * u * tC.x + u * u * b.x; PTS[j + 1] = v * v * a.y + 2 * v * u * tC.y + u * u * b.y; PTS[j + 2] = v * v * a.z + 2 * v * u * tC.z + u * u * b.z; }
     const buf = line.userData.buf, arr = buf.array;
     for (let i = 0; i < 23; i++) { const o = i * 6, j = i * 3; arr[o] = PTS[j]; arr[o + 1] = PTS[j + 1]; arr[o + 2] = PTS[j + 2]; arr[o + 3] = PTS[j + 3]; arr[o + 4] = PTS[j + 4]; arr[o + 5] = PTS[j + 5]; }
     buf.needsUpdate = true;
     line.material.opacity = Math.min(1, opacity * (1 + (1 - T.k) * 1.4));
     if (line.userData.halo) line.userData.halo.material.opacity = opacity * .07 * T.k;
-    if (pulse) { const u = (t * .35 + pulse.userData.ph) % 1, v = 1 - u; pulse.position.set(v * v * a.x + 2 * v * u * tC.x + u * u * b.x, v * v * a.y + 2 * v * u * tC.y + u * u * b.y, v * v * a.z + 2 * v * u * tC.z + u * u * b.z); pulse.material.opacity = opacity * Math.sin(u * Math.PI); pulse.userData.halo.material.opacity = pulse.material.opacity * (.35 * T.k + .28 * (1 - T.k)); pulse.visible = opacity > .01; }
+    if (pulse) {
+      const drawing = end < 1, u = drawing ? end : (t * .35 + pulse.userData.ph) % 1, v = 1 - u;
+      pulse.position.set(v * v * a.x + 2 * v * u * tC.x + u * u * b.x, v * v * a.y + 2 * v * u * tC.y + u * u * b.y, v * v * a.z + 2 * v * u * tC.z + u * u * b.z);
+      pulse.scale.setScalar(Math.max(1, camera.position.distanceTo(pulse.position) / 12.5)); // the same size on screen near and far
+      pulse.material.opacity = opacity * (drawing ? tip : Math.sin(u * Math.PI) * travel);
+      pulse.userData.halo.material.opacity = pulse.material.opacity * (.42 * T.k + .5 * (1 - T.k)) * (drawing ? 1.6 : 1);
+      pulse.visible = pulse.material.opacity > .005;
+    }
   }
 
   // ---------------------------------------------------------------- render
@@ -409,7 +471,9 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   function render() {
     renderer.clear();
     renderer.render(scene, camera);
-    renderer.render(lineScene, camera); // depth kept: cards in front hide the threads behind them
+    // the cards wrote no depth: lay it down for the threads (depth kept, so the tablet and pen hide them too)
+    for (const [o, g] of cardOcc) { o.visible = g.visible; o.matrix.copy(g.matrixWorld); o.matrixWorldNeedsUpdate = true; }
+    renderer.render(lineScene, camera);
   }
 
   // ---------------------------------------------------------------- theme
@@ -428,19 +492,22 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     penMat.color.setRGB(.82 - k * .77, .82 - k * .772, .84 - k * .792);
     penMat.emissive.setRGB(k * .03, k * .03, k * .031);
     penMat.envMapIntensity = 1 + k * .2;
-    pulseColor.setRGB(.07 + k * 2.1, .3 + k * 4.2, .92 + k * 4.1);
-    linkedCards.forEach(f => { f.mat.emissiveIntensity = .18 + k * .0; });
-    frags.forEach(f => { if (!f.linked) f.mat.emissiveIntensity = .2 - k * .05; });
+    pulseColor.setRGB(.07 + k * .45, .3 + k * .68, .92 + k * .1); // light: the links' blue; dark: a pale cyan, never blown out
+    // light theme: the cards take less of the bright light (paper well below white, so it keeps its shading and the
+    // print its contrast); dark theme as before
+    frags.forEach(f => { f.mat.color.setScalar(.62 + .38 * k); f.mat.emissiveIntensity = f.linked ? .08 + k * .1 : .08 + k * .07; });
     heroLinks.forEach(l => { l.material.linewidth = 2.1 - k * .5; });
     lineMats.forEach(m => m.color.setRGB(.11 + .02 * k, .3 + .53 * k, .85 + .08 * k).multiplyScalar(1 + k * .25));
+    anchorMats.forEach(m => m.color.setRGB(.11 + .02 * k, .3 + .53 * k, .85 + .08 * k).multiplyScalar(1 + k * .1));
     haloMats.forEach(m => m.color.setRGB(.13, .83, .93));
     backMat.color.setRGB(.94 - k * .1, .92 - k * .1, .87 - k * .1);
-    liftMat.emissiveIntensity = .3 + k * .32; // the lifted excerpt is the subject: at least as bright as the screen it came from
     renderer.toneMappingExposure = 1.0 - k * .08;
   }
 
   // ---------------------------------------------------------------- frame
-  const S = { p: 0, target: 0, intro: reduceMotion ? 1 : 0, mode: 'story', joinK: 0 };
+  // intro: the camera's dolly-in (the opening now starts from the sketch's pose, so it rests at 1); links: the threads
+  // drawing out of the screen; par: how much the pointer sways the camera (eased in once the scene has appeared)
+  const S = { p: 0, target: 0, intro: 1, links: reduceMotion ? 1 : 0, par: reduceMotion ? 1 : 0, mode: 'story', joinK: 0 };
   const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
   addEventListener('pointermove', e => { mouse.tx = e.clientX / innerWidth - .5; mouse.ty = e.clientY / innerHeight - .5; }, { passive: true });
   const camPos = V(0, 0, 0), camLook = V(0, 0, 0), qWorld = new THREE.Quaternion(), qFace = new THREE.Quaternion();
@@ -448,7 +515,8 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
 
   const PROF = DBG0.has('prof') ? (window.__ft = []) : null;
   // the point on a card's border facing `toward`, so threads join cards edge to edge instead of crossing their faces
-  const eA = V(0, 0, 0), eB = V(0, 0, 0), eT = V(0, 0, 0);
+  const eA = V(0, 0, 0), eB = V(0, 0, 0), eT = V(0, 0, 0), tB = V(0, 0, 0);
+  const cardGroups = frags.map(f => f.m).concat([lift]), paint = [];
   function edgeOf(f, toward, out) {
     const lp = f.m.worldToLocal(eT.copy(toward));
     const k = 1 / Math.max(Math.abs(lp.x) / (f.w / 2), Math.abs(lp.y) / (f.h / 2), 1e-3);
@@ -490,7 +558,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     }
     if (!reduceMotion) {
       mouse.x += (mouse.tx - mouse.x) * .05; mouse.y += (mouse.ty - mouse.y) * .05;
-      camPos.x += Math.sin(t * .13) * .1 + mouse.x * .6; camPos.y += Math.cos(t * .11) * .06 - mouse.y * .4;
+      camPos.x += Math.sin(t * .13) * .1 + mouse.x * .6 * S.par; camPos.y += Math.cos(t * .11) * .06 - mouse.y * .4 * S.par;
     }
     camera.position.copy(camPos); camera.lookAt(camLook); camera.updateProjectionMatrix();
     const focusDist = camera.position.distanceTo(p < .42 ? (p < .3 ? tablet.position : circleC) : (p < .72 ? lift.position : tablet.position));
@@ -516,37 +584,68 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     lift.scale.setScalar(.25 + .75 * smooth(seg(p, .4, .52)));
     lift.visible = p > .4;
     const toGraph = ease(seg(p, .7, .95));
-    if (toGraph > 0) { tA.set(LY.hub.x - 2.85, LY.hub.y + .55, LY.hub.z + 1.2); lift.position.lerp(tA, toGraph); }
+    // The excerpt's brightness (untonemapped). As it leaves the page it is lit from within, as bright as the page it
+    // is peeled from (never darker than the tablet behind it); as it rises it becomes a card of its theme: lit like the
+    // others (light), or still mostly lit from within (dark), while the tablet dims behind it. In the constellation it
+    // is one card among the others.
+    const liftK = 1 - toGraph * (.12 * (1 - T.k) + .62 * T.k), lc = smooth(seg(lu, .1, .85));
+    liftMat.color.setScalar((.08 + lc * ((.58 * (1 - T.k) + .1 * T.k))) * liftK);
+    liftMat.emissiveIntensity = (.88 + lc * (-.88 * (1 - T.k) - .23 * T.k)) * liftK;
+    if (toGraph > 0) lift.position.lerp(LY.liftGraph, toGraph);
 
     // fragments
     frags.forEach((f, i) => {
       const d = reduceMotion ? 0 : Math.sin(t * f.speed + f.phase);
       tA.copy(f.base); tA.y += d * .12; tA.x += reduceMotion ? 0 : Math.cos(t * f.speed * .7 + f.phase) * .06;
       f.m.position.lerpVectors(tA, f.graph, toGraph);
-      f.m.rotation.set(f.rot.x * (1 - toGraph) + d * .04, f.rot.y * (1 - toGraph) + (reduceMotion ? 0 : Math.sin(t * .2 + i) * .05), f.rot.z * (1 - toGraph * .8));
-      if (toGraph > 0) f.m.quaternion.slerp(camera.quaternion, toGraph * .8);
+      // the cards square up to the camera early in their flight to the constellation: tilted cards crossing paths
+      // would cut through each other
+      const al = smooth(seg(toGraph, 0, .4));
+      f.m.rotation.set(f.rot.x * (1 - al) + d * .04, f.rot.y * (1 - al) + (reduceMotion ? 0 : Math.sin(t * .2 + (f.linked ? f.phase : i)) * .05), f.rot.z * (1 - al * .8));
+      if (toGraph > 0) f.m.quaternion.slerp(camera.quaternion, al * .8);
       f.m.scale.setScalar(f.s0 * (1 + toGraph * .38)); // cards grow a little in the constellation so they stay readable
       f.m.updateMatrixWorld();
       f.mat.userData.bias.value = Math.min(3.2, Math.max(0, Math.abs(camera.position.distanceTo(f.m.position) - focusDist) * .34 - .35)) * dofK;
     });
 
+    // painter's order: the cards behind the tablet's plane far to near, the tablet and pen, then the cards in front of
+    // it far to near (no card tests depth against another or the tablet, so none can cut through them)
+    const camFwd0 = tB.set(0, 0, -1).applyQuaternion(camera.quaternion), depthOf = o => eT.subVectors(o.position, camera.position).dot(camFwd0);
+    paint.length = 0;
+    for (const o of cardGroups) if (o.visible) paint.push([o, depthOf(o), eT.subVectors(o.position, tablet.position).dot(normal) > 0]);
+    paint.sort((a, b) => (a[2] - b[2]) || (b[1] - a[1]));
+    const front = paint.findIndex(it => it[2]), split = front < 0 ? paint.length : front;
+    paint.forEach((it, k) => { it[0].renderOrder = k < split ? k + 1 : k + 3; });
+    tablet.renderOrder = stylus.renderOrder = split + 1;
+    if (toGraph < .3) lift.renderOrder = paint.length + 4; // while it is the subject, the lifted excerpt is never covered
+
     // threads
-    const heroOn = (1 - seg(p, .08, .2)) * smooth(S.intro);
+    const heroOn = 1 - seg(p, .08, .2);
     const camFwd = V(0, 0, -1).applyQuaternion(camera.quaternion);
     linkedCards.forEach((f, i) => {
-      const reveal = smooth(clamp(S.intro * 3 - i * .55));
+      // S.links runs 0 → 1 linearly; each thread has its own window in it: its screen anchor appears, it is drawn
+      // along its final curve with the pulse at its tip, its card anchor locks on, then the pulse starts to travel
+      const s0 = i * .16, inOut = x => (x < .5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2);
+      const draw = inOut(seg(S.links, s0 + .04, s0 + .48)), land = seg(S.links, s0 + .44, s0 + .6);
       const a0 = f.src === 'hl' ? tablet.localToWorld(scrToLocal(hlB[0] + 4, hlB[1] + hlB[3] * .55)) : tablet.localToWorld(scrToLocal(f.src[0] * screenInfo.scale, f.src[1] * screenInfo.scale));
       a0.addScaledVector(normal, .02);
       const b0 = f.anchor.clone().applyQuaternion(f.m.quaternion).add(f.m.position);
       const dv = V(0, 0, 0).subVectors(b0, a0), len = dv.length();
       const ctrl = V(0, 0, 0).crossVectors(camFwd, dv).normalize().multiplyScalar(-f.bow * len * .42).addScaledVector(normal, .22);
-      b0.lerpVectors(a0, b0, reveal); // draw out from the screen
-      arc(heroLinks[i], a0, b0, 0, heroOn * .95 * (reveal > .02 ? 1 : 0), pulses[i], t, ctrl.multiplyScalar(reveal));
+      const on = heroOn * .95;
+      // the thread leaves a dot on the screen and lands on one at the card's edge (just above its face)
+      setAnchor(anchors[i][0], a0, qWorld, on, seg(S.links, s0, s0 + .1));
+      setAnchor(anchors[i][1], tA.set(0, 0, .004).applyQuaternion(f.m.quaternion).add(b0), f.m.quaternion, on, land);
+      const tip = smooth(seg(draw, 0, .12)) * (1 - smooth(seg(draw, .8, 1)));
+      arc(heroLinks[i], a0, b0, 0, on, pulses[i], t, ctrl, draw, tip, smooth(seg(S.links, s0 + .52, s0 + .68)));
     });
     const g = smooth(seg(p, .78, .98));
     graphLines.forEach((l, i) => { const e = graphEdges[i]; if (!e || g <= 0) { l.visible = false; return; } const A = frags[e[0]], B = frags[e[1]]; arc(l, edgeOf(A, B.m.position, eA), edgeOf(B, A.m.position, eB), .08, g * (.3 + (i % 4 === 0 ? .2 : 0)), null, t); });
     hubLines.forEach((l, i) => { const f = hubTargets[i]; if (!f) { l.visible = false; if (l.userData.halo) l.userData.halo.visible = false; pulses[heroLinks.length + i].visible = false; return; } const lp = tablet.worldToLocal(f.m.position.clone()); const k2 = 1 / Math.max(Math.abs(lp.x) / (TW / 2), Math.abs(lp.y) / (TH / 2), 1e-3); const edge = tablet.localToWorld(V(lp.x * k2, lp.y * k2, 0)); arc(l, edge, edgeOf(f, edge, eB), .3, g * .55, pulses[heroLinks.length + i], t); });
-    scrMat.color.setScalar(1 - T.k * .05 - hubK * (.43 * T.k + .08 * (1 - T.k))); // in the constellation the screen settles to the cards' brightness
+    // a touch below white (light theme) so the screen sits with the cards; it dims while the excerpt is lifted off it,
+    // and in the constellation it settles to the cards' brightness
+    const liftUp = smooth(seg(p, .4, .52)) * (1 - hubK);
+    scrMat.color.setScalar(1 - T.k * .05 - (1 - T.k) * .1 - liftUp * (.5 * T.k + .19 * (1 - T.k)) - hubK * (.65 * T.k + .07 * (1 - T.k)));
 
     const _t2 = performance.now();
     render();
@@ -570,7 +669,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
 
   // ---------------------------------------------------------------- loop + quality watchdog
   let running = false, raf = 0, frozen = null;
-  const t0 = performance.now();
+  let t0 = 0; // the scene clock starts with the first shown frame, so it opens exactly in the pose the sketch drew
   let slow = 0, samples = 0, lastT = 0;
   const listeners = { downgrade: null };
   function loop(now) {
@@ -580,11 +679,12 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     if (samples < 150 && S.mode !== 'off') { samples++; if (dt > 34) slow++; if (samples === 150 && slow > 60 && listeners.downgrade) listeners.downgrade(); }
     if (S.mode === 'off') return;
     S.p += (S.target - S.p) * (reduceMotion ? 1 : .085);
+    if (!t0) t0 = now;
     frame((now - t0) / 1000, S.mode === 'join' ? 1 : S.p);
   }
   function start() { if (!running) { running = true; raf = requestAnimationFrame(loop); } }
 
-  if (DBG0.has('prof')) window.__dbg = { scene, lineScene, tablet, stylus, frags, renderer, camera, frame, glass, screen, sheen, lift, render };
+  if (DBG0.has('prof')) window.__dbg = { scene, lineScene, tablet, stylus, frags, renderer, camera, frame, glass, screen, sheen, lift, liftMat, key, rim, fill, render };
   addEventListener('resize', resize);
   paintScreen(); layout(); resize(); applyTheme(T.k); setInk(0);
   // Warm-up while the loader covers the page: draw every object once (hidden and off-screen ones included) so
@@ -622,7 +722,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     get state() { return S; },
     set onStory(fn) { onStory = fn; },
     set onDowngrade(fn) { listeners.downgrade = fn; },
-    seek(p, t, intro = 1) { frozen = true; S.intro = intro; frame(t, p); },
+    seek(p, t, intro = 1) { frozen = true; S.intro = 1; S.links = intro; frame(t, p); },
     unfreeze() { frozen = null; },
     dispose() { cancelAnimationFrame(raf); renderer.dispose(); },
   };

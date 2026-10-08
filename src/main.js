@@ -1,10 +1,10 @@
-import { applyText, bindToggles, getLang, isDark } from './core/prefs.js';
+import { bindToggles, getLang, isDark } from './core/prefs.js';
 import { initScroll, gsap, ScrollTrigger, reduceMotion } from './core/scroll.js';
 import { initReveal } from './core/reveal.js';
 import { initLinks, initCursor } from './core/ui.js';
-import { logoSVG, loaderSVG } from './core/logo.js';
 import { detectTier, hasWebGL, GL_ATTRS } from './core/quality.js';
 import { ALL_TEXT } from './hero/textures.js';
+import { sketch, shown } from './boot.js';
 import { initRead } from './sections/read.js';
 import { initBoard } from './sections/board.js';
 import { initInk } from './sections/ink.js';
@@ -18,38 +18,15 @@ const seg = (p, a, b) => Math.min(1, Math.max(0, (p - a) / (b - a)));
 const scenePromise = hasWebGL() ? import('./hero/scene.js') : null;
 const nextFrame = () => new Promise(r => setTimeout(r, 0));
 
-// ---------------------------------------------------------------- static bits
-document.querySelectorAll('[data-logo]').forEach(el => { el.innerHTML = logoSVG(); });
-applyText();
+// ---------------------------------------------------------------- static bits (the logos and the copy: boot.js)
 bindToggles();
 initLinks();
 history.scrollRestoration = 'manual';
 
-// ---------------------------------------------------------------- loader: the mark assembles from its pieces
-// The loader animates with CSS (transform/opacity on the compositor), so it keeps moving while the main thread
-// builds the page and the 3D scene.
-const loader = $('#loader');
-$('#loaderMark').innerHTML = loaderSVG(isDark());
-const loaderStart = performance.now();
-// the blurred hero preview (chosen and preloaded in index.html) covers the wait for the 3D scene
-const preview = $('#preview');
-preview.src = document.documentElement.dataset.preview || 'posters/preview-dark-l.jpg';
-preview.classList.toggle('portrait', /-p\.jpg$/.test(preview.src));
-const previewReady = preview.decode().then(() => true, () => false);
-let previewOn = false;
-function hidePreview() { if (!previewOn) return; previewOn = false; preview.classList.add('off'); setTimeout(() => { preview.hidden = true; }, 1300); }
-
-async function exitLoader() {
-  const minShow = reduceMotion ? 0 : 1450; // the mark finishes assembling
-  await new Promise(r => setTimeout(r, Math.max(0, minShow - (performance.now() - loaderStart))));
-  // lift the loader onto the preview, never onto an empty background (wait a little for it on a slow link)
-  if (!scene && await Promise.race([previewReady, new Promise(r => setTimeout(() => r(false), 1500))])) {
-    previewOn = true; preview.classList.add('on'); document.documentElement.classList.add('has-preview');
-  }
-  loader.classList.add('leaving');
-  await new Promise(r => setTimeout(r, reduceMotion ? 0 : 420));
-  loader.classList.add('done');
-}
+// ---------------------------------------------------------------- opening
+// No loading screen. boot.js shows the first screen and sketches the 3D scene in pencil where it will appear; the
+// render develops inside the lines once it is ready.
+const html = document.documentElement;
 
 // ---------------------------------------------------------------- scroll
 initScroll();
@@ -90,11 +67,11 @@ paintStory(0);
 // ---------------------------------------------------------------- 3D scene
 let scene = null;
 const canvas = $('#gl');
-async function bootScene() {
+async function bootScene(sketch) {
   // the one WebGL context: it answers whether WebGL works, names the GPU for the tier, and the renderer reuses it
   let gl = null;
   try { gl = hasWebGL() ? canvas.getContext('webgl2', GL_ATTRS) : null; } catch (e) { gl = null; }
-  if (!gl) { canvas.remove(); fallbackPoster(); return; }
+  if (!gl) { canvas.remove(); fallbackPoster(sketch); return; }
   // canvas textures need their fonts; the scene builds everything else (and warms its GPU programs) meanwhile
   const faces = ['400 30px "Noto Serif SC"', '500 30px "Noto Sans SC"', '700 30px "Noto Sans SC"', '400 30px Inter', '500 30px Inter', '600 30px Inter', '400 30px "Instrument Serif"', 'italic 400 30px "Instrument Serif"', '500 30px "JetBrains Mono"'];
   const fontsReady = Promise.race([Promise.all(faces.map(f => document.fonts.load(f, ALL_TEXT).catch(() => {}))), new Promise(r => setTimeout(r, 5000))]);
@@ -106,12 +83,18 @@ async function bootScene() {
   scene.onDowngrade = () => { if (tier !== 'low' && !new URLSearchParams(location.search).get('q')) { try { sessionStorage.setItem('kx-q', 'low'); } catch (e) {} } };
   addEventListener('kx:lang', () => scene.refreshTextures());
   addEventListener('kx:theme', () => gsap.to(scene.T, { k: isDark() ? 1 : 0, duration: 1.1, ease: 'power2.inOut', onUpdate: () => scene.applyTheme(scene.T.k) }));
+  // the render develops inside the finished sketch (same pose: the scene's clock starts at its first frame), the
+  // lines fade off it, then the threads draw out of the screen and the pointer starts to sway the camera
+  await sketch?.drawn;
   scene.start();
   wireSceneScroll();
-  // with the preview up, the live scene appears under it already in its final pose and the preview fades off it
-  // (a focus pull); without one, the canvas fades in as the tablet flies in
-  if (previewOn) scene.state.intro = 1;
-  requestAnimationFrame(() => requestAnimationFrame(() => { document.documentElement.classList.add('gl-on'); hidePreview(); }));
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    html.classList.add('gl-on'); sketch?.hide();
+    if (!reduceMotion) {
+      gsap.to(scene.state, { links: 1, duration: 2.9, delay: .55, ease: 'none' }); // each thread eases within its own window
+      gsap.to(scene.state, { par: 1, duration: 2.4, delay: 1.3, ease: 'power1.inOut' });
+    }
+  }));
   // after a long jump, land on the new story position instead of animating the 3D story through to it
   addEventListener('kx:jumped', () => { scene.snap(); paintStory(scene.state.p); if (scene.state.p < .02) replayHero(); });
   window.__scene = scene;
@@ -127,8 +110,8 @@ function wireSceneScroll() {
   sync();
 }
 
-function fallbackPoster() {
-  hidePreview();
+function fallbackPoster(sketch) {
+  sketch?.hide();
   const img = $('#poster');
   img.src = `posters/hero-${isDark() ? 'dark' : 'light'}.jpg`;
   img.hidden = false;
@@ -141,24 +124,21 @@ function replayHero() {
 }
 
 // ---------------------------------------------------------------- go
+// until the scene drives the story overlays, the scroll position does
+ScrollTrigger.create({ trigger: '#story', start: 'top top', end: 'bottom bottom', onUpdate: self => { if (!scene) paintStory(self.progress); } });
 (async () => {
-  // Progressive start: the page (copy, fonts, sections) is revealed as soon as it is ready, and the 3D scene,
-  // the heaviest part of the boot (GPU programs compile on first draw), builds behind it and fades in when done.
-  // The hero copy animates in CSS, on the compositor, so the scene's long tasks cannot stall it.
+  // 1. the first screen is up (or coming up) from boot.js, with the scene sketched; three.js, preloaded with the
+  //    scripts, arrives and the scene builds
+  const booting = bootScene(sketch).catch(e => { console.error(e); fallbackPoster(sketch); });
+  // 2. the sections below the fold are set up between the scene's build steps
+  await shown;
   for (const init of [initRead, initBoard, initInk, initRecall, initSync]) { init(); await nextFrame(); }
   await document.fonts.ready;
   initReveal();
-  // until the scene drives the story overlays, the scroll position does
-  ScrollTrigger.create({ trigger: '#story', start: 'top top', end: 'bottom bottom', onUpdate: self => { if (scene) return; paintStory(self.progress); if (self.progress > .04) hidePreview(); } });
-  addEventListener('kx:theme', () => { if (previewOn) preview.src = preview.src.replace(/preview-(dark|light)/, `preview-${isDark() ? 'dark' : 'light'}`); });
   ScrollTrigger.sort();
   ScrollTrigger.refresh();
-  await exitLoader();
-  document.documentElement.classList.add('intro');
-  setTimeout(() => document.documentElement.classList.remove('intro'), 2400); // hand the elements back to GSAP (replayHero)
-  await nextFrame();
-  try { await bootScene(); } catch (e) { console.error(e); fallbackPoster(); }
+  await booting;
   ScrollTrigger.refresh();
-  if (scene && !reduceMotion && scene.state.intro < 1) gsap.to(scene.state, { intro: 1, duration: 2.6, ease: 'power2.out' });
-  else if (scene) scene.state.intro = 1;
+  // 3. the page is built: the pointer's follower can appear (it would stutter while the scene was building)
+  requestAnimationFrame(() => html.classList.add('settled'));
 })();
