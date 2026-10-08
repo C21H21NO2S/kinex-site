@@ -6,8 +6,6 @@
 
 ## 本地开发
 
-Windows 上直接双击 `启动KineX宣传网站.bat`：第一次会自动安装依赖，服务就绪后自动打开浏览器（http://localhost:5180）；关掉黑色窗口就停止服务。已经在运行时再双击，只会打开浏览器。
-
 ```bash
 npm install
 npm run dev        # http://127.0.0.1:5180

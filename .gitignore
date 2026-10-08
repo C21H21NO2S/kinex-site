@@ -3,3 +3,5 @@ dist/
 proposals/
 .DS_Store
 scripts/.font-src/
+# local Windows launcher, not part of the site
+*.bat
