@@ -2,7 +2,7 @@
 
 静态网站，中英双语、亮暗双主题，首屏是滚动驱动的 WebGL 场景。构建产物是纯静态文件，部署在 GitHub Pages，不需要服务器。
 
-线上地址：https://c21h21no2s.github.io/kinex-site/ （仓库 https://github.com/C21H21NO2S/kinex-site ）
+线上地址：https://kinexnote.com/ （仓库 https://github.com/C21H21NO2S/kinex-site ；旧地址 c21h21no2s.github.io/kinex-site/ 会自动跳转）
 
 ## 本地开发
 
@@ -21,16 +21,20 @@ URL 参数（调试用）：`?lang=zh|en`、`?theme=dark|light`、`?q=high|mid|l
 
 所有资源都用相对路径，放在子路径或自己的域名下都能用。
 
-### 以后绑定自己的域名
+### 域名
 
-1. 在域名服务商处加一条 CNAME 记录，指向 `c21h21no2s.github.io`（根域名则按 GitHub 文档加 A 记录）。
-2. 仓库 Settings → Pages → Custom domain 填入域名，等证书签发后勾选 **Enforce HTTPS**。
-3. 把 `index.html` 里 `og:image` 和 `og:url` 的地址改成新域名，推送即可。
+`kinexnote.com` 在 Spaceship 注册，DNS 也在 Spaceship（高级 DNS）：
+
+- `@` 的 4 条 A 记录：`185.199.108.153` / `109` / `110` / `111`，以及 4 条 AAAA：`2606:50c0:8000::153` / `8001` / `8002` / `8003`
+- `www` 的 CNAME：`c21h21no2s.github.io`（`www` 会自动跳到根域名）
+- TXT `_github-pages-challenge-C21H21NO2S`：GitHub 的域名所有权验证，**不要删**
+
+GitHub 侧：账号 Settings → Pages 里 `kinexnote.com` 已验证；仓库 Settings → Pages 的 Custom domain 是 `kinexnote.com`，并开启 Enforce HTTPS。用 Actions 部署，所以仓库里不需要 `CNAME` 文件。换域名时，同时改 `index.html` 里的 `og:image`、`og:url` 和 `canonical`。
 
 ## 上线前要填的
 
 - `src/config.js`：内测报名链接 `beta`、短片链接 `film`、`github`、`privacy`。留空时按钮会提示“即将开放”，GitHub 和隐私链接会自动隐藏。
-- `index.html` 里的 `og:image` / `og:url`：社交平台要求绝对地址，现在指向 GitHub Pages 地址，换域名时一起改。
+- `index.html` 里的 `og:image` / `og:url` / `canonical`：都指向 https://kinexnote.com/ ，换域名时一起改。
 
 ## 改文案
 
