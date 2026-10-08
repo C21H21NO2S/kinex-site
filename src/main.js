@@ -123,7 +123,7 @@ function wireSceneScroll() {
   ScrollTrigger.create({ trigger: '#story', start: 'top top', end: 'bottom bottom', onUpdate: self => scene.setStory(self.progress) });
   // keep rendering until the first section fully covers the canvas
   ScrollTrigger.create({ trigger: '#read', start: 'top top', onEnter: () => { inStory = false; sync(); }, onLeaveBack: () => { inStory = true; sync(); } });
-  ScrollTrigger.create({ trigger: '#join', start: 'top bottom', end: 'bottom top', onToggle: self => { inJoin = self.isActive; scene.setJoin(1); sync(); } });
+  ScrollTrigger.create({ trigger: '#join', start: 'top bottom', end: 'bottom top', onToggle: self => { inJoin = self.isActive; scene.setJoin(inJoin ? 1 : 0); sync(); } }); // the orbit is the join section's alone: it must not follow the camera back up the story
   sync();
 }
 

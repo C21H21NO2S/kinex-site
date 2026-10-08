@@ -198,13 +198,25 @@ export function makeCard(kind, lang, seed, v = 0) {
   } else if (kind === 'ink') {
     ctx.strokeStyle = 'rgba(37,99,235,.14)'; ctx.lineWidth = 3;
     for (let y = 60; y < h; y += 50) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
-    const ink = (pts, wd) => pencil(ctx, pts, wd, r, '30,27,45');
-    for (let k = 0; k < 2; k++) {
-      ink([[80, 110], [84, 300]], 13); ink([[80, 112], [175, 106]], 12); ink([[82, 200], [150, 197]], 12);
-      ink([[210, 250], [258, 252], [266, 218], [232, 206], [205, 234], [215, 292], [276, 286]], 12);
-      ink([[322, 222], [472, 224]], 11); ink([[445, 196], [480, 224], [446, 252]], 11);
-      ink([[540, 150], [556, 200], [606, 202], [566, 232], [580, 284], [540, 254], [500, 284], [514, 232], [474, 202], [524, 200], [540, 150]], 10);
-    }
+    // "Fe → ☆" in a soft graphite hand, centred on the card: a slightly leaning F, an e in one stroke, a quick arrow,
+    // and a star the way people draw one, in a single crossing stroke with sharp turns and a small overshoot
+    const ink = (pts, wd) => pencil(ctx, pts, wd, r, '33,31,43');
+    ink([[80, 96], [77, 160], [74, 228], [72, 300]], 12);
+    ink([[81, 100], [114, 96], [146, 93], [172, 92]], 11);
+    ink([[78, 196], [102, 194], [128, 192], [144, 192]], 10.5);
+    ink([[192, 252], [222, 250], [244, 244], [246, 222], [230, 206], [206, 207], [188, 226], [184, 256], [194, 284], [220, 296], [246, 290], [260, 278]], 11);
+    ink([[290, 232], [326, 228], [364, 224], [400, 222]], 10);
+    ink([[372, 200], [390, 211], [406, 222], [390, 235], [374, 247]], 10);
+    const sc = [506, 210], R = 78, rot = -.06;
+    const vs = [0, 1, 2, 3, 4].map(k => { const a = -Math.PI / 2 + k * Math.PI * 2 / 5 + rot, j = 1 + (r() - .5) * .07; return [sc[0] + Math.cos(a) * R * j, sc[1] + Math.sin(a) * R * j]; });
+    const star = [];
+    [0, 2, 4, 1, 3, 0].forEach((k, i, o) => {
+      const v = vs[k];
+      if (i) { const u = vs[o[i - 1]]; star.push([(u[0] + v[0]) / 2 + (r() - .5) * 2.5, (u[1] + v[1]) / 2 + (r() - .5) * 2.5]); }
+      star.push(v, v); // a doubled point keeps the turn sharp
+    });
+    star.push([vs[0][0] + (vs[0][0] - vs[3][0]) * .06, vs[0][1] + (vs[0][1] - vs[3][1]) * .06]); // carries on past the top
+    ink(star, 9.5);
   } else if (kind === 'cover') {
     const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#1E1B4B'); g.addColorStop(1, '#0B0A20'); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
     for (let i = 0; i < 90; i++) { ctx.fillStyle = `rgba(200,220,255,${r() * .7})`; ctx.fillRect(r() * w, r() * h, 2, 2); }
@@ -247,14 +259,65 @@ function drawClip(ctx, x, y, w, h, v, r) {
   ctx.restore();
 }
 
-// A graphite stroke: overlapping jittered dabs give a pencil tooth.
+// A graphite line drawn the way KineX's pencil draws it: a hand-smoothed path (Catmull-Rom with a slight tremor),
+// pressure that builds in and lifts off, soft dabs a tenth of the width apart whose alphas add up to a pressure
+// coverage, and the paper tooth masked inside the line, so the grain sits in the stroke and its edge stays clean.
+let toothTile = null;
+function tooth() {
+  if (toothTile) return toothTile;
+  const n = 128, c = new OffscreenCanvas(n, n), x = c.getContext('2d'), img = x.createImageData(n, n), r = rng(11);
+  const base = Float32Array.from({ length: n * n }, () => r());
+  for (let y = 0; y < n; y++) for (let xx = 0; xx < n; xx++) {
+    let sum = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) sum += base[((y + dy + n) % n) * n + ((xx + dx + n) % n)];
+    const v = Math.min(1, Math.max(0, (sum / 9 - .3) / .4));
+    img.data[(y * n + xx) * 4 + 3] = Math.round(255 * (1 - .55 * (1 - v)));
+  }
+  x.putImageData(img, 0, 0);
+  return (toothTile = c);
+}
+const tips = new Map();
+function tip(color) { // a soft-edged round tip with a faintly irregular outline, tinted
+  if (tips.has(color)) return tips.get(color);
+  const c = new OffscreenCanvas(64, 64), x = c.getContext('2d'), img = x.createImageData(64, 64);
+  for (let y = 0; y < 64; y++) for (let xx = 0; xx < 64; xx++) {
+    const px = (xx + .5 - 32) / 32, py = (y + .5 - 32) / 32, a = Math.atan2(py, px), edge = .91 + .035 * Math.sin(a * 5 + .8) + .028 * Math.cos(a * 11 - .3);
+    img.data[(y * 64 + xx) * 4 + 3] = Math.round(255 * Math.max(0, Math.min(1, (edge - Math.hypot(px, py)) / .3)));
+  }
+  x.putImageData(img, 0, 0); x.globalCompositeOperation = 'source-in'; x.fillStyle = `rgb(${color})`; x.fillRect(0, 0, 64, 64);
+  tips.set(color, c); return c;
+}
 export function pencil(ctx, pts, width, r, color = '42,40,56') {
-  const seg = [];
-  for (let i = 0; i < pts.length - 1; i++) { const [x0, y0] = pts[i], [x1, y1] = pts[i + 1], n = Math.max(2, Math.hypot(x1 - x0, y1 - y0) / 1.2); for (let k = 0; k < n; k++) seg.push([x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n]); }
-  seg.forEach(([x, y], i) => {
-    const t = i / seg.length, press = Math.sin(Math.PI * Math.min(1, t * 1.15)) * .7 + .3;
-    for (let k = 0; k < 3; k++) { ctx.fillStyle = `rgba(${color},${(.08 + r() * .16) * press})`; const s = width * press * (.4 + r() * .6); ctx.fillRect(x + (r() - .5) * width * .8, y + (r() - .5) * width * .8, s * .55, s * .55); }
-  });
+  const P = [];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[Math.max(0, i - 1)], b = pts[i], c = pts[i + 1], d = pts[Math.min(pts.length - 1, i + 2)];
+    const n = Math.max(2, Math.ceil(Math.hypot(c[0] - b[0], c[1] - b[1]) / 1.5));
+    for (let k = 0; k < n; k++) {
+      const t = k / n, t2 = t * t, t3 = t2 * t, cr = j => .5 * (2 * b[j] + (c[j] - a[j]) * t + (2 * a[j] - 5 * b[j] + 4 * c[j] - d[j]) * t2 + (3 * b[j] - a[j] - 3 * c[j] + d[j]) * t3);
+      P.push([cr(0), cr(1)]);
+    }
+  }
+  P.push(pts[pts.length - 1].slice());
+  let len = 0; const arc = P.map((q, i) => (len += i ? Math.hypot(q[0] - P[i - 1][0], q[1] - P[i - 1][1]) : 0));
+  const f1 = r() * 6.28, f2 = r() * 6.28, f3 = r() * 6.28;
+  const W = ctx.canvas.width, H = ctx.canvas.height, mask = new OffscreenCanvas(W, H), m = mask.getContext('2d'), T = tip(color);
+  const spacing = Math.max(.6, width * .1);
+  let next = 0;
+  for (let i = 1; i < P.length; i++) {
+    const [x0, y0] = P[i - 1], [x1, y1] = P[i], seg = arc[i] - arc[i - 1]; if (seg <= 0) continue;
+    const nx = -(y1 - y0) / seg, ny = (x1 - x0) / seg;
+    for (; next <= arc[i]; next += spacing) {
+      const u = (next - arc[i - 1]) / seg, sA = next, q = sA / (len || 1);
+      const env = Math.min(1, q / .14) ** .8 * Math.min(1, (1 - q) / .12) ** 1.2;          // builds in, lifts off
+      const p = Math.max(.12, .3 + .62 * env * (1 + .08 * Math.sin(sA / 29 + f3)));
+      const wob = .7 * Math.sin(sA / 21 + f1) + .35 * Math.sin(sA / 7.5 + f2);           // the hand's tremor
+      const x = x0 + (x1 - x0) * u + nx * wob, y = y0 + (y1 - y0) * u + ny * wob;
+      const w = width * (.42 + .58 * p), cover = .32 + .62 * p;
+      m.globalAlpha = 1 - Math.pow(1 - cover, spacing / w);
+      m.drawImage(T, x - w / 2, y - w / 2, w, w);
+    }
+  }
+  m.globalAlpha = 1; m.globalCompositeOperation = 'destination-in'; m.fillStyle = m.createPattern(tooth(), 'repeat'); m.fillRect(0, 0, W, H);
+  ctx.drawImage(mask, 0, 0);
 }
 
 // The KineX workspace as it looks in the app: top bar, reader pane (left) and whiteboard pane (right), in the app's

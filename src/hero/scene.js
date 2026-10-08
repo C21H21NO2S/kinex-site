@@ -27,7 +27,11 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   renderer.toneMapping = THREE.NeutralToneMapping;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(32, innerWidth / innerHeight, .4, 120);
+  // The canvas is sized in CSS to the large viewport (100lvh), so it does not change when a phone's address bar
+  // slides away. Everything is measured from the canvas itself: drawing at innerHeight while showing at 100lvh
+  // stretched the first screen on phones, and the hero changed size once the bar had gone.
+  const vw = () => canvas.clientWidth || innerWidth, vh = () => canvas.clientHeight || innerHeight;
+  const camera = new THREE.PerspectiveCamera(32, vw() / vh(), .4, 120);
   const pmrem = new THREE.PMREMGenerator(renderer);
   await yieldTask();
   scene.environment = pmrem.fromScene(new RoomEnvironment(), .04).texture;
@@ -98,12 +102,16 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   { const cx = 1484, cy = 222, R = 15, v = [0, 2, 4, 1, 3, 0].map(k => [cx + Math.cos(-Math.PI / 2 + k * 2 * Math.PI / 5) * R, cy + Math.sin(-Math.PI / 2 + k * 2 * Math.PI / 5) * R]);
     const pts = []; for (let e = 0; e < 5; e++) for (let i = 0; i < 9; i++) { const t = i / 9; pts.push([v[e][0] + (v[e + 1][0] - v[e][0]) * t, v[e][1] + (v[e + 1][1] - v[e][1]) * t, .75]); }
     pts.push([...v[5], .5]); pts.forEach((p, i) => { p[2] *= .45 + .55 * Math.sin(Math.PI * Math.min(1, (i + 1) / pts.length * 1.05)); }); STROKES.push(pts); }
-  const LIFT = 10, inkPos = [], inkIdx = [], timeline = [];
+  const LIFT = 10, inkPos = [], inkIdx = [], inkUv = [], inkCol = [], timeline = [];
   let vbase = 0;
   STROKES.forEach((pts, si) => {
     if (si > 0) for (let k = 1; k <= LIFT; k++) timeline.push({ lift: k / (LIFT + 1), a: STROKES[si - 1].at(-1), b: pts[0], count: inkIdx.length });
+    let arc = 0;
     pts.forEach((p, i) => {
-      const [x, y] = toLocal(p[0], p[1]), w = (1.4 + p[2] * 3.2) * SW / 1600;
+      if (i) arc += Math.hypot(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1]);
+      const [x, y] = toLocal(p[0], p[1]), w = (2 + p[2] * 3.6) * SW / 1600;
+      inkUv.push(arc / 32, 0, arc / 32, 1);                       // the grain runs along the stroke
+      const a = .62 + .38 * p[2]; inkCol.push(1, 1, 1, a, 1, 1, 1, a); // light pressure, lighter pigment
       const pa = toLocal(...pts[Math.max(0, i - 1)]), pb = toLocal(...pts[Math.min(pts.length - 1, i + 1)]);
       let tx = pb[0] - pa[0], ty = pb[1] - pa[1]; const l = Math.hypot(tx, ty) || 1; tx /= l; ty /= l;
       inkPos.push(x - ty * w / 2, y + tx * w / 2, 0, x + ty * w / 2, y - tx * w / 2, 0);
@@ -113,7 +121,22 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     vbase += pts.length * 2;
   });
   const inkGeo = new THREE.BufferGeometry(); inkGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(inkPos), 3)); inkGeo.setIndex(inkIdx); inkGeo.setDrawRange(0, 0);
-  const inkMesh = new THREE.Mesh(inkGeo, new THREE.MeshBasicMaterial({ color: 0x1E1B4B, transparent: true, opacity: .94, toneMapped: false, fog: false, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -8 }));
+  inkGeo.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(inkUv), 2));
+  inkGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(inkCol), 4));
+  // colour pencil: wax pigment caught on the paper tooth, a soft edge across the stroke, deeper where pressed
+  const pencilTex = (() => {
+    const W = 512, H = 64, c = document.createElement('canvas'); c.width = W; c.height = H;
+    const x = c.getContext('2d'), img = x.createImageData(W, H), rr = rng(23), base = Float32Array.from({ length: W * H }, () => rr());
+    for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+      let g = 0; for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) g += base[((j + dj + H) % H) * W + ((i + di + W) % W)];
+      g = Math.min(1, Math.max(0, (g / 9 - .28) / .44));
+      const v = j / (H - 1), edge = Math.min(1, Math.min(v, 1 - v) / .3), body = edge * edge * (3 - 2 * edge);
+      const o = (j * W + i) * 4; img.data[o] = img.data[o + 1] = img.data[o + 2] = 255; img.data[o + 3] = Math.round(255 * body * (.45 + .55 * g));
+    }
+    x.putImageData(img, 0, 0);
+    const t = new THREE.CanvasTexture(c); t.wrapS = THREE.RepeatWrapping; t.anisotropy = 4; return t;
+  })();
+  const inkMesh = new THREE.Mesh(inkGeo, new THREE.MeshBasicMaterial({ color: 0x0071E3, map: pencilTex, vertexColors: true, transparent: true, toneMapped: false, fog: false, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -8 }));
   inkMesh.position.z = FRONT + .0045; inkMesh.renderOrder = 2; tablet.add(inkMesh);
   const PEN_Z = FRONT + .008;
   const inkStart = V(...toLocal(STROKES[0][0][0], STROKES[0][0][1]), PEN_Z), inkEnd = V(...toLocal(...STROKES.at(-1).at(-1).slice(0, 2)), PEN_Z);
@@ -129,7 +152,9 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
 
   // stylus — S Pen–like: slim, matte
   const stylus = new THREE.Group(); scene.add(stylus);
-  const penMat = new THREE.MeshStandardMaterial({ color: 0x5a5b60, roughness: .62, metalness: .25 });
+  // a graphite-grey pen lit by the room around it (its own neutral environment light), so the cyan rim light of the
+  // dark theme does not tint it teal
+  const penMat = new THREE.MeshStandardMaterial({ color: 0x5a5b60, roughness: .5, metalness: .05, envMap: scene.environment, envMapIntensity: 1 });
   const nibMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1e, roughness: .7 });
   const L = 1.42;
   const addPen = (geo, mat, y, x = 0, z = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); stylus.add(m); };
@@ -258,7 +283,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   const hubTargets = [];
   const heroCam = new THREE.PerspectiveCamera(20, 1, .1, 120);
   function layout() {
-    const aspect = innerWidth / innerHeight, portrait = aspect < .95;
+    const aspect = vw() / vh(), portrait = aspect < .95;
     LY.portrait = portrait;
     if (!portrait) {
       LY.TPOS = V(1.95, -.18, 0); LY.TROT = new THREE.Euler(-.2, -.3, 0);
@@ -328,12 +353,12 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   function makeLine(width = .9, halo = false) {
     const g = new LineGeometry(); g.setPositions(new Array(24 * 3).fill(0));
     const mat = new LineMaterial({ color: 0x22d3ee, linewidth: width, transparent: true, opacity: 0, worldUnits: false, toneMapped: false, depthTest: true, depthWrite: false });
-    mat.resolution.set(innerWidth, innerHeight); lineMats.push(mat);
+    mat.resolution.set(vw(), vh()); lineMats.push(mat);
     const l = new Line2(g, mat); l.frustumCulled = false; lineScene.add(l);
     l.userData.buf = g.attributes.instanceStart.data; // reused every frame: setPositions() would allocate a new GPU buffer
     if (halo) { // same geometry, wider and additive: the glow that bloom used to add
       const hm = new LineMaterial({ color: 0x22d3ee, linewidth: width * 2.6, transparent: true, opacity: 0, worldUnits: false, toneMapped: false, depthTest: true, depthWrite: false, blending: THREE.AdditiveBlending });
-      hm.resolution.set(innerWidth, innerHeight); haloMats.push(hm);
+      hm.resolution.set(vw(), vh()); haloMats.push(hm);
       const h = new Line2(g, hm); h.frustumCulled = false; h.renderOrder = -.5; lineScene.add(h); l.userData.halo = h;
     }
     return l;
@@ -399,7 +424,10 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     shadowMat.opacity = .26 + k * .2;
     pulseHaloMats.forEach(m => { m.blending = k > .5 ? THREE.AdditiveBlending : THREE.NormalBlending; m.color.set(k > .5 ? 0x22d3ee : 0x2563eb); m.needsUpdate = true; });
     bodyMat.color.setRGB(.8 - k * .56, .81 - k * .56, .83 - k * .55);
-    penMat.color.setRGB(.82 - k * .5, .82 - k * .5, .84 - k * .5);
+    // light: pale grey; dark: deep graphite grey that takes little of the tinted lights and carries its own neutral glow
+    penMat.color.setRGB(.82 - k * .77, .82 - k * .772, .84 - k * .792);
+    penMat.emissive.setRGB(k * .03, k * .03, k * .031);
+    penMat.envMapIntensity = 1 + k * .2;
     pulseColor.setRGB(.07 + k * 2.1, .3 + k * 4.2, .92 + k * 4.1);
     linkedCards.forEach(f => { f.mat.emissiveIntensity = .18 + k * .0; });
     frags.forEach(f => { if (!f.linked) f.mat.emissiveIntensity = .2 - k * .05; });
@@ -454,7 +482,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     camPos.lerpVectors(a[1].pos, b[1].pos, u); camLook.lerpVectors(a[1].look, b[1].look, u);
     camera.fov = a[1].fov + (b[1].fov - a[1].fov) * u;
     // join bookend: a slow orbit around the constellation
-    if (S.joinK > 0) {
+    if (S.joinK > 0 && S.mode === 'join') {
       // a slow sway that always stays in front of the constellation (behind it, the cards show their rim-lit backs)
       const r = LY.P3.pos.z - LY.P3.look.z;
       tA.set(LY.P3.pos.x + Math.sin(t * .09) * r * .12, LY.P3.pos.y + .4 + Math.sin(t * .07) * .5, LY.P3.look.z + r * (.9 + .04 * Math.cos(t * .05)));
@@ -527,13 +555,17 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     if (PROF) PROF.push([+p.toFixed(3), +(_t1 - _t0).toFixed(1), +(_t2 - _t1).toFixed(1), +(_t3 - _t2).toFixed(1), 0, _t0]);
   }
 
+  let lastSize = '';
   function resize() {
+    const w = vw(), h = vh(), key = w + 'x' + h;
+    if (key === lastSize) return; // the address bar moved; the canvas did not
+    lastSize = key;
     const prev = LY.portrait;
-    renderer.setSize(innerWidth, innerHeight, false);
-    camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
-    lineMats.concat(haloMats).forEach(m => m.resolution.set(innerWidth, innerHeight));
-    if (prev === undefined || prev !== (innerWidth / innerHeight < .95)) layout();
-    else { heroCam.aspect = innerWidth / innerHeight; heroCam.updateProjectionMatrix(); }
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+    lineMats.concat(haloMats).forEach(m => m.resolution.set(w, h));
+    if (prev === undefined || prev !== (w / h < .95)) layout();
+    else { heroCam.aspect = w / h; heroCam.updateProjectionMatrix(); }
   }
 
   // ---------------------------------------------------------------- loop + quality watchdog
