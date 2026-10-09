@@ -63,9 +63,9 @@ const ART = {
       </div>
     </div>`,
   web: () => `
-    <div class="art web">
+    <div class="art web${webClean ? ' clean' : ''}">
       <div class="uiwin">
-        <div class="bar2"><i></i><i></i><i></i><span class="addr">nightsky.example/olbers</span></div>
+        <div class="bar2"><i></i><i></i><i></i><button type="button" class="reload" aria-label="${T('重新载入', 'Reload')}"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.5-3.6"/><path d="M13 2.6v3h-3"/></svg></button><span class="addr">nightsky.example/olbers</span></div>
         <div class="page">
           <div class="clutter top">AD</div>
           <div class="article">
@@ -128,6 +128,8 @@ L = 4*pi*R**2*sigma*T**4
 
 // the e-book plate's typeface: LXGW WenKai, as KineX can set a book in, or the book's own
 let epubFont = 'wk';
+// the web plate: once seen, the clutter is gone for good (a repaint for a new language keeps it gone)
+let webClean = false;
 function paint() {
   document.querySelectorAll('article[data-plate]').forEach(pl => { pl.querySelector('.plate-art').innerHTML = ART[pl.dataset.plate](); });
 }
@@ -167,29 +169,47 @@ export function initRead() {
     return () => { pin.classList.remove('swipe'); pin.removeEventListener('scroll', onScroll); };
   });
 
-  // ---- demos. A plate plays its demo (clutter falls away, the frame is annotated, …) while a mouse is over it; on
-  // touch, while it is the plate in view (a tap fires enter and leave at once, and played the demo back and forth).
+  // ---- demos. A plate's demo (the excerpt sweep, the ads clearing, the lecture playing) runs once the plate has
+  // settled in view, one plate at a time: several plates are on screen together on a wide display, and their demos
+  // all at once were too much to follow. Plates queue in reading order; one that leaves before its turn drops out. What
+  // the reader starts (a click, a hover) plays at once. On a mouse, hovering a plate lifts it a little ('hot'); on
+  // touch, the plate in view is the hot one (a tap fired enter and leave back to back).
   const touch = matchMedia('(hover: none)').matches;
   const byName = n => plates.find(p => p.dataset.plate === n);
-  const demos = {}, firstView = {}, away = {};
+  const demos = {}, plays = {}, away = {};
   const setHot = (pl, on, how) => { if (pl.classList.contains('hot') === on) return; pl.classList.toggle('hot', on); demos[pl.dataset.plate]?.(on, how); };
   plates.forEach(pl => {
     pl.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') setHot(pl, true, 'hover'); });
     pl.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') setHot(pl, false, 'hover'); });
   });
-  // A plate's first-view demo starts once its picture is (nearly) all in view and has stayed there a moment: a swipe
-  // that is still gliding, or a plate only half on screen, would play it where nobody is looking yet.
+  const queue = new Set();
+  let running = false;
+  async function runQueue() {
+    if (running) return;
+    running = true;
+    while (queue.size) {
+      const pl = [...queue].sort((x, y) => plates.indexOf(x) - plates.indexOf(y))[0];
+      queue.delete(pl);
+      if (!pl.dataset.inView) continue;
+      const done = plays[pl.dataset.plate]?.();
+      if (done) await Promise.race([done, new Promise(r => setTimeout(r, 9000))]).then(() => new Promise(r => setTimeout(r, 350)));
+    }
+    running = false;
+  }
+  // in view: the picture (nearly) all on screen for a moment; a swipe still gliding, or a plate half on screen, is not
   const dwell = new Map();
   const seen = new IntersectionObserver(es => es.forEach(e => {
     const pl = e.target.closest('.fmt'), n = pl.dataset.plate, r = e.intersectionRatio;
     if (r >= .6 && touch) setHot(pl, true, 'view');
-    if (r >= .9) { if (!pl.dataset.seen && !dwell.has(pl)) dwell.set(pl, setTimeout(() => { dwell.delete(pl); pl.dataset.seen = 1; firstView[n]?.(); }, 450)); }
-    else { clearTimeout(dwell.get(pl)); dwell.delete(pl); }
-    if (r < .3) { away[n]?.(); if (touch) setHot(pl, false, 'view'); }
+    if (r >= .9) {
+      if (!pl.dataset.inView && !dwell.has(pl)) dwell.set(pl, setTimeout(() => { dwell.delete(pl); pl.dataset.inView = 1; queue.add(pl); runQueue(); }, 450));
+    } else { clearTimeout(dwell.get(pl)); dwell.delete(pl); }
+    if (r < .3) { delete pl.dataset.inView; queue.delete(pl); away[n]?.(r); if (touch) setHot(pl, false, 'view'); }
   }), { threshold: [0, .3, .6, .9] });
   plates.forEach(pl => seen.observe(pl.querySelector('.plate-art')));
 
-  // PDF: a selection caret sweeps the highlight across the sentence, which then lifts off the page as an excerpt card
+  // PDF: a selection caret sweeps the highlight across the sentence, which then lifts off the page as an excerpt card.
+  // It plays the first time the plate is seen, and again on hover; the excerpt stays.
   const pdfArt = () => byName('pdf').querySelector('.pdf');
   let pdfTl = null, pdfPlayed = false;
   function pdfHide() {
@@ -198,7 +218,7 @@ export function initRead() {
     gsap.set([a.querySelector('.xc'), a.querySelector('.sel-caret')], { autoAlpha: 0 });
   }
   function pdfPlay() {
-    if (reduceMotion || pdfTl?.isActive()) return;
+    if (reduceMotion || pdfTl?.isActive()) return null;
     pdfPlayed = true;
     const a = pdfArt(), ws = [...a.querySelectorAll('.mark-hl .w')], card = a.querySelector('.xc'), caret = a.querySelector('.sel-caret'), doc = a.querySelector('.doc.front');
     pdfHide();
@@ -217,17 +237,48 @@ export function initRead() {
     const last = ws[ws.length - 1], sx = doc.offsetLeft + last.offsetLeft + last.offsetWidth, sy = doc.offsetTop + last.offsetTop;
     tl.fromTo(card, { x: sx - card.offsetLeft - card.offsetWidth / 2, y: sy - card.offsetTop - card.offsetHeight / 2, scale: .3, rotate: -7, autoAlpha: 0 },
       { x: 0, y: 0, scale: 1, rotate: 0, autoAlpha: 1, duration: 1, ease: 'expo.out' }, at + .2);
+    return new Promise(res => tl.eventCallback('onComplete', res));
   }
   demos.pdf = on => on && pdfPlay();
-  firstView.pdf = pdfPlay;
+  plays.pdf = () => (pdfPlayed ? null : pdfPlay());
   if (!reduceMotion) pdfHide(); // until it is seen
+
+  // Web clipping: a moment after the plate settles in view, the ads and side clutter fade away and the article reflows
+  // to the full width. It stays clean while in view; once wholly out of view it is quietly set back, so it plays again
+  // next time. The window's reload button (or a click on the window) plays it again now, like reloading the page.
+  const webArt = () => byName('web').querySelector('.web');
+  let webCall = null, webDone = null;
+  const webFinish = () => { webDone?.(); webDone = null; };
+  function webClear(delay) {
+    webCall?.kill();
+    return new Promise(res => {
+      webDone = res;
+      webCall = gsap.delayedCall(reduceMotion ? 0 : delay, () => {
+        webClean = true; webArt().classList.add('clean');
+        webCall = gsap.delayedCall(reduceMotion ? 0 : 2.1, webFinish); // fade, fold, reflow, badge
+      });
+    });
+  }
+  function webReset() { // back to the cluttered page at once, without its transitions
+    webCall?.kill(); webFinish(); webClean = false;
+    const a = webArt(); a.classList.add('snap'); a.classList.remove('clean'); void a.offsetWidth; a.classList.remove('snap');
+  }
+  plays.web = () => (webClean ? null : webClear(.6));
+  away.web = r => { if (r === 0 && !reduceMotion) webReset(); };
+  byName('web').addEventListener('click', e => {
+    if (!e.target.closest('.uiwin') || reduceMotion) return;
+    const a = webArt(), page = a.querySelector('.page');
+    gsap.fromTo(a.querySelector('.reload svg'), { rotate: 0 }, { rotate: 360, duration: .8, ease: 'power2.inOut' });
+    gsap.timeline().to(page, { opacity: 0, duration: .18 }).add(webReset).to(page, { opacity: 1, duration: .3 }).add(() => webClear(.7));
+  });
 
   // Lecture: click the player to play or pause; the control's ▶ / ❚❚ is drawn on as it changes. While playing, the
   // playhead runs round the A–B loop and the pen's note fades off the frame; paused, the pen circles the red giant on
-  // the still frame. It plays for a moment the first time it is seen; after that only a click plays it (playing on
-  // hover made the click that followed pause it), and it pauses out of view.
+  // the still frame. It plays for a moment each time it settles in view (scrolled or swiped back to) and pauses when it
+  // leaves; a click plays or pauses it. Hover does nothing (playing on hover made the click that followed pause it).
   const media = byName('media'), player = () => media.querySelector('.player');
-  let playing = false, ph = PH0, autoStop = 0;
+  let playing = false, ph = PH0, autoStop = 0, mediaDone = null;
+  const mediaFinish = () => { mediaDone?.(); mediaDone = null; };
   const clock = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
   const paintPh = () => {
     const pl = player(), t = 768 + (ph - PH0) * 9; // 12:48 at the playhead's first place
@@ -247,12 +298,14 @@ export function initRead() {
     if (on) { gsap.ticker.add(tick); clearInk(animate); } else { gsap.ticker.remove(tick); animate ? writeInk() : showInk(); }
     if (animate) drawIcon();
   }
-  let previewing = false;
-  const preview = () => { previewing = true; setPlaying(true); autoStop = setTimeout(() => { previewing = false; setPlaying(false); }, 3200); };
-  media.addEventListener('click', e => { if (e.target.closest('.player')) { previewing = false; setPlaying(!playing); } });
-  firstView.media = preview;
-  // swiped away mid-preview: it plays again when it comes back
-  away.media = () => { if (previewing) { previewing = false; delete media.dataset.seen; } setPlaying(false, false); };
+  // a preview: play 3.2 s, pause, and the pen writes its note; done once the note is written
+  plays.media = () => (playing ? null : new Promise(res => {
+    mediaDone = res;
+    setPlaying(true);
+    autoStop = setTimeout(() => { setPlaying(false); gsap.delayedCall(reduceMotion ? 0 : 1.5, mediaFinish); }, 3200);
+  }));
+  media.addEventListener('click', e => { if (e.target.closest('.player')) { mediaFinish(); setPlaying(!playing); } });
+  away.media = () => { mediaFinish(); setPlaying(false, false); };
 
   // the pen's white circle round the red giant: on the paused frame, written point by point
   let inkTw = null;
