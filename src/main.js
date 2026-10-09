@@ -129,9 +129,12 @@ ScrollTrigger.create({ trigger: '#story', start: 'top top', end: 'bottom bottom'
 (async () => {
   // 1. the first screen is up (or coming up) from boot.js, with the scene sketched; three.js, preloaded with the
   //    scripts, arrives and the scene builds
-  const booting = bootScene(sketch).catch(e => { console.error(e); fallbackPoster(sketch); });
+  //    The heavy work (the build, the sections) waits until the sketch is on screen: until then the worker's frames
+  //    need this thread, and a busy thread would leave the screen blank and then show the lines all at once.
+  const booting = Promise.resolve(sketch?.ready).then(() => bootScene(sketch)).catch(e => { console.error(e); fallbackPoster(sketch); });
   // 2. the sections below the fold are set up between the scene's build steps
   await shown;
+  await sketch?.ready;
   for (const init of [initRead, initBoard, initInk, initRecall, initSync]) { init(); await nextFrame(); }
   await document.fonts.ready;
   initReveal();

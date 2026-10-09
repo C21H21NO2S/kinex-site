@@ -76,23 +76,30 @@ export function drawSketch(host, { reduceMotion = false } = {}) {
   cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
   host.replaceChildren(cv);
   const job = { strokes: strokes(W, H, root.dataset.lang, reduceMotion), dpr, dark: root.dataset.theme !== 'light', still: reduceMotion };
-  let done, worker = null;
-  const drawn = new Promise(r => (done = r));
+  let done, onScreen, worker = null;
+  const drawn = new Promise(r => (done = r)), ready = new Promise(r => (onScreen = r));
   setTimeout(() => done(), 4000); // never hold the scene back
+  setTimeout(() => onScreen(), 2000);
   // off the main thread when the browser can hand the canvas to a worker; on it otherwise
   if (cv.transferControlToOffscreen) {
     try {
       worker = new SketchWorker();
       const off = cv.transferControlToOffscreen();
-      worker.onmessage = () => done();
+      // the worker's first frames, then two frames of this thread: the canvas is composited, and from then on the
+      // worker's frames reach the screen without this thread (which the scene build is about to keep busy). Released
+      // from a task of its own: resolved inside a frame callback, the heavy work would run before that frame commits.
+      worker.onmessage = e => { if (e.data === 'first') requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(onScreen, 0))); else done(); };
       worker.onerror = () => done();
       worker.postMessage({ canvas: off, ...job }, [off]);
     } catch (e) { worker?.terminate(); worker = null; }
   }
-  if (!worker) runSketch(cv, job).then(() => done(), () => done());
+  // drawn on this thread: the heavy work waits until the lines are done, or it would stall them
+  if (!worker) runSketch(cv, job).then(() => done(), () => done()).then(() => onScreen());
   return {
     // resolves once the lines are drawn (the render waits for it, so it develops inside a finished sketch)
     drawn,
+    // resolves once the drawing is on screen and no longer needs this thread: heavy work may start
+    ready,
     hide() { host.classList.add('off'); setTimeout(() => { worker?.terminate(); host.hidden = true; host.replaceChildren(); }, 1200); },
   };
 }

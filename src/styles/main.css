@@ -147,6 +147,7 @@ html.intro .nav > *, html.intro .story-foot { animation: kx-drop 1s cubic-bezier
 .scrim-l { background: linear-gradient(90deg, color-mix(in oklab, var(--bg) 82%, transparent) 0%, color-mix(in oklab, var(--bg) 42%, transparent) 30%, transparent 54%); }
 .scrim-b { background: linear-gradient(0deg, color-mix(in oklab, var(--bg) 88%, transparent) 0%, color-mix(in oklab, var(--bg) 30%, transparent) 40%, transparent 62%); }
 .beat { position: absolute; will-change: opacity, transform; }
+.beat:not(.hero) { opacity: 0; visibility: hidden; } /* main.js paints them by scroll; until it runs, only the first screen shows */
 .hero { left: var(--m); bottom: 104px; max-width: min(1000px, calc(100vw - 2 * var(--m))); }
 .hero h1 { margin-top: 26px; }
 .hero .row { margin-top: 34px; display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
