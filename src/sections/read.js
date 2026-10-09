@@ -22,14 +22,14 @@ const T = (zh, en) => (Z() ? zh : en);
 const EXCERPT = () => T('你血液里的铁，来自一颗早已死去的恒星。', 'the iron in your blood came from a star that died long ago.');
 const words = s => (Z() ? [...s] : s.split(/(?<= )/)).map(w => `<span class="w">${w}</span>`).join('');
 
-// the lecture plate's player: its A–B loop (% of the timeline), and hand-drawn play and pause glyphs (pathLength 1,
-// so each stroke can be drawn on)
+// the lecture plate's player: its A–B loop (% of the timeline), and the hand-drawn play and pause glyphs of its
+// control (pathLength 1, so each stroke can be drawn on). Nothing is laid over the frame, as in KineX: the frame is
+// where the pen writes once the lecture is paused.
 const AB = [38, 56], PH0 = 47;
 const PLAY_D = ['M37 27 Q55 38 72.5 49.5 Q55 61.5 37.5 72.5 Q35.4 50 38 25.5'];
 const PAUSE_D = ['M40.5 28.5 Q41.6 50 40.4 71.5', 'M60 28 Q59.2 50.5 60.6 71'];
-const strokes = (ds, cls) => ds.map(d => `<path class="${cls}" d="${d}" pathLength="1"/>`).join('');
-const HAND = `<svg class="hand" viewBox="0 0 100 100" aria-hidden="true"><circle class="disc" cx="50" cy="50" r="34"/><g class="g-play">${strokes(PLAY_D, 's')}</g><g class="g-pause">${strokes(PAUSE_D, 's')}</g></svg>`;
-const PP = `<svg viewBox="22 20 56 60" aria-hidden="true"><g class="i-play">${strokes(PLAY_D, '')}</g><g class="i-pause">${strokes(PAUSE_D, '')}</g></svg>`;
+const strokes = ds => ds.map(d => `<path d="${d}" pathLength="1"/>`).join('');
+const PP = `<svg viewBox="22 20 56 60" aria-hidden="true"><g class="i-play">${strokes(PLAY_D)}</g><g class="i-pause">${strokes(PAUSE_D)}</g></svg>`;
 
 const ART = {
   pdf: () => `
@@ -108,7 +108,7 @@ L = 4*pi*R**2*sigma*T**4
   media: () => `
     <div class="art media">
       <div class="player">
-        <div class="frame">${slideSVG(getLang())}${frameInk()}<span class="chip t">12:48</span>${HAND}</div>
+        <div class="frame">${slideSVG(getLang())}${frameInk()}<span class="chip t">12:48</span></div>
         <div class="tl"><div class="ab" style="left:${AB[0]}%;right:${100 - AB[1]}%"></div><i style="left:12%"></i><i style="left:${AB[0]}%"></i><i style="left:${AB[1]}%"></i><i style="left:81%"></i><b></b></div>
         <div class="ctrls"><span class="pp">${PP}</span><span class="tm">12:48 / 52:10</span><span class="abl">A–B</span><span>±5s</span><span>1.25×</span></div>
       </div>
@@ -171,7 +171,7 @@ export function initRead() {
   // touch, while it is the plate in view (a tap fires enter and leave at once, and played the demo back and forth).
   const touch = matchMedia('(hover: none)').matches;
   const byName = n => plates.find(p => p.dataset.plate === n);
-  const demos = {}, firstView = {};
+  const demos = {}, firstView = {}, away = {};
   const setHot = (pl, on, how) => { if (pl.classList.contains('hot') === on) return; pl.classList.toggle('hot', on); demos[pl.dataset.plate]?.(on, how); };
   plates.forEach(pl => {
     pl.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') setHot(pl, true, 'hover'); });
@@ -180,7 +180,7 @@ export function initRead() {
   const seen = new IntersectionObserver(es => es.forEach(e => {
     const pl = e.target;
     if (e.intersectionRatio >= .6) { if (!pl.dataset.seen) { pl.dataset.seen = 1; firstView[pl.dataset.plate]?.(); } if (touch) setHot(pl, true, 'view'); }
-    else if (touch && e.intersectionRatio < .3) setHot(pl, false, 'view');
+    else if (e.intersectionRatio < .3) { away[pl.dataset.plate]?.(); if (touch) setHot(pl, false, 'view'); }
   }), { threshold: [0, .3, .6] });
   plates.forEach(pl => seen.observe(pl));
 
@@ -217,10 +217,12 @@ export function initRead() {
   firstView.pdf = pdfPlay;
   if (!reduceMotion) pdfHide(); // until it is seen
 
-  // Lecture: click the player to play or pause (a hand-drawn ▶ or ❚❚ is written over the frame); while playing, the
-  // playhead runs round the A–B loop. Hovering (or, on touch, the plate in view) plays it for a moment.
+  // Lecture: click the player to play or pause; the control's ▶ / ❚❚ is drawn on as it changes. While playing, the
+  // playhead runs round the A–B loop and the pen's note fades off the frame; paused, the pen circles the red giant on
+  // the still frame. It plays for a moment the first time it is seen; after that only a click plays it (playing on
+  // hover made the click that followed pause it), and it pauses out of view.
   const media = byName('media'), player = () => media.querySelector('.player');
-  let playing = false, ph = PH0, glyphTl = null, autoStop = 0;
+  let playing = false, ph = PH0, autoStop = 0;
   const clock = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
   const paintPh = () => {
     const pl = player(), t = 768 + (ph - PH0) * 9; // 12:48 at the playhead's first place
@@ -229,37 +231,36 @@ export function initRead() {
     pl.querySelector('.tm').textContent = `${clock(t)} / 52:10`;
   };
   const tick = (time, dt) => { ph += Math.min(dt, 100) / 1000 * 2.4; if (ph >= AB[1]) ph = AB[0] + ph - AB[1]; paintPh(); };
-  function drawGlyph(kind) {
-    const svg = player().querySelector('.hand');
-    glyphTl?.kill();
-    gsap.set(svg.querySelectorAll('.s'), { strokeDashoffset: 1 });
-    glyphTl = gsap.timeline()
-      .fromTo(svg, { autoAlpha: 0, scale: .9 }, { autoAlpha: 1, scale: 1, duration: .35, ease: 'power3.out' })
-      .to(svg.querySelectorAll(`.g-${kind} .s`), { strokeDashoffset: 0, duration: .45, ease: 'power2.inOut', stagger: .14 }, .05)
-      .to(svg, { autoAlpha: 0, scale: 1.08, duration: .5, ease: 'power2.in' }, '+=.5');
-  }
-  function setPlaying(on, glyph = true) {
+  const drawIcon = () => { // the glyph now showing on the control
+    if (reduceMotion) return;
+    gsap.fromTo(player().querySelectorAll(`.pp .i-${playing ? 'pause' : 'play'} path`), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: .4, ease: 'power2.inOut', stagger: .1 });
+  };
+  function setPlaying(on, animate = true) {
     clearTimeout(autoStop);
     if (on === playing) return;
     playing = on; player().classList.toggle('playing', on);
-    if (on) gsap.ticker.add(tick); else gsap.ticker.remove(tick);
-    if (glyph && !reduceMotion) drawGlyph(on ? 'play' : 'pause');
+    if (on) { gsap.ticker.add(tick); clearInk(animate); } else { gsap.ticker.remove(tick); animate ? writeInk() : showInk(); }
+    if (animate) drawIcon();
   }
-  const preview = () => { writeInk(); setPlaying(true); autoStop = setTimeout(() => setPlaying(false), 3600); };
+  const preview = () => { setPlaying(true); autoStop = setTimeout(() => setPlaying(false), 2600); };
   media.addEventListener('click', e => { if (e.target.closest('.player')) setPlaying(!playing); });
-  demos.media = (on, how) => (on ? preview() : setPlaying(false, how === 'hover'));
-  firstView.media = () => { if (!media.classList.contains('hot')) preview(); };
+  firstView.media = preview;
+  away.media = () => setPlaying(false, false);
 
-  // the white pen circle on the lecture frame: written when the demo plays; on touch layouts simply shown
+  // the pen's white circle round the red giant: on the paused frame, written point by point
   let inkTw = null;
-  const rib = () => media.querySelector('.frame-ink .rib');
+  const inkSvg = () => media.querySelector('.frame-ink'), rib = () => media.querySelector('.frame-ink .rib');
   function writeInk() {
-    if (inkTw?.isActive()) return;
+    inkTw?.kill(); gsap.set(inkSvg(), { opacity: 1 });
     const o = { k: 0 };
-    inkTw = gsap.to(o, { k: INK.length - 1, duration: reduceMotion ? 0 : 1.1, ease: 'power1.inOut', onUpdate: () => rib()?.setAttribute('d', ribbonPath(INK, o.k)) });
+    inkTw = gsap.to(o, { k: INK.length - 1, duration: reduceMotion ? 0 : 1.1, delay: .25, ease: 'power1.inOut', onUpdate: () => rib()?.setAttribute('d', ribbonPath(INK, o.k)) });
   }
-  const showInk = () => { if (pin.classList.contains('swipe')) rib()?.setAttribute('d', ribbonPath(INK)); };
-  showInk(); addEventListener('resize', showInk);
+  function clearInk(animate) {
+    inkTw?.kill();
+    inkTw = gsap.to(inkSvg(), { opacity: 0, duration: animate && !reduceMotion ? .35 : 0, onComplete: () => rib()?.setAttribute('d', '') });
+  }
+  function showInk() { if (playing) return; inkTw?.kill(); gsap.set(inkSvg(), { opacity: 1 }); rib()?.setAttribute('d', ribbonPath(INK)); }
+  showInk(); // it starts paused, with its note on the frame
 
   // a new language repaints the plates: keep each demo where it was
   addEventListener('kx:lang', () => requestAnimationFrame(() => {
