@@ -16,12 +16,19 @@ const V = (x, y, z) => new THREE.Vector3(x, y, z);
 
 export async function createScene({ canvas, context, tier = 'high', getLang, isDark, reduceMotion = false, fontsReady = Promise.resolve() }) {
   const yieldTask = () => new Promise(r => setTimeout(r, 0));
+  // Hand the thread back between steps, but only after a slice of work: each hand-back can cost a whole frame, and one
+  // per texture made the build several times longer than its work.
+  let slice = performance.now();
+  const pace = async () => { if (performance.now() - slice > 12) { await yieldTask(); slice = performance.now(); } };
   const DBG0 = new URLSearchParams(location.search);
   // ---------------------------------------------------------------- renderer
   // Rendered straight to the canvas (no post-processing chain): native MSAA stays on, the screen and the
   // threads skip tone mapping, and nothing is re-uploaded while scrolling.
   const renderer = new THREE.WebGLRenderer({ canvas, context, antialias: true, powerPreference: 'high-performance', alpha: false });
   renderer.autoClear = false;
+  // no status queries at a program's first use: each one makes this thread wait for the GPU to finish building it
+  // (?shaders turns them back on, to see a broken shader's log)
+  renderer.debug.checkShaderErrors = DBG0.has('shaders');
   // phones have 3x screens: below 2x the tablet's UI and the paper text turn soft, so only 'low' drops under it
   const DPR = { high: Math.min(devicePixelRatio, 2), mid: Math.min(devicePixelRatio, 2), low: Math.min(devicePixelRatio, 1.5) }[tier];
   renderer.setPixelRatio(DPR);
@@ -183,7 +190,13 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   // a card is a front plane (its texture) and a back plane; two draw calls instead of six
   const rrGeos = new Map();
   const rrGeo = (w, h) => { const k = `${w.toFixed(3)}x${h.toFixed(3)}`; if (!rrGeos.has(k)) rrGeos.set(k, planeUV(new THREE.ShapeGeometry(rrShape(w, h, Math.min(w, h) * .045), 6), w, h)); return rrGeos.get(k); };
-  const cardOcc = [], cardOccMat = new THREE.MeshBasicMaterial({ colorWrite: false, side: THREE.DoubleSide });
+  // depth only, with the plainest shaders: as a MeshBasicMaterial its GPU program took over a second to build on
+  // Windows (ANGLE), freezing the screen when the threads' layer was first drawn
+  const cardOcc = [], cardOccMat = new THREE.ShaderMaterial({
+    colorWrite: false, side: THREE.DoubleSide,
+    vertexShader: 'void main(){ gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }',
+    fragmentShader: 'void main(){ gl_FragColor = vec4(0.); }',
+  });
   function cardMesh(w, h, mat) {
     mat.depthTest = mat.depthWrite = false; // painter's order (frame())
     const g = new THREE.Group();
@@ -236,7 +249,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   const seen = {};
   for (let i = 0; i < N; i++) {
     const kind = KINDS[i % KINDS.length], variant = (seen[kind] = (seen[kind] ?? (FIRST[kind] || 0) - 1) + 1) % (VARIANTS[kind] || 1);
-    if (!texCache.has(`${kind}|${variant}|${getLang()}`)) await yieldTask();
+    if (!texCache.has(`${kind}|${variant}|${getLang()}`)) await pace();
     const tex = fragTexture(kind, variant);
     const w = kind === 'page' ? .78 : .84, h = w * tex.image.height / tex.image.width;
     const mat = blurMat({ map: tex, roughness: .9, metalness: 0, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: .2 });
@@ -468,9 +481,11 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   const stylusOcc = new THREE.Group();
   stylus.children.forEach(c => { const m = new THREE.Mesh(c.geometry, occMat); m.position.copy(c.position); m.renderOrder = -1; stylusOcc.add(m); });
   lineScene.add(stylusOcc);
+  let linesReady = false; // see warmLines()
   function render() {
     renderer.clear();
     renderer.render(scene, camera);
+    if (!linesReady) return;
     // the cards wrote no depth: lay it down for the threads (depth kept, so the tablet and pen hide them too)
     for (const [o, g] of cardOcc) { o.visible = g.visible; o.matrix.copy(g.matrixWorld); o.matrixWorldNeedsUpdate = true; }
     renderer.render(lineScene, camera);
@@ -669,7 +684,9 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
 
   // ---------------------------------------------------------------- loop + quality watchdog
   let running = false, raf = 0, frozen = null;
-  let t0 = 0; // the scene clock starts with the first shown frame, so it opens exactly in the pose the sketch drew
+  // the scene clock starts with the first shown frame (so it opens exactly in the pose the sketch drew) and advances
+  // by at most 50 ms a frame: after a stall the motion carries on from where it was instead of jumping
+  let clock = 0;
   let slow = 0, samples = 0, lastT = 0;
   const listeners = { downgrade: null };
   function loop(now) {
@@ -679,8 +696,8 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     if (samples < 150 && S.mode !== 'off') { samples++; if (dt > 34) slow++; if (samples === 150 && slow > 60 && listeners.downgrade) listeners.downgrade(); }
     if (S.mode === 'off') return;
     S.p += (S.target - S.p) * (reduceMotion ? 1 : .085);
-    if (!t0) t0 = now;
-    frame((now - t0) / 1000, S.mode === 'join' ? 1 : S.p);
+    clock += Math.min(dt, 50) / 1000;
+    frame(clock, S.mode === 'join' ? 1 : S.p);
   }
   function start() { if (!running) { running = true; raf = requestAnimationFrame(loop); } }
 
@@ -691,7 +708,8 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   // shader compilation and texture uploads happen now. Chrome on Windows compiles shaders at the first draw,
   // so renderer.compile() alone still left 0.5–0.8 s hitches mid-scroll.
   async function warmUp() {
-    // shaders compile in parallel off the main thread (KHR_parallel_shader_compile); then textures upload one per task
+    // shaders compile in parallel off the main thread (KHR_parallel_shader_compile); then textures upload in slices.
+    // The threads' layer is left out of the warm-up draw: see warmLines().
     const restore = [];
     [scene, lineScene].forEach(sc => sc.traverse(o => { restore.push([o, o.visible, o.frustumCulled]); o.visible = true; o.frustumCulled = false; }));
     await renderer.compileAsync(scene, camera);
@@ -699,7 +717,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     const textures = new Set();
     scene.traverse(o => { const m = o.material; if (!m) return; [m.map, m.emissiveMap].forEach(t => t && textures.add(t)); });
     if (scene.background) textures.add(scene.background);
-    for (const t of textures) { renderer.initTexture(t); await yieldTask(); }
+    for (const t of textures) { renderer.initTexture(t); await pace(); }
     inkGeo.setDrawRange(0, Infinity);
     camera.position.set(0, 0, 14); camera.lookAt(0, 0, 0); camera.updateProjectionMatrix();
     render();
@@ -708,12 +726,24 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   }
   await yieldTask();
   await warmUp();
+  // The threads' layer: on Windows (ANGLE) its first draw stalls for 0.6 s or more, whatever is drawn first in it. Nothing
+  // in it shows when the scene first appears (the threads draw out later), so it is left out until the scene has
+  // started to fade in: then this draws it once (the fade runs on the compositor, the frame shown holds still).
+  function warmLines() {
+    if (linesReady) return;
+    const restore = [];
+    lineScene.traverse(o => { if (o !== lineScene) { restore.push([o, o.visible, o.frustumCulled, o.material?.opacity]); o.visible = true; o.frustumCulled = false; if (o.material) o.material.opacity = 0; } });
+    renderer.render(lineScene, camera);
+    restore.reverse().forEach(([o, v, c, a]) => { o.visible = v; o.frustumCulled = c; if (o.material) o.material.opacity = a; }); // shared materials: the first capture holds the real value
+    linesReady = true;
+  }
 
   return {
     renderer,
     refreshTextures,
     applyTheme, T,
     start,
+    warmLines,
     stop() { cancelAnimationFrame(raf); running = false; },
     setStory(p) { S.target = clamp(p); },
     snap() { S.p = S.target; }, // land on the current scroll position without animating through the story
@@ -722,7 +752,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     get state() { return S; },
     set onStory(fn) { onStory = fn; },
     set onDowngrade(fn) { listeners.downgrade = fn; },
-    seek(p, t, intro = 1) { frozen = true; S.intro = 1; S.links = intro; frame(t, p); },
+    seek(p, t, intro = 1) { warmLines(); frozen = true; S.intro = 1; S.links = intro; frame(t, p); },
     unfreeze() { frozen = null; },
     dispose() { cancelAnimationFrame(raf); renderer.dispose(); },
   };

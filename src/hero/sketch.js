@@ -68,7 +68,8 @@ function strokes(W, H, lang, still) {
   return S;
 }
 
-export function drawSketch(host, { reduceMotion = false } = {}) {
+// after: the pencil waits for it too (the first screen's fonts), so the copy and the first stroke appear together
+export function drawSketch(host, { reduceMotion = false, after = null } = {}) {
   // Off the main thread when the browser can hand a canvas to a worker. The worker is started first: it boots while
   // the page is laid out (measuring the canvas below lays out the whole page, a long step on a slow machine).
   let worker = null;
@@ -80,11 +81,11 @@ export function drawSketch(host, { reduceMotion = false } = {}) {
   cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
   host.replaceChildren(cv);
   const job = { strokes: strokes(W, H, root.dataset.lang, reduceMotion), dpr, dark: root.dataset.theme !== 'light', still: reduceMotion };
-  let done, onScreen;
-  const drawn = new Promise(r => (done = r)), ready = new Promise(r => (onScreen = r));
+  let done, onScreen, start;
+  const drawn = new Promise(r => (done = r)), ready = new Promise(r => (onScreen = r)), started = new Promise(r => (start = r));
   const release = () => { clearTimeout(failsafe); onScreen(); };
   // a worker that never answers must not hold the page
-  const failsafe = setTimeout(() => { worker?.postMessage('go'); onScreen(); done(); }, 5000);
+  const failsafe = setTimeout(() => { worker?.postMessage('go'); start(); onScreen(); done(); }, 5000);
   if (worker) {
     try {
       const off = cv.transferControlToOffscreen();
@@ -94,22 +95,24 @@ export function drawSketch(host, { reduceMotion = false } = {}) {
       // callback, it would run before that frame commits.
       worker.onmessage = e => {
         if (e.data !== 'first') return done();
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-          worker.postMessage('go'); setTimeout(release, 0);
+        requestAnimationFrame(() => requestAnimationFrame(() => Promise.resolve(after).then(() => {
+          worker.postMessage('go'); start(); setTimeout(release, 0);
           setTimeout(done, 3500); // never hold the scene back
-        }));
+        })));
       };
       worker.onerror = () => { release(); done(); };
       worker.postMessage({ canvas: off, ...job }, [off]);
     } catch (e) { worker.terminate(); worker = null; }
   }
   // drawn on this thread: the heavy work waits until the lines are done, or it would stall them
-  if (!worker) runSketch(cv, job).then(() => done(), () => done()).then(release);
+  if (!worker) Promise.resolve(after).then(() => { start(); return runSketch(cv, job); }).then(() => done(), () => done()).then(release);
   return {
     // resolves once the lines are drawn (the render waits for it, so it develops inside a finished sketch)
     drawn,
     // resolves once the drawing is on screen and no longer needs this thread: heavy work may start
     ready,
+    // resolves as the pencil starts
+    started,
     hide() { host.classList.add('off'); setTimeout(() => { worker?.terminate(); host.hidden = true; host.replaceChildren(); }, 1200); },
   };
 }

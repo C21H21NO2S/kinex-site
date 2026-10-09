@@ -4,10 +4,12 @@ import { pencilDabs, pencilTip, paperTooth, rng } from './pencil.js';
 
 // width (CSS px) and strength of each kind of line: the tablet is pressed hardest, its UI drawn lightly
 const STYLE = { body: [2, 1], screen: [1.5, .78], card: [1.7, .9], ui: [1.3, .52], text: [1.15, .4], link: [1.3, .58] };
-const ease = t => (t < .5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t));
+// a hand's stroke: off at speed, slowing as it lands (an ease-in start reads as a blank moment)
+const ease = t => 1 - (1 - t) ** 1.7;
 const mk = (w, h) => (typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(w, h) : Object.assign(document.createElement('canvas'), { width: w, height: h }));
 
-export function runSketch(canvas, { strokes, dpr, dark, still, gate, onFirst }) {
+// onNearlyDone: called a moment before the last stroke ends (the render starts to develop as the lines finish)
+export function runSketch(canvas, { strokes, dpr, dark, still, gate, onFirst, onNearlyDone }) {
   const ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height;
   // the dabs pile up on a layer; the visible canvas shows it through the paper tooth, so the grain sits in the lines
   const layer = mk(W, H), lx = layer.getContext('2d');
@@ -15,10 +17,17 @@ export function runSketch(canvas, { strokes, dpr, dark, still, gate, onFirst }) 
   const r = rng(29), K = dark ? .9 : .82;
   const S = strokes.map(s => {
     const [w, k] = STYLE[s.kind];
-    return { t0: s.t0, t1: s.t1, k: k * K, n: 0, dabs: pencilDabs(s.pts.map(p => [p[0] * dpr, p[1] * dpr]), w * dpr, r, dpr * .6) };
+    return { t0: s.t0, t1: s.t1, k: k * K, n: 0, dabs: pencilDabs(s.pts.map(p => [p[0] * dpr, p[1] * dpr]), w * dpr, r, dpr * .6, [26 * dpr, 34 * dpr]) };
   });
   const end = Math.max(...S.map(s => s.t1));
-  const raf = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : f => setTimeout(() => f(performance.now()), 16);
+  // Frames follow the display, but a worker's animation frames pause while the page's thread is busy (the scene being
+  // built): a timer steps in after 34 ms, so the pencil keeps going.
+  const raf = typeof requestAnimationFrame !== 'function' ? f => setTimeout(() => f(performance.now()), 16) : f => {
+    let fired = false;
+    const run = now => { if (fired) return; fired = true; clearTimeout(timer); f(now); };
+    const timer = setTimeout(() => run(performance.now()), 34);
+    requestAnimationFrame(run);
+  };
   return new Promise(resolve => {
     let clock = 0, last = 0, frames = 0, open = !gate;
     gate?.then(() => { open = true; });
@@ -45,6 +54,7 @@ export function runSketch(canvas, { strokes, dpr, dark, still, gate, onFirst }) 
         ctx.globalCompositeOperation = 'destination-in'; ctx.fillStyle = tooth; ctx.fillRect(x0, y0, w, h);
         ctx.restore();
       }
+      if (onNearlyDone && clock >= end - .25) { onNearlyDone(); onNearlyDone = null; }
       if (clock >= end) resolve(); else raf(step);
     };
     raf(step);

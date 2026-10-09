@@ -7,5 +7,5 @@ let go;
 const gate = new Promise(r => (go = r));
 self.onmessage = e => {
   if (e.data === 'go') return go();
-  runSketch(e.data.canvas, { ...e.data, gate, onFirst: () => self.postMessage('first') }).then(() => self.postMessage('drawn'));
+  runSketch(e.data.canvas, { ...e.data, gate, onFirst: () => self.postMessage('first'), onNearlyDone: () => self.postMessage('drawn') });
 };

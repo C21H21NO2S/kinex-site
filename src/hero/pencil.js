@@ -31,7 +31,8 @@ export function pencilTip(color) { // a soft-edged round tip with a faintly irre
 }
 
 // the dabs of one stroke through pts, in drawing order: [x, y, size, alpha] (top-left corner of each dab)
-export function pencilDabs(pts, width, r, tremor = 1) {
+// taper: [in, out] in px for the pressure to build in and lift off (default: a share of the stroke's length)
+export function pencilDabs(pts, width, r, tremor = 1, taper = null) {
   const P = [];
   for (let i = 0; i < pts.length - 1; i++) {
     const a = pts[Math.max(0, i - 1)], b = pts[i], c = pts[i + 1], d = pts[Math.min(pts.length - 1, i + 2)];
@@ -51,7 +52,8 @@ export function pencilDabs(pts, width, r, tremor = 1) {
     const nx = -(y1 - y0) / seg, ny = (x1 - x0) / seg;
     for (; next <= arc[i]; next += spacing) {
       const u = (next - arc[i - 1]) / seg, sA = next, q = sA / (len || 1);
-      const env = Math.min(1, q / .14) ** .8 * Math.min(1, (1 - q) / .12) ** 1.2;          // builds in, lifts off
+      const env = taper ? Math.min(1, sA / taper[0]) ** .8 * Math.min(1, (len - sA) / taper[1]) ** 1.2   // builds in, lifts off
+        : Math.min(1, q / .14) ** .8 * Math.min(1, (1 - q) / .12) ** 1.2;
       const p = Math.max(.12, .3 + .62 * env * (1 + .08 * Math.sin(sA / 29 + f3)));
       const wob = (.7 * Math.sin(sA / 21 + f1) + .35 * Math.sin(sA / 7.5 + f2)) * tremor; // the hand's tremor
       const x = x0 + (x1 - x0) * u + nx * wob, y = y0 + (y1 - y0) * u + ny * wob;

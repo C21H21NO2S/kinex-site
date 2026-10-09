@@ -16,7 +16,6 @@ const seg = (p, a, b) => Math.min(1, Math.max(0, (p - a) / (b - a)));
 
 // The 3D chunk (three.js) is preloaded with the page (vite.config.js); this runs once boot.js has the sketch on screen.
 const scenePromise = hasWebGL() ? import('./hero/scene.js') : null;
-const nextFrame = () => new Promise(r => setTimeout(r, 0));
 
 // ---------------------------------------------------------------- static bits (the logos and the copy: boot.js)
 bindToggles();
@@ -88,13 +87,20 @@ async function bootScene(sketch) {
   await sketch?.drawn;
   scene.start();
   wireSceneScroll();
-  requestAnimationFrame(() => requestAnimationFrame(() => {
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => {
     html.classList.add('gl-on'); sketch?.hide();
-    if (!reduceMotion) {
-      gsap.to(scene.state, { links: 1, duration: 2.9, delay: .55, ease: 'none' }); // each thread eases within its own window
-      gsap.to(scene.state, { par: 1, duration: 2.4, delay: 1.3, ease: 'power1.inOut' });
-    }
-  }));
+    // Once that frame is out, while the render is still faint: the steps left, the threads' layer and the sections below
+    // the fold. Then the threads draw.
+    requestAnimationFrame(() => setTimeout(async () => {
+      scene.warmLines();
+      await setUpSections(); // a section per task; done before the threads start drawing
+      if (!reduceMotion) {
+        gsap.to(scene.state, { links: 1, duration: 2.9, delay: .1, ease: 'none' }); // each thread eases within its own window
+        gsap.to(scene.state, { par: 1, duration: 2.4, delay: .8, ease: 'power1.inOut' });
+      }
+      resolve();
+    }, 0));
+  })));
   // after a long jump, land on the new story position instead of animating the 3D story through to it
   addEventListener('kx:jumped', () => { scene.snap(); paintStory(scene.state.p); if (scene.state.p < .02) replayHero(); });
   window.__scene = scene;
@@ -123,6 +129,19 @@ function replayHero() {
   gsap.fromTo('.hero > *', { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: 1.1, stagger: .07, ease: 'expo.out', delay: .25, clearProps: 'transform,opacity' });
 }
 
+// ---------------------------------------------------------------- sections below the fold
+// Set up once the scene has appeared (bootScene), or at once without a scene or when the reader scrolls on before it
+// appears: during the build they would slow it down.
+let sectionsUp = null;
+function setUpSections() {
+  if (!sectionsUp) sectionsUp = (async () => {
+    for (const init of [initRead, initBoard, initInk, initRecall, initSync]) { init(); await new Promise(r => setTimeout(r, 0)); }
+    await document.fonts.ready;
+    initReveal(); ScrollTrigger.sort(); ScrollTrigger.refresh();
+  })();
+  return sectionsUp;
+}
+
 // ---------------------------------------------------------------- go
 // until the scene drives the story overlays, the scroll position does
 ScrollTrigger.create({ trigger: '#story', start: 'top top', end: 'bottom bottom', onUpdate: self => { if (!scene) paintStory(self.progress); } });
@@ -132,15 +151,14 @@ ScrollTrigger.create({ trigger: '#story', start: 'top top', end: 'bottom bottom'
   //    The heavy work (the build, the sections) waits until the sketch is on screen: until then the worker's frames
   //    need this thread, and a busy thread would leave the screen blank and then show the lines all at once.
   const booting = Promise.resolve(sketch?.ready).then(() => bootScene(sketch)).catch(e => { console.error(e); fallbackPoster(sketch); });
-  // 2. the sections below the fold are set up between the scene's build steps
+  // 2. the sections below the fold: once the scene has appeared (or now, if the reader scrolls on before that)
   await shown;
   await sketch?.ready;
-  for (const init of [initRead, initBoard, initInk, initRecall, initSync]) { init(); await nextFrame(); }
-  await document.fonts.ready;
-  initReveal();
-  ScrollTrigger.sort();
-  ScrollTrigger.refresh();
+  const early = () => { if (scrollY > innerHeight * .5) { removeEventListener('scroll', early); setUpSections(); } };
+  addEventListener('scroll', early, { passive: true });
   await booting;
+  removeEventListener('scroll', early);
+  await setUpSections();
   ScrollTrigger.refresh();
   // 3. the page is built: the pointer's follower can appear (it would stutter while the scene was building)
   requestAnimationFrame(() => html.classList.add('settled'));

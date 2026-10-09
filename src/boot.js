@@ -14,10 +14,7 @@ document.querySelectorAll('[data-logo]').forEach(el => { el.innerHTML = logoSVG(
 $('.nav .brand-mark').innerHTML = logoPiecesSVG(); // the header mark assembles in place on the first screen
 applyText();
 
-// the scene, in pencil (in a worker, so the drawing keeps its pace whatever the main thread is doing)
-export const sketch = hasWebGL() ? drawSketch($('#boot-sketch'), { reduceMotion }) : null;
-
-// the copy, as soon as the first screen's own (small) font files are in: it rises, the header mark assembles
+// the first screen's own (small) font files
 function firstScreenFonts() {
   const zh = getLang() === 'zh', text = ($('.hero')?.textContent || '') + ($('.nav')?.textContent || '');
   // the Chinese sans: just its first-screen face (fonts.load() would also wait for the full face, which covers
@@ -28,7 +25,15 @@ function firstScreenFonts() {
   const loads = faces.map(f => document.fonts.load(f, text)).concat(hero.map(f => f.load()));
   return Promise.race([Promise.all(loads.map(p => p.catch(() => {}))), new Promise(r => setTimeout(r, 1200))]);
 }
-export const shown = firstScreenFonts().then(() => {
+const fontsIn = firstScreenFonts();
+
+// the scene, in pencil (in a worker, so the drawing keeps its pace whatever the main thread is doing)
+export const sketch = hasWebGL() ? drawSketch($('#boot-sketch'), { reduceMotion, after: fontsIn }) : null;
+
+// the copy rises and the header mark assembles as the pencil starts (the two arrive together), or once the fonts are
+// in if the sketch is late
+const late = fontsIn.then(() => new Promise(r => setTimeout(r, 800)));
+export const shown = Promise.race([sketch ? sketch.started : fontsIn, late]).then(() => {
   html.classList.remove('booting'); html.classList.add('intro');
   setTimeout(() => html.classList.remove('intro'), 2400); // hand the elements back to GSAP (main.js replayHero)
 });
