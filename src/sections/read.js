@@ -25,10 +25,12 @@ const words = s => (Z() ? [...s] : s.split(/(?<= )/)).map(w => `<span class="w">
 // so the reflow can move each one to its new line
 const flow = s => (Z() ? s.match(/.[，。、；：！？）」』”’》…—]*/gu) : s.split(/(?<= )/)).map(w => `<span class="fw">${w}</span>`).join('');
 
-// the lecture plate's player: its A–B loop (% of the timeline), and the hand-drawn play and pause glyphs of its
-// control (pathLength 1, so each stroke can be drawn on). Nothing is laid over the frame, as in KineX: the frame is
-// where the pen writes once the lecture is paused.
-const AB = [38, 56], PH0 = 47;
+// the lecture plate's player: its A–B loop (where it sits on the timeline, in %; it loops 12:48 → 12:51, 3 s at 1×),
+// and the hand-drawn play and pause glyphs of its control (pathLength 1, so each stroke can be drawn on). Nothing is
+// laid over the frame, as in KineX: the frame is where the pen writes once the lecture is paused.
+const AB = [38, 56], AB_T = [768, 771], PH0 = 38.6;
+// a hand's speed along a stroke: off quickly, fastest midway, easing into its end (the minimum-jerk profile)
+const handEase = t => t * t * t * (t * (6 * t - 15) + 10);
 const PLAY_D = ['M37 27 Q55 38 72.5 49.5 Q55 61.5 37.5 72.5 Q35.4 50 38 25.5'];
 const PAUSE_D = ['M40.5 28.5 Q41.6 50 40.4 71.5', 'M60 28 Q59.2 50.5 60.6 71'];
 const strokes = ds => ds.map(d => `<path d="${d}" pathLength="1"/>`).join('');
@@ -113,7 +115,7 @@ L = 4*pi*R**2*sigma*T**4
       <div class="player">
         <div class="frame">${slideSVG(getLang())}${frameInk()}<span class="chip t">12:48</span></div>
         <div class="tl"><div class="ab" style="left:${AB[0]}%;right:${100 - AB[1]}%"></div><i style="left:12%"></i><i style="left:${AB[0]}%"></i><i style="left:${AB[1]}%"></i><i style="left:81%"></i><b></b></div>
-        <div class="ctrls"><span class="pp">${PP}</span><span class="tm">12:48 / 52:10</span><span class="abl">A–B</span><span>±5s</span><span>1.25×</span></div>
+        <div class="ctrls"><span class="pp">${PP}</span><span class="tm">12:48 / 52:10</span><span class="abl">A–B</span><span>±5s</span><span>1×</span></div>
       </div>
       <div class="cap-card"><div class="mini-frame">${slideSVG(getLang(), { labels: false })}</div><div><b>${T('截帧 · 12:48', 'Frame · 12:48')}</b><span>${T('红巨星：恒星的晚年', 'Red giant: a star’s old age')}</span></div></div>
     </div>`,
@@ -306,12 +308,13 @@ export function initRead() {
   const mediaFinish = () => { mediaDone?.(); mediaDone = null; };
   const clock = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
   const paintPh = () => {
-    const pl = player(), t = 768 + (ph - PH0) * 9; // 12:48 at the playhead's first place
+    const pl = player(), t = AB_T[0] + (ph - AB[0]) / (AB[1] - AB[0]) * (AB_T[1] - AB_T[0]);
     pl.style.setProperty('--ph', ph.toFixed(2) + '%');
     pl.querySelector('.chip.t').textContent = clock(t);
     pl.querySelector('.tm').textContent = `${clock(t)} / 52:10`;
   };
-  const tick = (time, dt) => { ph += Math.min(dt, 100) / 1000 * 2.4; if (ph >= AB[1]) ph = AB[0] + ph - AB[1]; paintPh(); };
+  // in real time: the 3 s loop takes 3 s
+  const tick = (time, dt) => { ph += Math.min(dt, 100) / 1000 * (AB[1] - AB[0]) / (AB_T[1] - AB_T[0]); if (ph >= AB[1]) ph = AB[0] + ph - AB[1]; paintPh(); };
   const drawIcon = () => { // the glyph now showing on the control
     if (reduceMotion) return;
     gsap.fromTo(player().querySelectorAll(`.pp .i-${playing ? 'pause' : 'play'} path`), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: .4, ease: 'power2.inOut', stagger: .1 });
@@ -327,7 +330,7 @@ export function initRead() {
   plays.media = () => (playing ? null : new Promise(res => {
     mediaDone = res;
     setPlaying(true);
-    autoStop = setTimeout(() => { setPlaying(false); gsap.delayedCall(reduceMotion ? 0 : 1.5, mediaFinish); }, 3200);
+    autoStop = setTimeout(() => { setPlaying(false); gsap.delayedCall(reduceMotion ? 0 : 1.1, mediaFinish); }, 3600); // round the loop once, and on
   }));
   media.addEventListener('click', e => { if (e.target.closest('.player')) { mediaFinish(); setPlaying(!playing); } });
   away.media = () => { mediaFinish(); setPlaying(false, false); };
@@ -338,14 +341,14 @@ export function initRead() {
   function writeInk() {
     inkTw?.kill(); gsap.set(inkSvg(), { opacity: 1 });
     const o = { k: 0 };
-    inkTw = gsap.to(o, { k: INK.length - 1, duration: reduceMotion ? 0 : 1.1, delay: .25, ease: 'power1.inOut', onUpdate: () => rib()?.setAttribute('d', ribbonPath(INK, o.k)) });
+    inkTw = gsap.to(o, { k: INK.length - 1, duration: reduceMotion ? 0 : .75, delay: .18, ease: handEase, onUpdate: () => rib()?.setAttribute('d', ribbonPath(INK, o.k)) });
   }
   function clearInk(animate) {
     inkTw?.kill();
     inkTw = gsap.to(inkSvg(), { opacity: 0, duration: animate && !reduceMotion ? .35 : 0, onComplete: () => rib()?.setAttribute('d', '') });
   }
   function showInk() { if (playing) return; inkTw?.kill(); gsap.set(inkSvg(), { opacity: 1 }); rib()?.setAttribute('d', ribbonPath(INK)); }
-  showInk(); // it starts paused, with its note on the frame
+  showInk(); paintPh(); // it starts paused at 12:48, with its note on the frame
 
   // a new language repaints the plates: keep each demo where it was
   addEventListener('kx:lang', () => requestAnimationFrame(() => {
