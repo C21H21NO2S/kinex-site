@@ -21,6 +21,9 @@ const T = (zh, en) => (Z() ? zh : en);
 // highlight can sweep across it
 const EXCERPT = () => T('你血液里的铁，来自一颗早已死去的恒星。', 'the iron in your blood came from a star that died long ago.');
 const words = s => (Z() ? [...s] : s.split(/(?<= )/)).map(w => `<span class="w">${w}</span>`).join('');
+// the web article's text as word boxes (characters in Chinese, closing punctuation kept with the character before it),
+// so the reflow can move each one to its new line
+const flow = s => (Z() ? s.match(/.[，。、；：！？）」』”’》…—]*/gu) : s.split(/(?<= )/)).map(w => `<span class="fw">${w}</span>`).join('');
 
 // the lecture plate's player: its A–B loop (% of the timeline), and the hand-drawn play and pause glyphs of its
 // control (pathLength 1, so each stroke can be drawn on). Nothing is laid over the frame, as in KineX: the frame is
@@ -63,7 +66,7 @@ const ART = {
       </div>
     </div>`,
   web: () => `
-    <div class="art web${webClean ? ' clean' : ''}">
+    <div class="art web${webClean ? ' clean done' : ''}">
       <div class="uiwin">
         <div class="bar2"><i></i><i></i><i></i><button type="button" class="reload" aria-label="${T('重新载入', 'Reload')}"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.5-3.6"/><path d="M13 2.6v3h-3"/></svg></button><span class="addr">nightsky.example/olbers</span></div>
         <div class="page">
@@ -72,8 +75,8 @@ const ART = {
             <span class="kick">${T('星空杂志 · 6 分钟阅读', 'Night Sky Magazine · 6 min read')}</span>
             <h5>${T('夜空为什么是黑的？', 'Why is the night sky dark?')}</h5>
             <div class="img">${deepField()}</div>
-            <p>${T('如果宇宙无限大、恒星无限多，每一条视线最后都会落在一颗星上，夜空应该亮如白昼。这个矛盾叫“奥伯斯佯谬”。', 'If the universe were infinite and full of stars, every line of sight would end on a star and the night would blaze like day. This is Olbers’ paradox.')}</p>
-            <p>${T('答案藏在时间里：<mark>宇宙有年龄，远处的星光还在路上。</mark>', 'The answer lies in time: <mark>the universe has an age, and distant light is still on its way.</mark>')}</p>
+            <p>${flow(T('如果宇宙无限大、恒星无限多，每一条视线最后都会落在一颗星上，夜空应该亮如白昼。这个矛盾叫“奥伯斯佯谬”。', 'If the universe were infinite and full of stars, every line of sight would end on a star and the night would blaze like day. This is Olbers’ paradox.'))}</p>
+            <p>${flow(T('答案藏在时间里：', 'The answer lies in time: '))}<mark>${flow(T('宇宙有年龄，远处的星光还在路上。', 'the universe has an age, and distant light is still on its way.'))}</mark></p>
           </div>
           <div class="clutter side"><i></i><i></i><i></i></div>
         </div>
@@ -246,22 +249,44 @@ export function initRead() {
   // Web clipping: a moment after the plate settles in view, the ads and side clutter fade away and the article reflows
   // to the full width. It stays clean while in view; once wholly out of view it is quietly set back, so it plays again
   // next time. The window's reload button (or a click on the window) plays it again now, like reloading the page.
+  // The reflow is a FLIP: every piece of the article is measured, the page switches to its clean layout in one step,
+  // and each piece glides from where it was to where it now is (transforms only: nothing is laid out per frame). The
+  // photo keeps its pixel size and is uncovered as the column widens.
   const webArt = () => byName('web').querySelector('.web');
-  let webCall = null, webDone = null;
+  let webTl = null, webDone = null;
   const webFinish = () => { webDone?.(); webDone = null; };
+  const webPieces = a => [...a.querySelectorAll('.article .kick, .article h5, .article .img, .article .fw')];
   function webClear(delay) {
-    webCall?.kill();
+    webTl?.kill();
+    const a = webArt();
+    if (reduceMotion) { webClean = true; a.classList.add('clean', 'done'); return null; }
     return new Promise(res => {
       webDone = res;
-      webCall = gsap.delayedCall(reduceMotion ? 0 : delay, () => {
-        webClean = true; webArt().classList.add('clean');
-        webCall = gsap.delayedCall(reduceMotion ? 0 : 2.1, webFinish); // fade, fold, reflow, badge
-      });
+      const tl = webTl = gsap.timeline({ delay, onComplete: webFinish });
+      tl.to(a.querySelectorAll('.clutter'), { opacity: 0, scale: .97, duration: .5, ease: 'power2.inOut', stagger: .08 });
+      tl.add(() => {
+        const items = webPieces(a), img = a.querySelector('.article .img');
+        const k = a.getBoundingClientRect().width / a.offsetWidth || 1; // the plate's scale
+        const before = items.map(el => el.getBoundingClientRect()), w0 = img.getBoundingClientRect().width;
+        webClean = true; a.classList.add('clean');
+        const after = items.map(el => el.getBoundingClientRect()), w1 = img.getBoundingClientRect().width;
+        const at = tl.time(), n = items.length;
+        items.forEach((el, i) => { // a slight cascade down the article
+          const dx = (before[i].left - after[i].left) / k, dy = (before[i].top - after[i].top) / k;
+          if (Math.abs(dx) + Math.abs(dy) < .5) return;
+          tl.fromTo(el, { x: dx, y: dy }, { x: 0, y: 0, duration: 1.1, ease: 'power3.inOut', force3D: false, immediateRender: true }, at + i / n * .24); // a hundred words: repainted, not a layer each
+        });
+        tl.fromTo(img, { clipPath: `inset(0px ${((w1 - w0) / k).toFixed(1)}px 0px 0px round 8px)` }, { clipPath: 'inset(0px 0px 0px 0px round 8px)', duration: 1.1, ease: 'power3.inOut', immediateRender: true }, at);
+      }, '+=.02');
+      tl.add(() => a.classList.add('done'), '+=1.2'); // the saved badge
+      tl.to({}, { duration: .55 });
     });
   }
-  function webReset() { // back to the cluttered page at once, without its transitions
-    webCall?.kill(); webFinish(); webClean = false;
-    const a = webArt(); a.classList.add('snap'); a.classList.remove('clean'); void a.offsetWidth; a.classList.remove('snap');
+  function webReset() { // back to the cluttered page at once
+    webTl?.kill(); webFinish(); webClean = false;
+    const a = webArt();
+    gsap.set([...a.querySelectorAll('.clutter'), ...webPieces(a)], { clearProps: 'transform,opacity,clipPath' });
+    a.classList.add('snap'); a.classList.remove('clean', 'done'); void a.offsetWidth; a.classList.remove('snap');
   }
   plays.web = () => (webClean ? null : webClear(.6));
   away.web = r => { if (r === 0 && !reduceMotion) webReset(); };
