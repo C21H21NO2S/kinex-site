@@ -299,11 +299,11 @@ export function initRead() {
     gsap.timeline().to(page, { opacity: 0, duration: .18 }).add(webReset).to(page, { opacity: 1, duration: .3 }).add(() => webClear(.7));
   });
 
-  // Lecture. Playing always starts the A–B loop at A and stops by itself halfway through it; the pen then circles the
-  // red giant on the still frame. A click on the player plays the loop that way, or, while it plays, stops it, and the
-  // pen writes at once. The control's ▶ / ❚❚ is drawn on as it changes. It plays the same way each time it settles in
-  // view (scrolled or swiped back to) and stops when it leaves. Hover does nothing (playing on hover made the click
-  // that followed pause it).
+  // Lecture. It plays on from where it stopped, round the A–B loop (at B it goes back to A), and stops by itself as it
+  // reaches the loop's middle; the pen then circles the red giant on the still frame. A click plays it that way, or,
+  // while it plays, stops it, and the pen writes at once. The control's ▶ / ❚❚ is drawn on as it changes. It plays the
+  // same way each time it settles in view (scrolled or swiped back to) and stops when it leaves. Hover does nothing
+  // (playing on hover made the click that followed pause it).
   const media = byName('media'), player = () => media.querySelector('.player');
   const MID = (AB[0] + AB[1]) / 2;
   let playing = false, ph = PH0, mediaDone = null, finishCall = null;
@@ -315,11 +315,16 @@ export function initRead() {
     pl.querySelector('.chip.t').textContent = clock(t);
     pl.querySelector('.tm').textContent = `${clock(t)} / 52:10`;
   };
-  // in real time (the 3 s loop takes 3 s at 1×); halfway through the loop it stops
+  // in real time (the 3 s loop takes 3 s at 1×); it stops as it passes the loop's middle (from the middle itself it goes
+  // once round: on to B, back to A, up to the middle)
   const tick = (time, dt) => {
-    ph = Math.min(MID, ph + Math.min(dt, 100) / 1000 * (AB[1] - AB[0]) / (AB_T[1] - AB_T[0]));
+    const prev = ph;
+    ph += Math.min(dt, 100) / 1000 * (AB[1] - AB[0]) / (AB_T[1] - AB_T[0]);
+    if (ph >= AB[1]) ph = AB[0] + ph - AB[1];
+    const stop = prev < MID && ph >= MID;
+    if (stop) ph = MID;
     paintPh();
-    if (ph >= MID) setPlaying(false);
+    if (stop) setPlaying(false);
   };
   const drawIcon = () => { // the glyph now showing on the control
     if (reduceMotion) return;
@@ -328,7 +333,7 @@ export function initRead() {
   function setPlaying(on, animate = true) {
     if (on === playing) return;
     playing = on; player().classList.toggle('playing', on);
-    if (on) { ph = AB[0]; paintPh(); gsap.ticker.add(tick); clearInk(animate); }
+    if (on) { gsap.ticker.add(tick); clearInk(animate); }
     else {
       gsap.ticker.remove(tick);
       if (animate) { writeInk(); finishCall = gsap.delayedCall(reduceMotion ? 0 : 1.1, mediaFinish); } // done once the pen has written
