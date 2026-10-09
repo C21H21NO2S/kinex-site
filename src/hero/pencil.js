@@ -5,10 +5,12 @@
 
 export function rng(seed) { let s = seed >>> 0 || 1; return () => (s = (s * 16807) % 2147483647) / 2147483647; }
 
-let toothTile = null;
-export function paperTooth() {
-  if (toothTile) return toothTile;
-  const n = 128, c = new OffscreenCanvas(n, n), x = c.getContext('2d'), img = x.createImageData(n, n), r = rng(11);
+// soft: for drawing into a software canvas (the textures; see textures.js) — mixing GPU and software canvases reads
+// pixels back on every draw
+const toothTiles = {};
+export function paperTooth(soft = false) {
+  if (toothTiles[soft]) return toothTiles[soft];
+  const n = 128, c = new OffscreenCanvas(n, n), x = c.getContext('2d', soft ? { willReadFrequently: true } : undefined), img = x.createImageData(n, n), r = rng(11);
   const base = Float32Array.from({ length: n * n }, () => r());
   for (let y = 0; y < n; y++) for (let xx = 0; xx < n; xx++) {
     let sum = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) sum += base[((y + dy + n) % n) * n + ((xx + dx + n) % n)];
@@ -16,18 +18,19 @@ export function paperTooth() {
     img.data[(y * n + xx) * 4 + 3] = Math.round(255 * (1 - .55 * (1 - v)));
   }
   x.putImageData(img, 0, 0);
-  return (toothTile = c);
+  return (toothTiles[soft] = c);
 }
 const tips = new Map();
-export function pencilTip(color) { // a soft-edged round tip with a faintly irregular outline, tinted
-  if (tips.has(color)) return tips.get(color);
-  const c = new OffscreenCanvas(64, 64), x = c.getContext('2d'), img = x.createImageData(64, 64);
+export function pencilTip(color, soft = false) { // a soft-edged round tip with a faintly irregular outline, tinted
+  const key = color + soft;
+  if (tips.has(key)) return tips.get(key);
+  const c = new OffscreenCanvas(64, 64), x = c.getContext('2d', soft ? { willReadFrequently: true } : undefined), img = x.createImageData(64, 64);
   for (let y = 0; y < 64; y++) for (let xx = 0; xx < 64; xx++) {
     const px = (xx + .5 - 32) / 32, py = (y + .5 - 32) / 32, a = Math.atan2(py, px), edge = .91 + .035 * Math.sin(a * 5 + .8) + .028 * Math.cos(a * 11 - .3);
     img.data[(y * 64 + xx) * 4 + 3] = Math.round(255 * Math.max(0, Math.min(1, (edge - Math.hypot(px, py)) / .3)));
   }
   x.putImageData(img, 0, 0); x.globalCompositeOperation = 'source-in'; x.fillStyle = `rgb(${color})`; x.fillRect(0, 0, 64, 64);
-  tips.set(color, c); return c;
+  tips.set(key, c); return c;
 }
 
 // the dabs of one stroke through pts, in drawing order: [x, y, size, alpha] (top-left corner of each dab)
@@ -65,8 +68,9 @@ export function pencilDabs(pts, width, r, tremor = 1, taper = null) {
 }
 
 export function pencil(ctx, pts, width, r, color = '42,40,56') {
-  const W = ctx.canvas.width, H = ctx.canvas.height, mask = new OffscreenCanvas(W, H), m = mask.getContext('2d'), T = pencilTip(color);
+  const soft = !!ctx.getContextAttributes?.().willReadFrequently;
+  const W = ctx.canvas.width, H = ctx.canvas.height, mask = new OffscreenCanvas(W, H), m = mask.getContext('2d', soft ? { willReadFrequently: true } : undefined), T = pencilTip(color, soft);
   for (const [x, y, w, a] of pencilDabs(pts, width, r)) { m.globalAlpha = a; m.drawImage(T, x, y, w, w); }
-  m.globalAlpha = 1; m.globalCompositeOperation = 'destination-in'; m.fillStyle = m.createPattern(paperTooth(), 'repeat'); m.fillRect(0, 0, W, H);
+  m.globalAlpha = 1; m.globalCompositeOperation = 'destination-in'; m.fillStyle = m.createPattern(paperTooth(soft), 'repeat'); m.fillRect(0, 0, W, H);
   ctx.drawImage(mask, 0, 0);
 }

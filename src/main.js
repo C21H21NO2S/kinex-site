@@ -82,6 +82,12 @@ async function bootScene(sketch) {
   scene.onDowngrade = () => { if (tier !== 'low' && !new URLSearchParams(location.search).get('q')) { try { sessionStorage.setItem('kx-q', 'low'); } catch (e) {} } };
   addEventListener('kx:lang', () => scene.refreshTextures());
   addEventListener('kx:theme', () => gsap.to(scene.T, { k: isDark() ? 1 : 0, duration: 1.1, ease: 'power2.inOut', onUpdate: () => scene.applyTheme(scene.T.k) }));
+  // The time the pencil still needs goes to the steps left: the threads' layer, then the sections below the fold, one
+  // per task. The develop itself must find this thread free: any work then shows as a stutter.
+  let drawnYet = !sketch;
+  sketch?.drawn.then(() => { drawnYet = true; });
+  if (!drawnYet) scene.warmLines();
+  await setUpSections(() => drawnYet);
   // the render develops inside the finished sketch (same pose: the scene's clock starts at its first frame), the
   // lines fade off it, then the threads draw out of the screen and the pointer starts to sway the camera
   await sketch?.drawn;
@@ -89,11 +95,8 @@ async function bootScene(sketch) {
   wireSceneScroll();
   await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => {
     html.classList.add('gl-on'); sketch?.hide();
-    // Once that frame is out, while the render is still faint: the steps left, the threads' layer and the sections below
-    // the fold. Then the threads draw.
-    requestAnimationFrame(() => setTimeout(async () => {
-      scene.warmLines();
-      await setUpSections(); // a section per task; done before the threads start drawing
+    requestAnimationFrame(() => setTimeout(() => {
+      scene.warmLines(); // if the pencil left no time for it
       if (!reduceMotion) {
         gsap.to(scene.state, { links: 1, duration: 2.9, delay: .1, ease: 'none' }); // each thread eases within its own window
         gsap.to(scene.state, { par: 1, duration: 2.4, delay: .8, ease: 'power1.inOut' });
@@ -130,15 +133,15 @@ function replayHero() {
 }
 
 // ---------------------------------------------------------------- sections below the fold
-// Set up once the scene has appeared (bootScene), or at once without a scene or when the reader scrolls on before it
-// appears: during the build they would slow it down.
+// One per task, never during the build (it would slow it down) or the develop (it would stutter): in the time the
+// pencil still needs once the scene is built (bootScene), then once the threads have drawn, or at once when there is
+// no scene or the reader scrolls on. until(): pause before the next section when it says so.
+const sectionsLeft = [initRead, initBoard, initInk, initRecall, initSync];
 let sectionsUp = null;
-function setUpSections() {
-  if (!sectionsUp) sectionsUp = (async () => {
-    for (const init of [initRead, initBoard, initInk, initRecall, initSync]) { init(); await new Promise(r => setTimeout(r, 0)); }
-    await document.fonts.ready;
-    initReveal(); ScrollTrigger.sort(); ScrollTrigger.refresh();
-  })();
+async function setUpSections(until = () => false) {
+  while (sectionsLeft.length && !until()) { sectionsLeft.shift()(); await new Promise(r => setTimeout(r, 0)); }
+  if (sectionsLeft.length) return;
+  if (!sectionsUp) sectionsUp = document.fonts.ready.then(() => { initReveal(); ScrollTrigger.sort(); ScrollTrigger.refresh(); });
   return sectionsUp;
 }
 
@@ -157,9 +160,11 @@ ScrollTrigger.create({ trigger: '#story', start: 'top top', end: 'bottom bottom'
   const early = () => { if (scrollY > innerHeight * .5) { removeEventListener('scroll', early); setUpSections(); } };
   addEventListener('scroll', early, { passive: true });
   await booting;
+  // 3. the scene is up: the pointer's follower can appear (it would stutter while the scene was building)
+  requestAnimationFrame(() => html.classList.add('settled'));
+  // 4. whatever sections are left, once the threads have drawn (or now, if the reader scrolls on)
+  if (sectionsLeft.length) await new Promise(r => setTimeout(r, scene && !reduceMotion ? 3200 : 0));
   removeEventListener('scroll', early);
   await setUpSections();
   ScrollTrigger.refresh();
-  // 3. the page is built: the pointer's follower can appear (it would stutter while the scene was building)
-  requestAnimationFrame(() => html.classList.add('settled'));
 })();

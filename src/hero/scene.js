@@ -5,7 +5,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Line2 } from 'three/addons/lines/Line2.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
-import { makePage, makeCard, drawScreen, SCREEN, rng, VARIANTS } from './textures.js';
+import { makePage, makeCard, drawScreen, SCREEN, rng, VARIANTS, SOFT } from './textures.js';
 import { heroPose, LINKED_POSE } from './pose.js';
 
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -50,12 +50,12 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   let grain = null;
   function grainTile() {
     const t = document.createElement('canvas'); t.width = t.height = 128;
-    const x = t.getContext('2d'), img = x.createImageData(128, 128), r = rng(3);
+    const x = t.getContext('2d', SOFT), img = x.createImageData(128, 128), r = rng(3);
     for (let i = 0; i < img.data.length; i += 4) { const n = r() - .5, v = n > 0 ? 255 : 0; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = Math.round(Math.abs(n) * 2.2 / 255 * 255 * 1.1); }
     x.putImageData(img, 0, 0); return t;
   }
   function paintBackground(k) {
-    const c = bgCanvas.getContext('2d'), w = 1024, h = 640, mix = (a, b) => a.map((v, i) => Math.round(v + (b[i] - v) * k));
+    const c = bgCanvas.getContext('2d', SOFT), w = 1024, h = 640, mix = (a, b) => a.map((v, i) => Math.round(v + (b[i] - v) * k));
     const base = mix([205, 207, 214], [6, 6, 10]), glow = mix([232, 235, 242], [44, 38, 120]), glow2 = mix([214, 226, 240], [12, 60, 90]);
     c.fillStyle = `rgb(${base})`; c.fillRect(0, 0, w, h);
     let g = c.createRadialGradient(w * .92, -h * .1, 0, w * .92, -h * .1, w * .9); g.addColorStop(0, `rgba(${glow},${.9 - k * .5})`); g.addColorStop(1, `rgba(${glow},0)`); c.fillStyle = g; c.fillRect(0, 0, w, h);
@@ -93,7 +93,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   const screen = new THREE.Mesh(planeUV(new THREE.ShapeGeometry(rrShape(SW, SH, .05), 24), SW, SH), scrMat); screen.position.z = FRONT + .004; tablet.add(screen);
   const camDot = new THREE.Mesh(new THREE.CircleGeometry(.012, 24), new THREE.MeshStandardMaterial({ color: 0x0b0d16, roughness: .2 }));
   camDot.position.set(0, TH / 2 - BEZ / 2, FRONT + .004); tablet.add(camDot);
-  const sheenC = document.createElement('canvas'); sheenC.width = 512; sheenC.height = 512; { const c = sheenC.getContext('2d'), g = c.createLinearGradient(0, 0, 512, 512); g.addColorStop(.3, 'rgba(255,255,255,0)'); g.addColorStop(.42, 'rgba(255,255,255,.5)'); g.addColorStop(.5, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(0, 0, 512, 512); }
+  const sheenC = document.createElement('canvas'); sheenC.width = 512; sheenC.height = 512; { const c = sheenC.getContext('2d', SOFT), g = c.createLinearGradient(0, 0, 512, 512); g.addColorStop(.3, 'rgba(255,255,255,0)'); g.addColorStop(.42, 'rgba(255,255,255,.5)'); g.addColorStop(.5, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(0, 0, 512, 512); }
   const sheen = new THREE.Mesh(planeUV(new THREE.ShapeGeometry(rrShape(SW, SH, .05), 24), SW, SH), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sheenC), opacity: .025, ...BLEND_ADD, depthWrite: false }));
   sheen.position.z = FRONT + .007; sheen.renderOrder = 3; tablet.add(sheen);
   // The screen UI is painted once per language. Uploading a 2D canvas to WebGL costs ~90 ms, so nothing on the
@@ -101,7 +101,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   let screenInfo = null, screenLang = '';
   function paintScreen() {
     if (screenLang === getLang()) return;
-    const ctx = scrCanvas.getContext('2d'); ctx.clearRect(0, 0, scrCanvas.width, scrCanvas.height);
+    const ctx = scrCanvas.getContext('2d', SOFT); ctx.clearRect(0, 0, scrCanvas.width, scrCanvas.height);
     screenInfo = drawScreen(ctx, scrCanvas.width, scrCanvas.height, getLang(), 0, 'light');
     screenLang = getLang();
     scrTex.needsUpdate = true;
@@ -139,7 +139,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   // colour pencil: wax pigment caught on the paper tooth, a soft edge across the stroke, deeper where pressed
   const pencilTex = (() => {
     const W = 512, H = 64, c = document.createElement('canvas'); c.width = W; c.height = H;
-    const x = c.getContext('2d'), img = x.createImageData(W, H), rr = rng(23), base = Float32Array.from({ length: W * H }, () => rr());
+    const x = c.getContext('2d', SOFT), img = x.createImageData(W, H), rr = rng(23), base = Float32Array.from({ length: W * H }, () => rr());
     for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
       let g = 0; for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) g += base[((j + dj + H) % H) * W + ((i + di + W) % W)];
       g = Math.min(1, Math.max(0, (g / 9 - .28) / .44));
@@ -184,7 +184,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   const FIRST = { quote: 1, flash: 1 };
   const backMat = new THREE.MeshStandardMaterial({ color: 0xefeadf, roughness: .95, depthTest: false, depthWrite: false });
   const planeGeo = new THREE.PlaneGeometry(1, 1);
-  const shadowTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d');
+  const shadowTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d', SOFT);
     x.filter = 'blur(14px)'; x.fillStyle = '#000'; x.fillRect(30, 30, 68, 68); const t = new THREE.CanvasTexture(c); return t; })();
   const shadowMat = new THREE.MeshBasicMaterial({ map: shadowTex, ...BLEND, opacity: .3, depthTest: false, depthWrite: false, toneMapped: false });
   // a card is a front plane (its texture) and a back plane; two draw calls instead of six
@@ -223,7 +223,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     if (texCache.has(k)) return texCache.get(k);
     const c = kind === 'page' ? makePage(i, getLang(), 100 + i) : makeCard(kind, getLang(), 200 + i, i);
     let src = c;
-    if (texSize < 1) { const s = new OffscreenCanvas(Math.round(c.width * texSize), Math.round(c.height * texSize)); s.getContext('2d').drawImage(c, 0, 0, s.width, s.height); src = s; }
+    if (texSize < 1) { const s = new OffscreenCanvas(Math.round(c.width * texSize), Math.round(c.height * texSize)); s.getContext('2d', SOFT).drawImage(c, 0, 0, s.width, s.height); src = s; }
     const t = new THREE.CanvasTexture(src); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = Math.min(8, maxAniso); texCache.set(k, t); return t;
   }
   // Everything above needs no fonts. While the text faces are still downloading, draw each material once off
@@ -414,7 +414,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   // the glow around a travelling pulse: a soft radial falloff, not a flat disc
   const glowTex = (() => {
     const c = document.createElement('canvas'); c.width = c.height = 64;
-    const x = c.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+    const x = c.getContext('2d', SOFT), g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
     [[0, 1], [.18, .62], [.42, .2], [.7, .05], [1, 0]].forEach(([o, a]) => g.addColorStop(o, `rgba(255,255,255,${a})`));
     x.fillStyle = g; x.fillRect(0, 0, 64, 64);
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;

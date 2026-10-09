@@ -10,11 +10,15 @@ const SERIF_EN = '"Instrument Serif", Georgia, serif';
 const SANS = 'Inter, "Noto Sans SC", system-ui, sans-serif';
 const MONO = '"JetBrains Mono", ui-monospace, monospace';
 
+// The 3D scene's canvas textures are drawn in software (willReadFrequently). Drawn on the GPU, their whole drawing
+// ran in the GPU process when they were uploaded, and every frame on screen (the opening sketch too) waited for it.
+export const SOFT = { willReadFrequently: true };
+
 let GRAIN = null;
 function grainTile() {
   if (GRAIN) return GRAIN;
   const c = document.createElement('canvas'); c.width = c.height = 128;
-  const x = c.getContext('2d'), img = x.createImageData(128, 128), d = img.data, r = rng(11);
+  const x = c.getContext('2d', { willReadFrequently: true }), img = x.createImageData(128, 128), d = img.data, r = rng(11);
   for (let i = 0; i < d.length; i += 4) { const v = r() - .5; const c2 = v > 0 ? 255 : 0; d[i] = d[i + 1] = d[i + 2] = c2; d[i + 3] = Math.abs(v) * 22; }
   x.putImageData(img, 0, 0);
   return (GRAIN = c);
@@ -114,7 +118,7 @@ export const ALL_TEXT = JSON.stringify(PAGES) + JSON.stringify(CARDS) + '笔记�
 const frame = (ctx, w, h) => { const r = Math.min(w, h) * .045 * 1.0; ctx.strokeStyle = 'rgba(30,27,40,.12)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 4, r); ctx.stroke(); };
 
 export function makePage(variant, lang, seed) {
-  const w = 768, h = 1024, c = new OffscreenCanvas(w, h), ctx = c.getContext('2d'), r = rng(seed);
+  const w = 768, h = 1024, c = new OffscreenCanvas(w, h), ctx = c.getContext('2d', SOFT), r = rng(seed);
   paper(ctx, w, h, ['#FBF8F1', '#F9F6EE', '#FCFAF4', '#F7F3EA'][variant % 4], r);
   const [title, p1, p2] = PAGES[lang][variant % PAGES[lang].length], cjk = lang === 'zh';
   const [chap, name] = cjk ? title.split('　') : title.split(' — ');
@@ -150,7 +154,7 @@ export function makePage(variant, lang, seed) {
 export function makeCard(kind, lang, seed, v = 0) {
   const zh = lang === 'zh';
   const pick = list => list[v % list.length];
-  const w = 640, h = kind === 'video' ? 460 : 400, c = new OffscreenCanvas(w, h), ctx = c.getContext('2d'), r = rng(seed);
+  const w = 640, h = kind === 'video' ? 460 : 400, c = new OffscreenCanvas(w, h), ctx = c.getContext('2d', SOFT), r = rng(seed);
   const round = (x, y, ww, hh, rr) => { ctx.beginPath(); ctx.roundRect(x, y, ww, hh, rr); };
   paper(ctx, w, h, '#FDFCF9', r);
   const label = (t, x, y) => { ctx.fillStyle = '#8E8A98'; ctx.font = `500 24px ${MONO}`; ctx.fillText(t.toUpperCase(), x, y); };
