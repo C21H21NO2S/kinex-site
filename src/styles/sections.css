@@ -8,7 +8,11 @@
 .rail-pin.swipe .rail-foot { position: sticky; left: 0; width: 100vw; }
 
 /* ================================================================ plate art */
-.plate-art .art { --ink: #24212E; }
+/* Each artwork is laid out at one size (440 × 484, the plate's 4 : 4.4) and scaled to the plate (read.js sets --pk), so a
+   phone shows the same picture as a desktop. They are pictures: no text selection or long-press menu (on a phone a
+   selection took over the swipe). */
+.plate-art { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.plate-art .art { --ink: #24212E; inset: auto; left: 0; top: 0; width: 440px; height: 484px; transform: scale(var(--pk, 1)); transform-origin: 0 0; }
 .plate-art .chip { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg-2); }
 
 /* PDF */
@@ -20,11 +24,24 @@
 .pdf .doc .h { margin-bottom: 4px; }
 .pdf .margin-ink { position: absolute; right: 6px; top: 46%; width: 30px; fill: none; stroke: #C2410C; stroke-width: 2.2; stroke-linecap: round; opacity: .8; }
 .pdf .chips { position: absolute; left: 50%; bottom: 4.5%; transform: translateX(-50%); display: flex; gap: 6px; }
+.pdf .mark-hl { background: none; }
+.pdf .mark-hl .w { background: linear-gradient(transparent 12%, rgba(34,211,238,.5) 12%, rgba(34,211,238,.5) 92%, transparent 92%) no-repeat 0 0 / 100% 100%; }
+/* the selection caret: a thin bar with a drop-shaped handle under it, as on a tablet */
+.pdf .sel-caret { position: absolute; left: 0; top: 0; width: 2px; height: 20px; margin-left: -1px; border-radius: 1px; background: #0EA5E9; opacity: 0; visibility: hidden; pointer-events: none; }
+.pdf .sel-caret::after { content: ""; position: absolute; left: 50%; bottom: -8px; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 0 50% 50% 50%; background: #0EA5E9; transform: rotate(45deg); }
+/* the excerpt card, as on the board: white, a coloured retrace stripe, the source under the quote */
+.pdf .xc { position: absolute; left: 188px; top: 288px; width: 226px; padding: 12px 14px 12px 19px; border-radius: 9px; background: #FFFFFF; color: #1F1C2A; box-shadow: 0 1px 0 rgba(0,0,0,.05), 0 26px 48px -20px rgba(0,0,0,.6); rotate: 1.6deg; overflow: hidden; }
+.pdf .xc::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: #0EA5E9; }
+.pdf .xc .k { font: 500 8.5px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: #8E8A98; }
+.pdf .xc p { margin: 8px 0 9px; font: 400 16px/1.25 var(--f-serif); letter-spacing: -.005em; }
+html[data-lang="zh"] .pdf .xc p { font: 500 13.5px/1.6 var(--f-cn-serif); letter-spacing: 0; }
+.pdf .xc .back { font: 600 10.5px/1 var(--f-sans); color: #1D4ED8; }
 
 /* EPUB */
-.epub .spread { position: absolute; left: 7%; right: 7%; top: 12%; bottom: 20%; display: grid; grid-template-columns: 1fr 1fr; background: #FBFAF6; border-radius: 4px; box-shadow: 0 30px 60px -30px rgba(0,0,0,.6); overflow: hidden; }
+.epub .spread { position: absolute; left: 26px; right: 26px; top: 30px; height: 290px; display: grid; grid-template-columns: 1fr 1fr; background: #FBFAF6; border-radius: 4px; box-shadow: 0 30px 60px -30px rgba(0,0,0,.6); overflow: hidden; }
 .epub .spread::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 40px; margin-left: -20px; background: linear-gradient(90deg, transparent, rgba(0,0,0,.08) 45%, rgba(0,0,0,.12) 50%, rgba(0,0,0,.08) 55%, transparent); }
-.epub .pg { position: relative; padding: 22px 18px; }
+.epub .pg { position: relative; padding: 24px 18px 20px; }
+html[data-lang="en"] .epub .pg { hyphens: auto; -webkit-hyphens: auto; }
 .epub .cap { float: left; font: 500 46px/.9 var(--f-cn-serif); color: #2A2735; margin: 4px 8px 0 0; }
 html[data-lang="en"] .epub .cap { font: italic 400 58px/.8 var(--f-serif); }
 .epub .serif-t { font-size: 12px; }
@@ -32,11 +49,11 @@ html[data-lang="en"] .epub .serif-t { font-size: 13.5px; }
 .epub .spread.wk .serif-t, .epub .spread.wk .cap { font-family: "LXGW WenKai", var(--f-cn-serif); font-weight: 400; }
 .epub .spread.wk .serif-t { font-size: 12.5px; }
 html[data-lang="en"] .epub .spread.wk .serif-t { font-size: 13px; line-height: 1.55; }
-html[data-lang="en"] .epub .spread.wk .cap { font: 400 50px/.86 "LXGW WenKai", var(--f-serif); }
+html[data-lang="en"] .epub .spread.wk .cap { font: 400 43px/.82 "LXGW WenKai", var(--f-serif); margin: 4px 6px 0 0; }
 .epub .spread.swap .pg { animation: kx-swap .5s var(--ease); }
 @keyframes kx-swap { from { opacity: .25; } }
 .epub .pno { position: absolute; bottom: 12px; right: 18px; font: 500 9px/1 var(--f-mono); color: #9B968A; }
-.epub .aa { position: absolute; right: 9%; bottom: 8%; width: 58%; padding: 14px; border-radius: 14px; background: var(--panel-2); box-shadow: inset 0 0 0 1px var(--card-line), 0 24px 40px -20px rgba(0,0,0,.6); color: var(--fg); transition: transform .8s var(--ease); }
+.epub .aa { position: absolute; right: 22px; bottom: 22px; width: 276px; padding: 14px 14px 12px; border-radius: 14px; background: var(--panel-2); box-shadow: inset 0 0 0 1px var(--card-line), 0 24px 40px -20px rgba(0,0,0,.6); color: var(--fg); transition: transform .8s var(--ease); }
 .fmt.hot .epub .aa { transform: translateY(-8px); }
 .aa-h { display: flex; gap: 10px; align-items: baseline; font-size: 12px; color: var(--fg-2); }
 .aa-h b { font: italic 400 20px/1 var(--f-serif); color: var(--fg); }
@@ -45,12 +62,19 @@ html[data-lang="en"] .epub .spread.wk .cap { font: 400 50px/.86 "LXGW WenKai", v
 .slider { flex: 1; height: 3px; border-radius: 2px; background: var(--rule-2); position: relative; }
 .slider i { position: absolute; left: 0; width: 58%; height: 100%; background: var(--fg); border-radius: 2px; }
 .slider i::after { content: ""; position: absolute; right: -7px; top: -6px; width: 14px; height: 14px; border-radius: 50%; background: var(--fg); }
-.aa-fonts { margin-top: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.aa-fonts span, .aa-fonts button { padding: 7px 0; text-align: center; border-radius: 8px; font: inherit; font-size: 11px; color: var(--fg-2); background: none; border: 0; box-shadow: inset 0 0 0 1px var(--card-line); white-space: nowrap; transition: background .35s var(--ease), color .35s var(--ease), box-shadow .35s var(--ease); }
+.aa-fonts { margin-top: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.aa-fonts span, .aa-fonts button { display: grid; justify-items: center; align-content: center; gap: 7px; height: 58px; padding: 0 2px; border-radius: 9px; font: inherit; color: var(--fg-2); background: none; border: 0; box-shadow: inset 0 0 0 1px var(--card-line); transition: background .35s var(--ease), color .35s var(--ease), box-shadow .35s var(--ease); }
 .aa-fonts button { cursor: pointer; }
 .aa-fonts button:not(.on):hover { color: var(--fg); box-shadow: inset 0 0 0 1px var(--fg-3); }
-.aa-fonts button[data-font="wk"] { font-family: "LXGW WenKai", var(--f-cn-serif); }
+.aa-fonts .g { font: 400 22px/1 var(--f-serif); font-style: normal; color: var(--fg); }
+html[data-lang="zh"] .aa-fonts .g { font: 500 19px/1 var(--f-cn-serif); }
+.aa-fonts [data-font="wk"] .g { font-family: "LXGW WenKai", var(--f-cn-serif); font-weight: 400; }
+.aa-fonts .g.plus { font: 300 22px/1 var(--f-sans); color: var(--fg-3); }
+.aa-fonts span { box-shadow: none; border: 1px dashed var(--fg-4); }
+.aa-fonts small { font: 500 9.5px/1 var(--f-sans); letter-spacing: .02em; white-space: nowrap; }
+html[data-lang="zh"] .aa-fonts small { font-size: 10.5px; letter-spacing: .04em; }
 .aa-fonts .on { background: var(--fg); color: var(--bg); box-shadow: none; }
+.aa-fonts .on .g { color: var(--bg); }
 
 /* Web clipping */
 .web .uiwin { left: 7%; right: 7%; top: 10%; bottom: 18%; }
@@ -98,9 +122,18 @@ html[data-lang="zh"] .md .out h6 { font-family: var(--f-cn); }
 .media .chip.t { position: absolute; left: 10px; bottom: 10px; background: rgba(0,0,0,.55); color: #fff; }
 .media .tl { position: relative; height: 22px; margin: 10px 14px 0; }
 .media .tl::before { content: ""; position: absolute; left: 0; right: 0; top: 10px; height: 2px; border-radius: 2px; background: rgba(255,255,255,.18); }
-.media .tl::after { content: ""; position: absolute; left: 0; width: 47%; top: 10px; height: 2px; border-radius: 2px; background: #fff; }
+.media .tl::after { content: ""; position: absolute; left: 0; width: var(--ph, 47%); top: 10px; height: 2px; border-radius: 2px; background: #fff; }
 .media .tl i { position: absolute; top: 6px; width: 2px; height: 10px; background: var(--cyan); border-radius: 1px; }
-.media .tl b { position: absolute; top: 5px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: #fff; }
+.media .tl b { position: absolute; left: var(--ph, 47%); top: 5px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: #fff; }
+.media .player { cursor: pointer; }
+.media .hand { position: absolute; left: 50%; top: 50%; width: 96px; height: 96px; margin: -48px 0 0 -48px; overflow: visible; pointer-events: none; opacity: 0; visibility: hidden; filter: drop-shadow(0 3px 10px rgba(0,0,0,.45)); }
+.media .hand .disc { fill: rgba(6,7,16,.34); }
+.media .hand .s { fill: none; stroke: #FFFFFF; stroke-width: 5.4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.media .pp { display: inline-flex; }
+.media .pp svg { width: 10px; height: 10px; overflow: visible; }
+.media .pp path { fill: none; stroke: currentColor; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+.media .pp .i-pause, .media .player.playing .pp .i-play { display: none; }
+.media .player.playing .pp .i-pause { display: inline; }
 .media .ab { position: absolute; top: 4px; height: 14px; border-radius: 4px; background: rgba(34,211,238,.2); box-shadow: inset 0 0 0 1px rgba(34,211,238,.6); }
 .media .ctrls { display: flex; gap: 14px; padding: 6px 14px 12px; font: 500 10px/1 var(--f-mono); color: rgba(255,255,255,.7); }
 .media .ctrls .abl { color: var(--cyan); }

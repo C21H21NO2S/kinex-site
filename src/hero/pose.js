@@ -19,7 +19,7 @@ export function heroPose(aspect) {
   const portrait = aspect < .95;
   if (!portrait) return { portrait, TPOS: [1.95, -.18, 0], TROT: [-.2, -.3, 0], P0: { pos: [-.7, 1.7, 12.6], look: [1.05, -.12, 0], fov: 20 } };
   const H = 4.6 / aspect, d = H / (2 * Math.tan(13 * Math.PI / 180));
-  return { portrait, TPOS: [.25, .7, 0], TROT: [-.18, -.22, 0], P0: { pos: [-.3, 1.6, d], look: [.25, -.95 * H / 4.6 + .1, 0], fov: 26 } };
+  return { portrait, TPOS: [.25, .25, 0], TROT: [-.18, -.22, 0], P0: { pos: [-.3, 1.6, d], look: [.25, -.95 * H / 4.6 + .1, 0], fov: 26 } };
 }
 
 // rotation matrix of a three.js Euler in its default 'XYZ' order (rows)

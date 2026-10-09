@@ -17,6 +17,20 @@ function deepField() {
 const Z = () => getLang() === 'zh';
 const T = (zh, en) => (Z() ? zh : en);
 
+// the sentence the PDF plate highlights and turns into an excerpt; split into words (characters in Chinese) so the
+// highlight can sweep across it
+const EXCERPT = () => T('你血液里的铁，来自一颗早已死去的恒星。', 'the iron in your blood came from a star that died long ago.');
+const words = s => (Z() ? [...s] : s.split(/(?<= )/)).map(w => `<span class="w">${w}</span>`).join('');
+
+// the lecture plate's player: its A–B loop (% of the timeline), and hand-drawn play and pause glyphs (pathLength 1,
+// so each stroke can be drawn on)
+const AB = [38, 56], PH0 = 47;
+const PLAY_D = ['M37 27 Q55 38 72.5 49.5 Q55 61.5 37.5 72.5 Q35.4 50 38 25.5'];
+const PAUSE_D = ['M40.5 28.5 Q41.6 50 40.4 71.5', 'M60 28 Q59.2 50.5 60.6 71'];
+const strokes = (ds, cls) => ds.map(d => `<path class="${cls}" d="${d}" pathLength="1"/>`).join('');
+const HAND = `<svg class="hand" viewBox="0 0 100 100" aria-hidden="true"><circle class="disc" cx="50" cy="50" r="34"/><g class="g-play">${strokes(PLAY_D, 's')}</g><g class="g-pause">${strokes(PAUSE_D, 's')}</g></svg>`;
+const PP = `<svg viewBox="22 20 56 60" aria-hidden="true"><g class="i-play">${strokes(PLAY_D, '')}</g><g class="i-pause">${strokes(PAUSE_D, '')}</g></svg>`;
+
 const ART = {
   pdf: () => `
     <div class="art pdf">
@@ -24,10 +38,12 @@ const ART = {
       <div class="doc front">
         <div class="h"><span>${T('第 3 章 · 恒星的余烬', 'Ch. 3 · Embers of stars')}</span><span>47</span></div>
         <p class="serif-t">${T('宇宙诞生之初，几乎只有氢和氦。比它们更重的元素，都要在恒星内部一层层地“烧”出来。', 'In the beginning there was almost only hydrogen and helium. Everything heavier was forged, layer by layer, inside stars.')}</p>
-        <p class="serif-t">${T('铁是终点。核心在几秒内塌缩，外层被炸向星际空间。所以，<span class="mark-hl">你血液里的铁，来自一颗早已死去的恒星。</span>', 'Iron is where fusion stops. The core collapses in seconds and the shell is blown into space. So <span class="mark-hl">the iron in your blood came from a star that died long ago.</span>')}</p>
+        <p class="serif-t">${T('铁是终点。核心在几秒内塌缩，外层被炸向星际空间。所以，', 'Iron is where fusion stops. The core collapses in seconds and the shell is blown into space. So ')}<span class="mark-hl">${words(EXCERPT())}</span></p>
         <div class="ln"></div><div class="ln m"></div><div class="ln s"></div>
         <svg class="margin-ink" viewBox="0 0 60 80"><path d="M30 6 C 12 8, 6 30, 10 46 C 14 66, 44 72, 52 52 C 58 36, 50 12, 30 10"/><path d="M30 26 L 30 46 M30 54 L30 56"/></svg>
+        <i class="sel-caret"></i>
       </div>
+      <div class="xc"><span class="k">${T('摘录 · 第 47 页', 'Excerpt · p.47')}</span><p>${EXCERPT()}</p><span class="back">↩ ${T('回到原文', 'Back to source')}</span></div>
       <div class="chips"><span class="chip">47 / 268</span><span class="chip">100%</span></div>
     </div>`,
   epub: () => `
@@ -39,7 +55,11 @@ const ART = {
       <div class="aa">
         <div class="aa-h"><b>Aa</b><span>${T('阅读设置', 'Reading')}</span></div>
         <div class="aa-row"><span>A</span><div class="slider"><i></i></div><span class="big">A</span></div>
-        <div class="aa-fonts"><button type="button" data-font="orig"${epubFont === 'orig' ? ' class="on"' : ''}>${T('原版', 'Original')}</button><button type="button" data-font="wk"${epubFont === 'wk' ? ' class="on"' : ''}>${T('霞鹜文楷', 'LXGW WenKai')}</button><span>${T('导入', 'Custom')}</span></div>
+        <div class="aa-fonts">
+          <button type="button" data-font="orig"${epubFont === 'orig' ? ' class="on"' : ''}><i class="g">${T('文', 'Aa')}</i><small>${T('原版', 'Original')}</small></button>
+          <button type="button" data-font="wk"${epubFont === 'wk' ? ' class="on"' : ''}><i class="g">${T('文', 'Aa')}</i><small>${T('霞鹜文楷', 'LXGW WenKai')}</small></button>
+          <span><i class="g plus">+</i><small>${T('导入', 'Import')}</small></span>
+        </div>
       </div>
     </div>`,
   web: () => `
@@ -88,9 +108,9 @@ L = 4*pi*R**2*sigma*T**4
   media: () => `
     <div class="art media">
       <div class="player">
-        <div class="frame">${slideSVG(getLang())}${frameInk()}<span class="chip t">12:48</span></div>
-        <div class="tl"><div class="ab" style="left:38%;right:44%"></div><i style="left:12%"></i><i style="left:38%"></i><i style="left:56%"></i><i style="left:81%"></i><b style="left:47%"></b></div>
-        <div class="ctrls"><span>▶</span><span>12:48 / 52:10</span><span class="abl">A–B</span><span>±5s</span><span>1.25×</span></div>
+        <div class="frame">${slideSVG(getLang())}${frameInk()}<span class="chip t">12:48</span>${HAND}</div>
+        <div class="tl"><div class="ab" style="left:${AB[0]}%;right:${100 - AB[1]}%"></div><i style="left:12%"></i><i style="left:${AB[0]}%"></i><i style="left:${AB[1]}%"></i><i style="left:81%"></i><b></b></div>
+        <div class="ctrls"><span class="pp">${PP}</span><span class="tm">12:48 / 52:10</span><span class="abl">A–B</span><span>±5s</span><span>1.25×</span></div>
       </div>
       <div class="cap-card"><div class="mini-frame">${slideSVG(getLang(), { labels: false })}</div><div><b>${T('截帧 · 12:48', 'Frame · 12:48')}</b><span>${T('红巨星：恒星的晚年', 'Red giant: a star’s old age')}</span></div></div>
     </div>`,
@@ -124,6 +144,9 @@ export function initRead() {
     spread.classList.toggle('wk', epubFont === 'wk');
     spread.classList.remove('swap'); void spread.offsetWidth; spread.classList.add('swap'); // the pages settle into the new face
   });
+  // the artworks are laid out at 440 px and scaled to the plate
+  const fit = new ResizeObserver(es => es.forEach(e => e.target.style.setProperty('--pk', (e.contentRect.width / 440).toFixed(4))));
+  document.querySelectorAll('#readRail .plate-art').forEach(el => fit.observe(el));
   const pin = document.getElementById('readPin'), rail = document.getElementById('readRail');
   const num = document.getElementById('readNum'), prog = document.getElementById('readProg');
   const plates = [...rail.children];
@@ -144,20 +167,103 @@ export function initRead() {
     return () => { pin.classList.remove('swipe'); pin.removeEventListener('scroll', onScroll); };
   });
 
-  // hovering a plate plays its small demo (clutter falls away, the frame gets annotated, …)
-  plates.forEach(pl => { pl.addEventListener('pointerenter', () => pl.classList.add('hot')); pl.addEventListener('pointerleave', () => pl.classList.remove('hot')); });
-  // the lecture frame: write the circle on hover, clear it on leave; on touch layouts it is simply shown
-  const media = plates.find(p => p.dataset.plate === 'media');
+  // ---- demos. A plate plays its demo (clutter falls away, the frame is annotated, …) while a mouse is over it; on
+  // touch, while it is the plate in view (a tap fires enter and leave at once, and played the demo back and forth).
+  const touch = matchMedia('(hover: none)').matches;
+  const byName = n => plates.find(p => p.dataset.plate === n);
+  const demos = {}, firstView = {};
+  const setHot = (pl, on, how) => { if (pl.classList.contains('hot') === on) return; pl.classList.toggle('hot', on); demos[pl.dataset.plate]?.(on, how); };
+  plates.forEach(pl => {
+    pl.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') setHot(pl, true, 'hover'); });
+    pl.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') setHot(pl, false, 'hover'); });
+  });
+  const seen = new IntersectionObserver(es => es.forEach(e => {
+    const pl = e.target;
+    if (e.intersectionRatio >= .6) { if (!pl.dataset.seen) { pl.dataset.seen = 1; firstView[pl.dataset.plate]?.(); } if (touch) setHot(pl, true, 'view'); }
+    else if (touch && e.intersectionRatio < .3) setHot(pl, false, 'view');
+  }), { threshold: [0, .3, .6] });
+  plates.forEach(pl => seen.observe(pl));
+
+  // PDF: a selection caret sweeps the highlight across the sentence, which then lifts off the page as an excerpt card
+  const pdfArt = () => byName('pdf').querySelector('.pdf');
+  let pdfTl = null, pdfPlayed = false;
+  function pdfHide() {
+    const a = pdfArt();
+    gsap.set(a.querySelectorAll('.mark-hl .w'), { backgroundSize: '0% 100%' });
+    gsap.set([a.querySelector('.xc'), a.querySelector('.sel-caret')], { autoAlpha: 0 });
+  }
+  function pdfPlay() {
+    if (reduceMotion || pdfTl?.isActive()) return;
+    pdfPlayed = true;
+    const a = pdfArt(), ws = [...a.querySelectorAll('.mark-hl .w')], card = a.querySelector('.xc'), caret = a.querySelector('.sel-caret'), doc = a.querySelector('.doc.front');
+    pdfHide();
+    const tl = pdfTl = gsap.timeline(), total = ws.reduce((t, w) => t + w.offsetWidth, 0);
+    tl.set(caret, { x: ws[0].offsetLeft, y: ws[0].offsetTop, height: ws[0].offsetHeight }, 0).to(caret, { autoAlpha: 1, duration: .2 }, .1);
+    let at = .4;
+    ws.forEach(w => {
+      const d = 1.15 * w.offsetWidth / total;
+      tl.set(caret, { x: w.offsetLeft, y: w.offsetTop, height: w.offsetHeight }, at) // at a line break the caret moves down
+        .to(w, { backgroundSize: '100% 100%', duration: d, ease: 'none' }, at)
+        .to(caret, { x: w.offsetLeft + w.offsetWidth, duration: d, ease: 'none' }, at);
+      at += d;
+    });
+    tl.to(caret, { autoAlpha: 0, duration: .25 }, at + .15);
+    // the card starts small on the end of the highlight and settles beside the page
+    const last = ws[ws.length - 1], sx = doc.offsetLeft + last.offsetLeft + last.offsetWidth, sy = doc.offsetTop + last.offsetTop;
+    tl.fromTo(card, { x: sx - card.offsetLeft - card.offsetWidth / 2, y: sy - card.offsetTop - card.offsetHeight / 2, scale: .3, rotate: -7, autoAlpha: 0 },
+      { x: 0, y: 0, scale: 1, rotate: 0, autoAlpha: 1, duration: 1, ease: 'expo.out' }, at + .2);
+  }
+  demos.pdf = on => on && pdfPlay();
+  firstView.pdf = pdfPlay;
+  if (!reduceMotion) pdfHide(); // until it is seen
+
+  // Lecture: click the player to play or pause (a hand-drawn ▶ or ❚❚ is written over the frame); while playing, the
+  // playhead runs round the A–B loop. Hovering (or, on touch, the plate in view) plays it for a moment.
+  const media = byName('media'), player = () => media.querySelector('.player');
+  let playing = false, ph = PH0, glyphTl = null, autoStop = 0;
+  const clock = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  const paintPh = () => {
+    const pl = player(), t = 768 + (ph - PH0) * 9; // 12:48 at the playhead's first place
+    pl.style.setProperty('--ph', ph.toFixed(2) + '%');
+    pl.querySelector('.chip.t').textContent = clock(t);
+    pl.querySelector('.tm').textContent = `${clock(t)} / 52:10`;
+  };
+  const tick = (time, dt) => { ph += Math.min(dt, 100) / 1000 * 2.4; if (ph >= AB[1]) ph = AB[0] + ph - AB[1]; paintPh(); };
+  function drawGlyph(kind) {
+    const svg = player().querySelector('.hand');
+    glyphTl?.kill();
+    gsap.set(svg.querySelectorAll('.s'), { strokeDashoffset: 1 });
+    glyphTl = gsap.timeline()
+      .fromTo(svg, { autoAlpha: 0, scale: .9 }, { autoAlpha: 1, scale: 1, duration: .35, ease: 'power3.out' })
+      .to(svg.querySelectorAll(`.g-${kind} .s`), { strokeDashoffset: 0, duration: .45, ease: 'power2.inOut', stagger: .14 }, .05)
+      .to(svg, { autoAlpha: 0, scale: 1.08, duration: .5, ease: 'power2.in' }, '+=.5');
+  }
+  function setPlaying(on, glyph = true) {
+    clearTimeout(autoStop);
+    if (on === playing) return;
+    playing = on; player().classList.toggle('playing', on);
+    if (on) gsap.ticker.add(tick); else gsap.ticker.remove(tick);
+    if (glyph && !reduceMotion) drawGlyph(on ? 'play' : 'pause');
+  }
+  const preview = () => { writeInk(); setPlaying(true); autoStop = setTimeout(() => setPlaying(false), 3600); };
+  media.addEventListener('click', e => { if (e.target.closest('.player')) setPlaying(!playing); });
+  demos.media = (on, how) => (on ? preview() : setPlaying(false, how === 'hover'));
+  firstView.media = () => { if (!media.classList.contains('hot')) preview(); };
+
+  // the white pen circle on the lecture frame: written when the demo plays; on touch layouts simply shown
   let inkTw = null;
   const rib = () => media.querySelector('.frame-ink .rib');
-  const writeInk = () => {
+  function writeInk() {
     if (inkTw?.isActive()) return;
     const o = { k: 0 };
     inkTw = gsap.to(o, { k: INK.length - 1, duration: reduceMotion ? 0 : 1.1, ease: 'power1.inOut', onUpdate: () => rib()?.setAttribute('d', ribbonPath(INK, o.k)) });
-  };
-  media.addEventListener('pointerenter', writeInk);
-  // also written once when the plate reaches the middle of the rail
-  ScrollTrigger.create({ trigger: pin, start: 'top top', end: () => '+=' + Math.max(1, rail.scrollWidth - innerWidth), onUpdate: self => { if (self.progress > .55 && !media.dataset.inked) { media.dataset.inked = 1; writeInk(); } } });
+  }
   const showInk = () => { if (pin.classList.contains('swipe')) rib()?.setAttribute('d', ribbonPath(INK)); };
-  showInk(); addEventListener('kx:lang', () => requestAnimationFrame(showInk)); addEventListener('resize', showInk);
+  showInk(); addEventListener('resize', showInk);
+
+  // a new language repaints the plates: keep each demo where it was
+  addEventListener('kx:lang', () => requestAnimationFrame(() => {
+    if (!pdfPlayed && !reduceMotion) pdfHide();
+    player().classList.toggle('playing', playing); paintPh(); showInk();
+  }));
 }

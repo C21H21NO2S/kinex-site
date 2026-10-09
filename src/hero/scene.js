@@ -340,12 +340,40 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
       if (linkedCards.some(c => { const cp = c.base.clone().project(heroCam); return Math.hypot((sp.x - cp.x) * aspect, sp.y - cp.y) < .5; })) return false;
       return true;
     };
-    frags.forEach(f => {
+    if (!portrait) frags.forEach(f => {
       if (f.linked) return;
       let q = null;
       for (let k = 0; k < 400 && !q; k++) { const c = V(-6.5 + R() * 14.5, -4 + R() * 8.5, -10 + R() * 11.5); if (ok(c)) q = c; }
       f.base.copy(q || V(-4 + RL() * 10, -3 + RL() * 6, -12));
     });
+    else {
+      // On a phone the free space is a band between the tablet and the copy, and the corners: a few cards, each where
+      // it is furthest from the others (they piled up in one corner when placed at random); the rest wait out of
+      // view for the constellation.
+      const fromScreen = (sx, sy, z) => { // the point at depth z under a screen position
+        const v = V(sx * 2 - 1, 1 - sy * 2, .5).unproject(heroCam), o = heroCam.position, k = (z - o.z) / (v.z - o.z);
+        return V(o.x + (v.x - o.x) * k, o.y + (v.y - o.y) * k, z);
+      };
+      const scr = q => { const v = q.clone().project(heroCam); return [(v.x + 1) / 2, (1 - v.y) / 2]; };
+      // the tablet's box on screen, and the top of the copy
+      const tc = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([x, y]) => scr(tablet.localToWorld(V(x * TW / 2, y * TH / 2, 0))));
+      const tb = [Math.min(...tc.map(q => q[0])), Math.min(...tc.map(q => q[1])), Math.max(...tc.map(q => q[0])), Math.max(...tc.map(q => q[1]))];
+      const copyTop = .515;
+      const placed = linkedCards.map(c => scr(c.base));
+      frags.filter(f => !f.linked).forEach((f, i) => {
+        let best = null, bd = -1;
+        for (let k = 0; i < 4 && k < 120; k++) {
+          const c = fromScreen(-.04 + R() * 1.08, tb[3] + R() * (copyTop - tb[3]), -6 + R() * 6.5), p = scr(c);
+          const e = scr(c.clone().add(V(f.w * f.s0 * .55, f.h * f.s0 * .55, 0))), hw = Math.abs(e[0] - p[0]), hh = Math.abs(e[1] - p[1]);
+          // wholly between the tablet and the copy
+          if (p[1] - hh < tb[3] + .008 || p[1] + hh > copyTop) continue;
+          const d = Math.min(...placed.map(q => Math.hypot((p[0] - q[0]) * aspect, p[1] - q[1])));
+          if (d > bd) { bd = d; best = c; }
+        }
+        if (best) placed.push(scr(best));
+        f.base.copy(best || fromScreen(i % 2 ? 1.3 : -.3, .15 + R() * .4, -5 - R() * 5));
+      });
+    }
     separate(frags.map(f => ({ p: f.base, w: f.w * f.s0, h: f.h * f.s0, fixed: !!f.linked })), .72);
     // constellation: a loose spiral around the hub
     const RG = rng(31);
