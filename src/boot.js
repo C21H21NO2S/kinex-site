@@ -1,6 +1,7 @@
-// The first screen, from a small script of its own that runs as soon as the HTML is in (the main script, with GSAP
-// and the sections, is several times larger): the copy in the reader's language, the header mark assembling, and the
-// 3D scene sketched in pencil where it will appear. main.js picks up the sketch and develops the scene inside it.
+// The page's entry, small on purpose: the first screen (the copy in the reader's language, the header mark
+// assembling) and the 3D scene sketched in pencil where it will appear. The main script (GSAP, the sections, then
+// three.js and the scene) downloads alongside but only runs once the sketch is on screen: until then this thread must
+// stay free, or the sketch would stay blank and then appear half drawn. main.js develops the scene inside the sketch.
 import { applyText, getLang } from './core/prefs.js';
 import { logoSVG, logoPiecesSVG } from './core/logo.js';
 import { hasWebGL } from './core/quality.js';
@@ -31,3 +32,6 @@ export const shown = firstScreenFonts().then(() => {
   html.classList.remove('booting'); html.classList.add('intro');
   setTimeout(() => html.classList.remove('intro'), 2400); // hand the elements back to GSAP (main.js replayHero)
 });
+
+// the rest of the page, once the sketch is on screen
+Promise.resolve(sketch?.ready).then(() => import('./main.js')).catch(e => { console.error(e); html.classList.remove('booting'); });

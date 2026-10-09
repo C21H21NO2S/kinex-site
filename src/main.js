@@ -14,7 +14,7 @@ import { initSync } from './sections/sync.js';
 const $ = s => document.querySelector(s);
 const seg = (p, a, b) => Math.min(1, Math.max(0, (p - a) / (b - a)));
 
-// The 3D chunk (three.js) starts downloading immediately, in parallel with fonts and the rest of the boot.
+// The 3D chunk (three.js) is preloaded with the page (vite.config.js); this runs once boot.js has the sketch on screen.
 const scenePromise = hasWebGL() ? import('./hero/scene.js') : null;
 const nextFrame = () => new Promise(r => setTimeout(r, 0));
 

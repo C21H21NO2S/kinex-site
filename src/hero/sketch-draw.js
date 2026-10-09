@@ -7,7 +7,7 @@ const STYLE = { body: [2, 1], screen: [1.5, .78], card: [1.7, .9], ui: [1.3, .52
 const ease = t => (t < .5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t));
 const mk = (w, h) => (typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(w, h) : Object.assign(document.createElement('canvas'), { width: w, height: h }));
 
-export function runSketch(canvas, { strokes, dpr, dark, still, onFirst }) {
+export function runSketch(canvas, { strokes, dpr, dark, still, gate, onFirst }) {
   const ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height;
   // the dabs pile up on a layer; the visible canvas shows it through the paper tooth, so the grain sits in the lines
   const layer = mk(W, H), lx = layer.getContext('2d');
@@ -20,8 +20,11 @@ export function runSketch(canvas, { strokes, dpr, dark, still, onFirst }) {
   const end = Math.max(...S.map(s => s.t1));
   const raf = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : f => setTimeout(() => f(performance.now()), 16);
   return new Promise(resolve => {
-    let clock = 0, last = 0, frames = 0;
+    let clock = 0, last = 0, frames = 0, open = !gate;
+    gate?.then(() => { open = true; });
     const step = now => {
+      // until the page says go, push empty frames (a 1 px clear) so the canvas gets onto the screen
+      if (!open) { ctx.clearRect(0, 0, 1, 1); if (onFirst && ++frames === 2) { onFirst(); onFirst = null; } raf(step); return; }
       // a stalled frame slows the drawing down instead of skipping it
       clock = still ? end : clock + (last ? Math.min(.05, (now - last) / 1000) : 0); last = now;
       for (const s of S) {
@@ -42,7 +45,6 @@ export function runSketch(canvas, { strokes, dpr, dark, still, onFirst }) {
         ctx.globalCompositeOperation = 'destination-in'; ctx.fillStyle = tooth; ctx.fillRect(x0, y0, w, h);
         ctx.restore();
       }
-      if (onFirst && (++frames === 3 || clock >= end)) { onFirst(); onFirst = null; } // a few frames in (or done): the canvas has something to show
       if (clock >= end) resolve(); else raf(step);
     };
     raf(step);

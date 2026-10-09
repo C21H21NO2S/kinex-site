@@ -69,6 +69,10 @@ function strokes(W, H, lang, still) {
 }
 
 export function drawSketch(host, { reduceMotion = false } = {}) {
+  // Off the main thread when the browser can hand a canvas to a worker. The worker is started first: it boots while
+  // the page is laid out (measuring the canvas below lays out the whole page, a long step on a slow machine).
+  let worker = null;
+  if ('transferControlToOffscreen' in HTMLCanvasElement.prototype) { try { worker = new SketchWorker(); } catch (e) { worker = null; } }
   const W = host.clientWidth || innerWidth, H = host.clientHeight || innerHeight, dpr = Math.min(devicePixelRatio || 1, 2);
   const root = document.documentElement;
   const cv = document.createElement('canvas');
@@ -76,25 +80,31 @@ export function drawSketch(host, { reduceMotion = false } = {}) {
   cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
   host.replaceChildren(cv);
   const job = { strokes: strokes(W, H, root.dataset.lang, reduceMotion), dpr, dark: root.dataset.theme !== 'light', still: reduceMotion };
-  let done, onScreen, worker = null;
+  let done, onScreen;
   const drawn = new Promise(r => (done = r)), ready = new Promise(r => (onScreen = r));
-  setTimeout(() => done(), 4000); // never hold the scene back
-  setTimeout(() => onScreen(), 2000);
-  // off the main thread when the browser can hand the canvas to a worker; on it otherwise
-  if (cv.transferControlToOffscreen) {
+  const release = () => { clearTimeout(failsafe); onScreen(); };
+  // a worker that never answers must not hold the page
+  const failsafe = setTimeout(() => { worker?.postMessage('go'); onScreen(); done(); }, 5000);
+  if (worker) {
     try {
-      worker = new SketchWorker();
       const off = cv.transferControlToOffscreen();
-      // the worker's first frames, then two frames of this thread: the canvas is composited, and from then on the
-      // worker's frames reach the screen without this thread (which the scene build is about to keep busy). Released
-      // from a task of its own: resolved inside a frame callback, the heavy work would run before that frame commits.
-      worker.onmessage = e => { if (e.data === 'first') requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(onScreen, 0))); else done(); };
-      worker.onerror = () => done();
+      // The worker's first (empty) frames, then two frames of this thread: the canvas is composited, and from then on
+      // the worker's frames reach the screen without this thread. Only then does the pencil start (so the drawing is
+      // seen from its first stroke) and the heavy work begin, released from a task of its own: resolved inside a frame
+      // callback, it would run before that frame commits.
+      worker.onmessage = e => {
+        if (e.data !== 'first') return done();
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          worker.postMessage('go'); setTimeout(release, 0);
+          setTimeout(done, 3500); // never hold the scene back
+        }));
+      };
+      worker.onerror = () => { release(); done(); };
       worker.postMessage({ canvas: off, ...job }, [off]);
-    } catch (e) { worker?.terminate(); worker = null; }
+    } catch (e) { worker.terminate(); worker = null; }
   }
   // drawn on this thread: the heavy work waits until the lines are done, or it would stall them
-  if (!worker) runSketch(cv, job).then(() => done(), () => done()).then(() => onScreen());
+  if (!worker) runSketch(cv, job).then(() => done(), () => done()).then(release);
   return {
     // resolves once the lines are drawn (the render waits for it, so it develops inside a finished sketch)
     drawn,
