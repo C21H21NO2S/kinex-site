@@ -28,7 +28,7 @@ const flow = s => (Z() ? s.match(/.[，。、；：！？）」』”’》…�
 // the lecture plate's player: its A–B loop (where it sits on the timeline, in %; it loops 12:48 → 12:51, 3 s at 1×),
 // and the hand-drawn play and pause glyphs of its control (pathLength 1, so each stroke can be drawn on). Nothing is
 // laid over the frame, as in KineX: the frame is where the pen writes once the lecture is paused.
-const AB = [38, 56], AB_T = [768, 771], PH0 = 38.6;
+const AB = [38, 56], AB_T = [768, 771], PH0 = (AB[0] + AB[1]) / 2; // it starts where a play stops: halfway
 // a hand's speed along a stroke: off quickly, fastest midway, easing into its end (the minimum-jerk profile)
 const handEase = t => t * t * t * (t * (6 * t - 15) + 10);
 const PLAY_D = ['M37 27 Q55 38 72.5 49.5 Q55 61.5 37.5 72.5 Q35.4 50 38 25.5'];
@@ -299,13 +299,15 @@ export function initRead() {
     gsap.timeline().to(page, { opacity: 0, duration: .18 }).add(webReset).to(page, { opacity: 1, duration: .3 }).add(() => webClear(.7));
   });
 
-  // Lecture: click the player to play or pause; the control's ▶ / ❚❚ is drawn on as it changes. While playing, the
-  // playhead runs round the A–B loop and the pen's note fades off the frame; paused, the pen circles the red giant on
-  // the still frame. It plays for a moment each time it settles in view (scrolled or swiped back to) and pauses when it
-  // leaves; a click plays or pauses it. Hover does nothing (playing on hover made the click that followed pause it).
+  // Lecture. Playing always starts the A–B loop at A and stops by itself halfway through it; the pen then circles the
+  // red giant on the still frame. A click on the player plays the loop that way, or, while it plays, stops it, and the
+  // pen writes at once. The control's ▶ / ❚❚ is drawn on as it changes. It plays the same way each time it settles in
+  // view (scrolled or swiped back to) and stops when it leaves. Hover does nothing (playing on hover made the click
+  // that followed pause it).
   const media = byName('media'), player = () => media.querySelector('.player');
-  let playing = false, ph = PH0, autoStop = 0, mediaDone = null;
-  const mediaFinish = () => { mediaDone?.(); mediaDone = null; };
+  const MID = (AB[0] + AB[1]) / 2;
+  let playing = false, ph = PH0, mediaDone = null, finishCall = null;
+  const mediaFinish = () => { finishCall?.kill(); finishCall = null; mediaDone?.(); mediaDone = null; };
   const clock = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
   const paintPh = () => {
     const pl = player(), t = AB_T[0] + (ph - AB[0]) / (AB[1] - AB[0]) * (AB_T[1] - AB_T[0]);
@@ -313,27 +315,30 @@ export function initRead() {
     pl.querySelector('.chip.t').textContent = clock(t);
     pl.querySelector('.tm').textContent = `${clock(t)} / 52:10`;
   };
-  // in real time: the 3 s loop takes 3 s
-  const tick = (time, dt) => { ph += Math.min(dt, 100) / 1000 * (AB[1] - AB[0]) / (AB_T[1] - AB_T[0]); if (ph >= AB[1]) ph = AB[0] + ph - AB[1]; paintPh(); };
+  // in real time (the 3 s loop takes 3 s at 1×); halfway through the loop it stops
+  const tick = (time, dt) => {
+    ph = Math.min(MID, ph + Math.min(dt, 100) / 1000 * (AB[1] - AB[0]) / (AB_T[1] - AB_T[0]));
+    paintPh();
+    if (ph >= MID) setPlaying(false);
+  };
   const drawIcon = () => { // the glyph now showing on the control
     if (reduceMotion) return;
     gsap.fromTo(player().querySelectorAll(`.pp .i-${playing ? 'pause' : 'play'} path`), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: .4, ease: 'power2.inOut', stagger: .1 });
   };
   function setPlaying(on, animate = true) {
-    clearTimeout(autoStop);
     if (on === playing) return;
     playing = on; player().classList.toggle('playing', on);
-    if (on) { gsap.ticker.add(tick); clearInk(animate); } else { gsap.ticker.remove(tick); animate ? writeInk() : showInk(); }
+    if (on) { ph = AB[0]; paintPh(); gsap.ticker.add(tick); clearInk(animate); }
+    else {
+      gsap.ticker.remove(tick);
+      if (animate) { writeInk(); finishCall = gsap.delayedCall(reduceMotion ? 0 : 1.1, mediaFinish); } // done once the pen has written
+      else { showInk(); mediaFinish(); }
+    }
     if (animate) drawIcon();
   }
-  // a preview: play 3.2 s, pause, and the pen writes its note; done once the note is written
-  plays.media = () => (playing ? null : new Promise(res => {
-    mediaDone = res;
-    setPlaying(true);
-    autoStop = setTimeout(() => { setPlaying(false); gsap.delayedCall(reduceMotion ? 0 : 1.1, mediaFinish); }, 3600); // round the loop once, and on
-  }));
-  media.addEventListener('click', e => { if (e.target.closest('.player')) { mediaFinish(); setPlaying(!playing); } });
-  away.media = () => { mediaFinish(); setPlaying(false, false); };
+  plays.media = () => (playing ? null : new Promise(res => { mediaDone = res; setPlaying(true); }));
+  media.addEventListener('click', e => { if (e.target.closest('.player')) setPlaying(!playing); });
+  away.media = () => setPlaying(false, false);
 
   // the pen's white circle round the red giant: on the paused frame, written point by point
   let inkTw = null;
@@ -348,7 +353,7 @@ export function initRead() {
     inkTw = gsap.to(inkSvg(), { opacity: 0, duration: animate && !reduceMotion ? .35 : 0, onComplete: () => rib()?.setAttribute('d', '') });
   }
   function showInk() { if (playing) return; inkTw?.kill(); gsap.set(inkSvg(), { opacity: 1 }); rib()?.setAttribute('d', ribbonPath(INK)); }
-  showInk(); paintPh(); // it starts paused at 12:48, with its note on the frame
+  showInk(); paintPh(); // it starts stopped halfway through the loop, with its note on the frame
 
   // a new language repaints the plates: keep each demo where it was
   addEventListener('kx:lang', () => requestAnimationFrame(() => {
