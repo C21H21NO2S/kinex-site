@@ -58,6 +58,7 @@ export const DICT = {
     'ink.pressure': '手写笔会自动使用真实压感',
     'ink.hb': 'HB 铅笔', 'ink.6b': '6B 铅笔', 'ink.poly': '彩铅', 'ink.water': '水彩', 'ink.pen': '钢笔', 'ink.hl': '荧光笔',
     'ink.clear': '清空', 'ink.undo': '撤销',
+    'ink.demo': '自动演示中 · 滚动可加快', 'ink.turn': '轮到你了 · 在纸上写写看',
 
     'recall.idx': '记忆',
     'recall.title': '在你<em>快忘</em>的时候<br>它会回来',
@@ -153,6 +154,7 @@ export const DICT = {
     'ink.pressure': 'Styluses use real pressure automatically',
     'ink.hb': 'HB pencil', 'ink.6b': '6B pencil', 'ink.poly': 'Colour pencil', 'ink.water': 'Watercolour', 'ink.pen': 'Fountain pen', 'ink.hl': 'Highlighter',
     'ink.clear': 'Clear', 'ink.undo': 'Undo',
+    'ink.demo': 'Demo playing · scroll to speed up', 'ink.turn': 'Your turn · write on the paper',
 
     'recall.idx': 'Recall',
     'recall.title': 'It comes back<br>right before you <em>forget.</em>',

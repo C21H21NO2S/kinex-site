@@ -220,10 +220,19 @@ export function initInk() {
   let brush = BRUSHES[0], color = PAL[0];
   const strokes = [];
   let cur = null, demoDone = false, userDrew = false;
+  // While the demo draws, the paper is not for writing: a press does not cut it short and, on touch, a swipe over the
+  // paper scrolls the page. Scrolling speeds it up. A chip in the corner says so.
+  let demoing = false, sizeLater = false;
+  const chip = document.createElement('p');
+  chip.className = 'paper-demo gone'; chip.innerHTML = '<i></i><span></span><b></b>';
+  paper.querySelector('.brushes').appendChild(chip); // just above the toolbar: the paper's top can be under the header
+  const chipText = key => { chip.dataset.key = key; chip.querySelector('span').textContent = t(key); };
 
   function size() {
-    const r = paper.getBoundingClientRect();
-    L.D = Math.min(devicePixelRatio || 1, 2); W = r.width; H = r.height;
+    const r = paper.getBoundingClientRect(), D = Math.min(devicePixelRatio || 1, 2);
+    if (demoing) { sizeLater = true; return; } // redrawn mid-stroke, the demo's stroke would lose what it had drawn
+    if (cv.width && D === L.D && Math.round(r.width) === Math.round(W) && Math.round(r.height) === Math.round(H)) return; // a phone's address bar moved; the paper did not
+    L.D = D; W = r.width; H = r.height;
     for (const c of [cv, live]) { c.width = Math.round(W * L.D); c.height = Math.round(H * L.D); }
     redraw();
   }
@@ -255,8 +264,9 @@ export function initInk() {
     return { x, y, p: lastP };
   }
   cv.addEventListener('pointerdown', e => {
+    if (demoing) { chip.classList.remove('nudge'); void chip.offsetWidth; chip.classList.add('nudge'); return; }
     e.preventDefault(); cv.setPointerCapture(e.pointerId);
-    stopDemo(); userDrew = true; hint.classList.add('gone');
+    userDrew = true; hint.classList.add('gone');
     lastPt = null; lastP = e.pointerType === 'pen' ? e.pressure || .5 : .6;
     cur = { brush, color: brush.fixed ? brush.color : color, pts: [sample(e)] };
     start(cur);
@@ -279,7 +289,7 @@ export function initInk() {
   cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
 
   // brush outline cursor
-  function moveCursor() { if (cursor) { cursor.classList.add('pen'); cursor.style.setProperty('--bs', Math.max(6, brush.size * (brush.kind === 'water' ? .9 : brush.kind === 'hl' ? 1 : 1.2)) + 'px'); } }
+  function moveCursor() { if (cursor && demoing) cursor.classList.remove('pen'); else if (cursor) { cursor.classList.add('pen'); cursor.style.setProperty('--bs', Math.max(6, brush.size * (brush.kind === 'water' ? .9 : brush.kind === 'hl' ? 1 : 1.2)) + 'px'); } }
   paper.addEventListener('pointerleave', () => cursor?.classList.remove('pen'));
   paper.querySelector('.brushes').addEventListener('pointerenter', () => cursor?.classList.remove('pen'));
 
@@ -308,8 +318,8 @@ export function initInk() {
     sw.innerHTML = pal.map(c => `<button style="background:${c}" data-c="${c}" aria-pressed="${c === color}" aria-label="${c}"></button>`).join('');
     sw.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { color = b.dataset.c; sw.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); }));
   }
-  document.getElementById('inkUndo').addEventListener('click', () => { stopDemo(); strokes.pop(); redraw(); });
-  document.getElementById('inkClear').addEventListener('click', () => { stopDemo(); strokes.length = 0; redraw(); hint.classList.remove('gone'); });
+  document.getElementById('inkUndo').addEventListener('click', () => { if (demoing) return; strokes.pop(); redraw(); });
+  document.getElementById('inkClear').addEventListener('click', () => { if (demoing) return; strokes.length = 0; redraw(); hint.classList.remove('gone'); });
 
   // ---------------------------------------------------------------- demo drawing: a page of observing notes
   // A nebula washed in with back-and-forth strokes, a red giant scrubbed in circles, its orbit sketched in HB, an
@@ -372,12 +382,32 @@ export function initInk() {
         onComplete: () => { if (!begun) start(s); feed(st.pts.length); show(s); commit(s); strokes.push(s); } }, t0);
       t0 += dur + (B.kind === 'pen' ? .05 : .12);
     });
+    demoing = true; paper.classList.add('demoing'); cursor?.classList.remove('pen');
+    chipText('ink.demo'); chip.classList.remove('gone');
+    demoTl.eventCallback('onComplete', finishDemo);
+    lastY = scrollY; pace = 1; gsap.ticker.add(speed);
   }
-  function stopDemo() { if (demoTl) { demoTl.progress(1); demoTl.kill(); demoTl = null; } }
+  // scrolling (wheel, swipe or keys) speeds the demo up, up to 6x; it eases back once the page rests
+  let lastY = 0, pace = 1;
+  function speed(time, dt) {
+    const v = Math.abs(scrollY - lastY) / Math.max(dt, 1); lastY = scrollY;
+    const target = 1 + Math.min(5, v * 2.6);
+    pace += (target - pace) * (target > pace ? .3 : .05);
+    demoTl?.timeScale(pace);
+    chip.querySelector('b').textContent = pace > 1.15 ? `×${pace.toFixed(1)}` : '';
+  }
+  function finishDemo() {
+    if (!demoing) return;
+    demoing = false; paper.classList.remove('demoing');
+    gsap.ticker.remove(speed); chip.querySelector('b').textContent = '';
+    chipText('ink.turn'); gsap.delayedCall(2.6, () => { if (!demoing) chip.classList.add('gone'); });
+    if (sizeLater) { sizeLater = false; size(); }
+  }
+  function stopDemo() { if (demoTl) { demoTl.progress(1); demoTl.kill(); demoTl = null; } finishDemo(); }
 
   buildTools();
   size();
   addEventListener('resize', () => { if (cur) return; size(); });
-  addEventListener('kx:lang', buildTools);
+  addEventListener('kx:lang', () => { buildTools(); if (chip.dataset.key) chipText(chip.dataset.key); });
   ScrollTrigger.create({ trigger: paper, start: 'top 65%', once: true, onEnter: () => { if (reduceMotion) { demo(); stopDemo(); } else gsap.delayedCall(.5, demo); } });
 }
