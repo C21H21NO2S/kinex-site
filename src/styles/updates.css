@@ -1,3 +1,4 @@
+@import './spark.css';
 /* A660: 动态 (/updates/: 进度 · 更新日志 · 建议) and 下载 (/download/). Self-contained like legal.css, for the same reason
    (sharing main.css or a module with the home page splits the home page's first-screen chunks). Tokens, base, header and
    switches are copied from main.css / legal.css — keep them in step. The layout follows the A648 sketches
@@ -7,8 +8,8 @@
 
 /* ----- tokens (main.css) */
 :root {
-  --bg: #06060A; --fg: #F3F3F6; --fg-2: rgba(243,243,246,.68); --fg-3: rgba(243,243,246,.42); --fg-4: rgba(243,243,246,.2);
-  --rule: rgba(243,243,246,.12); --rule-2: rgba(243,243,246,.22); --cyan: #22D3EE; --amber: #F5B66B;
+  --bg: #262626; --fg: #FAFAFA; --fg-2: rgba(250,250,250,.7); --fg-3: rgba(250,250,250,.44); --fg-4: rgba(250,250,250,.2);
+  --rule: rgba(250,250,250,.12); --rule-2: rgba(250,250,250,.22); --cyan: #22D3EE; --amber: #F5B66B;
   --ease: cubic-bezier(.2, .7, .1, 1); --m: 44px;
   --f-cn: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", system-ui, sans-serif;
   --f-sans: "Inter", var(--f-cn);
@@ -19,8 +20,8 @@
   color-scheme: dark;
 }
 :root[data-theme="light"] {
-  --bg: #E9E9EC; --fg: #0E0E12; --fg-2: rgba(14,14,18,.66); --fg-3: rgba(14,14,18,.44); --fg-4: rgba(14,14,18,.2);
-  --rule: rgba(14,14,18,.12); --rule-2: rgba(14,14,18,.22); --cyan: #0891B2; --amber: #B7791F;
+  --bg: #EFEFEF; --fg: #272320; --fg-2: rgba(39,35,32,.7); --fg-3: rgba(39,35,32,.46); --fg-4: rgba(39,35,32,.2);
+  --rule: rgba(39,35,32,.12); --rule-2: rgba(39,35,32,.22); --cyan: #0891B2; --amber: #B7791F;
   --card: color-mix(in oklab, #fff 55%, transparent);
   color-scheme: light;
 }
@@ -225,7 +226,7 @@ html[data-lang="en"] .lead { line-height: 1.7; }
 .toggle i { position: relative; width: 34px; height: 20px; border-radius: 999px; background: color-mix(in oklab, var(--fg) 14%, transparent); transition: background-color .3s; }
 .toggle i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--fg); transition: transform .3s var(--ease); }
 .toggle[aria-checked="true"] i { background: var(--cyan); }
-.toggle[aria-checked="true"] i::after { transform: translateX(14px); background: #06060A; }
+.toggle[aria-checked="true"] i::after { transform: translateX(14px); background: #262626; }
 .official { margin-top: 20px; padding: 16px 18px; border-radius: 12px; background: color-mix(in oklab, var(--cyan) 7%, transparent); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--cyan) 28%, transparent); }
 .official small { font: 500 11px/1.4 var(--f-mono); letter-spacing: .08em; color: var(--fg-2); }
 .official p { margin-top: 8px; font-size: 14px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }

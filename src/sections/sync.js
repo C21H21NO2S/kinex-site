@@ -1,13 +1,13 @@
 // 05 Sync — a laptop and a tablet showing the same KineX board. A note added on the laptop appears on the tablet;
 // a stroke written on the tablet appears on the laptop. Both screens share one board coordinate space, so a change
 // lands in exactly the same place on each device.
-import { t, getLang } from '../core/prefs.js';
+import { getLang } from '../core/prefs.js';
 import { reduceMotion, ScrollTrigger, gsap } from '../core/scroll.js';
 import { drawScreen } from '../hero/textures.js';
 
 const T = (zh, en) => (getLang() === 'zh' ? zh : en);
 const ICON = {
-  wifi: '<svg viewBox="0 0 20 20"><path class="w3" d="M3 8a10 10 0 0 1 14 0"/><path class="w2" d="M5.5 10.6a6.5 6.5 0 0 1 9 0"/><path class="w1" d="M8 13.2a3 3 0 0 1 4 0"/><circle cx="10" cy="15.6" r="1.1"/></svg>',
+  bolt: '<svg viewBox="0 0 20 20"><path d="M11.2 2.5 4.5 11h4.8l-.9 6.5L15.5 9h-4.9Z"/></svg>',
   cloud: '<svg viewBox="0 0 24 24"><path d="M7 18h10.5a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.6 9.2 4.5 4.5 0 0 0 7 18Z"/></svg>',
   lock: '<svg viewBox="0 0 20 20"><rect x="4.5" y="9" width="11" height="8" rx="2"/><path d="M7 9V6.8a3 3 0 0 1 6 0V9"/></svg>',
 };
@@ -26,7 +26,7 @@ function layer(vb) {
       <rect class="sy-card-line" x="${NOTE.x + .5}" y="${NOTE.y + .5}" width="${NOTE.w - 1}" height="${NOTE.h - 1}" rx="10"/>
       <rect class="sy-hl" x="${NOTE.x - 4}" y="${NOTE.y - 4}" width="${NOTE.w + 8}" height="${NOTE.h + 8}" rx="13"/>
       <text class="sy-k" x="${NOTE.x + 20}" y="${NOTE.y + 30}"></text>
-      <text class="sy-t" x="${NOTE.x + 20}" y="${NOTE.y + 64}"></text>
+      <text class="sy-t" x="${NOTE.x + 20}" y="${NOTE.y + 54}"></text>
     </g>
     <g class="sy-add sy-ink-g">
       <path class="sy-ink" d="M1104 662 C 1126 666, 1144 682, 1168 694" pathLength="1"/>
@@ -53,11 +53,10 @@ export function initSync() {
       <div class="sy-meta"><b data-k="tablet"></b><span class="sy-os">Android</span><span class="sy-chip" data-chip="tablet"><i></i><span></span></span></div>
       <div class="sy-tab"><div class="sy-glass"><div class="sy-screen"><canvas class="sy-scr"></canvas>${layer(TABLET_VB)}</div><i class="sy-cam"></i></div></div>
     </div>
-    <div class="sy-pill"><span class="sy-ico">${ICON.wifi}</span><span data-k="lan"></span></div>
+    <div class="sy-pill"><span class="sy-ico">${ICON.bolt}</span><span data-k="lan"></span></div>
     <div class="sy-cloud">
       <span class="sy-cloud-ico">${ICON.cloud}</span>
       <div><b data-k="cloud"></b><span data-k="cloudsub"></span></div>
-      <em class="soon" data-k="testing"></em>
     </div>
     <div class="sy-note"><span class="sy-ico">${ICON.lock}</span><span data-k="local"></span></div>`;
 
@@ -71,8 +70,8 @@ export function initSync() {
   const setChip = (k, s) => { chipState[k] = s; const c = chips[k]; c.dataset.state = s; c.lastElementChild.textContent = T(...STATE[s]); };
 
   function text() {
-    const M = { laptop: T('电脑', 'Laptop'), tablet: T('平板', 'Tablet'), lan: T('局域网同步', 'Local network sync'),
-      cloud: T('你自己的云', 'Your own cloud'), cloudsub: 'S3 · WebDAV', testing: t('sync.testing'), local: T('数据存在你的设备上，离线也能用', 'Stored on your devices · works offline') };
+    const M = { laptop: T('电脑', 'Laptop'), tablet: T('平板', 'Tablet'), lan: T('KineX 同步服务 · 实时', 'KineX Sync · real time'),
+      cloud: T('或你自己的存储', 'Or your own storage'), cloudsub: 'S3 · WebDAV', local: T('先加密再上传 · 离线也能用', 'Encrypted before upload · works offline') };
     $$('[data-k]').forEach(el => { el.textContent = M[el.dataset.k]; });
     $$('.sy-k').forEach(el => { el.textContent = T('笔记', 'NOTE'); });
     Object.keys(chips).forEach(k => setChip(k, chipState[k]));

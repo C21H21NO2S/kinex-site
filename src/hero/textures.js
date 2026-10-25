@@ -3,6 +3,7 @@
 
 import { drawSlide } from '../core/art.js';
 import { rng, pencil } from './pencil.js';
+import { PIECES_LIGHT, PIECES_K } from '../core/logo.js';
 export { rng };
 
 const SERIF_ZH = '"Noto Serif SC", "Songti SC", serif';
@@ -111,7 +112,7 @@ const CARDS = {
 };
 export const VARIANTS = { page: PAGES.zh.length, quote: CARDS.quote.length, concept: CARDS.concept.length, flash: CARDS.flash.length, video: CARDS.video.length, note: CARDS.note.length };
 
-export const ALL_TEXT = JSON.stringify(PAGES) + JSON.stringify(CARDS) + '笔记明天后摘录第页回到原文概念超新星核合成比铁更重的元素多在恒星爆发几秒里形成闪卡今天复习你血液里的铁来自哪里重来困难良好简单天体物理导论第讲恒星的一生章并排阅读白板 Cosmos EPUB PAGES Excerpt Concept Flashcard due today Again Hard Good Easy Back to source 0123456789:·—';
+export const ALL_TEXT = JSON.stringify(PAGES) + JSON.stringify(CARDS) + '笔记明天后摘录第页回到原文概念超新星核合成比铁更重的元素多在恒星爆发几秒里形成闪卡今天复习你血液里的铁来自哪里遗忘困难一般容易听读主白板天体物理导论第讲恒星的一生章并排阅读白板 Cosmos EPUB PAGES Excerpt Concept Flashcard due today Again Hard Good Easy Back to source 0123456789:·—';
 
 // Pages and cards are seen small and far away in the 3D scene, so they are designed to read at a distance:
 // a large title, dark text, a bold highlight and a hairline frame (the frame keeps them distinct on a light background).
@@ -160,12 +161,16 @@ export function makeCard(kind, lang, seed, v = 0) {
   const label = (t, x, y) => { ctx.fillStyle = '#8E8A98'; ctx.font = `500 24px ${MONO}`; ctx.fillText(t.toUpperCase(), x, y); };
   const SANSB = `"Noto Sans SC", ${SANS}`;
   if (kind === 'quote') {
-    ctx.fillStyle = '#0EA5E9'; ctx.fillRect(0, 0, 26, h);
+    // as an excerpt card on a KineX board: a stripe in the highlight's colour with its back-to-source chevron, the
+    // sentence, and where it came from
+    ctx.fillStyle = '#97A1AF'; ctx.fillRect(0, 0, 50, h);
+    ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 6; ctx.lineCap = ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(31, h / 2 - 14); ctx.lineTo(17, h / 2); ctx.lineTo(31, h / 2 + 14); ctx.stroke();
     const [qz, qe, pg] = pick(CARDS.quote);
-    label(zh ? `摘录 · 第 ${pg} 页` : `Excerpt · p.${pg}`, 60, 72);
     ctx.fillStyle = '#16141E'; ctx.font = zh ? `600 50px ${SANSB}` : `400 58px ${SERIF_EN}`;
-    wrapText(ctx, zh ? qz : qe, 60, 152, w - 110, zh ? 70 : 62, zh);
-    ctx.fillStyle = '#1D4ED8'; ctx.font = `600 28px ${SANSB}`; ctx.fillText(zh ? '↩ 回到原文' : '↩ Back to source', 60, h - 40);
+    wrapText(ctx, zh ? qz : qe, 84, 112, w - 128, zh ? 70 : 62, zh);
+    ctx.fillStyle = '#9A948F'; ctx.font = `500 26px ${SANSB}`; ctx.textAlign = 'right';
+    ctx.fillText(zh ? `恒星的余烬 · 第 ${pg} 页` : `Embers of stars · p.${pg}`, w - 40, h - 38); ctx.textAlign = 'left';
   } else if (kind === 'concept') {
     const [tz, dz, te, de] = pick(CARDS.concept);
     label(zh ? '概念' : 'Concept', 48, 76);
@@ -179,9 +184,9 @@ export function makeCard(kind, lang, seed, v = 0) {
     label(zh ? `闪卡 · ${dz}` : `Flashcard · ${de}`, 48, 76);
     ctx.fillStyle = '#16141E'; ctx.font = `600 50px ${SANSB}`;
     wrapText(ctx, zh ? fz : fe, 48, 160, w - 96, 66, zh);
-    [0, 1, 2, 3].forEach(i => { ctx.fillStyle = i === g ? '#2563EB' : '#E4E2EA'; round(48 + i * 140, h - 108, 124, 62, 14); ctx.fill(); });
+    [0, 1, 2, 3].forEach(i => { ctx.fillStyle = i === g ? '#3D3D3D' : '#EBEBEB'; round(48 + i * 140, h - 108, 124, 62, 14); ctx.fill(); });
     ctx.font = `600 26px ${SANSB}`; ctx.textAlign = 'center';
-    (zh ? ['重来', '困难', '良好', '简单'] : ['Again', 'Hard', 'Good', 'Easy']).forEach((t, i) => { ctx.fillStyle = i === g ? '#FFFFFF' : '#3D3A48'; ctx.fillText(t, 110 + i * 140, h - 67); });
+    (zh ? ['遗忘', '困难', '一般', '容易'] : ['Again', 'Hard', 'Good', 'Easy']).forEach((t, i) => { ctx.fillStyle = i === g ? '#FFFFFF' : '#3D3A48'; ctx.fillText(t, 110 + i * 140, h - 67); });
     ctx.textAlign = 'left';
   } else if (kind === 'video') {
     const [vz, ve, time, prog] = pick(CARDS.video);
@@ -263,66 +268,84 @@ function drawClip(ctx, x, y, w, h, v, r) {
   ctx.restore();
 }
 
-// The KineX workspace as it looks in the app: top bar, reader pane (left) and whiteboard pane (right), in the app's
-// light theme. Drawn in a 1600-wide design space. Anchors other code relies on: the reader highlight (returned in
-// `hl`), the concept card centred at (1390, 225), the media card around (1180–1510, 520–770).
+// The KineX workspace as it looks in the app (its default 中性 light scheme): the title bar, the reader pane (left) and
+// the whiteboard pane (right). Drawn in a 1600-wide design space. Anchors other code relies on: the reader highlight
+// (returned in `hl`), the concept card centred at (1390, 225), the excerpt card (800–1120, 270–430), the media card
+// around (1180–1510, 520–770), and the board pane from x = 752 (the sync section's tablet shows only that).
 export const SCREEN = { concept: [1390, 225] };
 
 const UI = {
-  font: '"Noto Sans SC", Inter, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif',
-  ink: '#1D1D1F', ink2: '#6E6E73', ink3: '#A1A1A6', line: '#E5E5EA', accent: '#0071E3',
-  top: '#FFFFFF', readerBg: '#F8F7F2', readerBar: '#FAF9F5', boardBg: '#F5F5F7', dot: '#D2D2D7', tool: '#FBFBFC',
+  font: '"Noto Sans SC", Inter, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif',
+  // App.vue .light-theme
+  ink: '#272320', ink2: '#635C57', ink3: '#9A948F', line: '#E0E0E0', accent: '#3D3D3D',
+  bar: '#EFEFEF', workspace: '#E3E3E3', panel: '#FFFFFF', board: '#F7F7F7', dot: '#D4D4D4', activeSoft: '#EBEBEB',
+  // the reader's automatic highlight colour and the excerpt card's stripe
+  hl: 'rgba(124,141,166,.30)', hlEdge: 'rgba(98,116,143,.55)', stripe: '#97A1AF', edge: '#9B9B9B',
 };
 
 function rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); }
 function shadowed(ctx, fn, blur = 24, oy = 6, a = .10) { ctx.save(); ctx.shadowColor = `rgba(0,0,0,${a})`; ctx.shadowBlur = blur; ctx.shadowOffsetY = oy; fn(); ctx.restore(); }
 
-// 20px line icons, stroked in the current strokeStyle
+// KineX's own icons (Material Symbols on a 960 grid, filled; line icons on a 24 grid, stroked at 1.75), from
+// PrimaryBar.vue, ReaderToolbar.vue, PenTypeIcon.vue and header-action-icons.ts
+const M = (d, vb = 960) => ({ d, vb, fill: true });
+const S = (d, lw = 1.75) => ({ d, vb: 24, lw });
 const ICON = {
-  move: c => { c.moveTo(10, 2); c.lineTo(10, 18); c.moveTo(2, 10); c.lineTo(18, 10); [[10, 2, 7, 5, 13, 5], [10, 18, 7, 15, 13, 15], [2, 10, 5, 7, 5, 13], [18, 10, 15, 7, 15, 13]].forEach(([x, y, a, b, d, e]) => { c.moveTo(a, b); c.lineTo(x, y); c.lineTo(d, e); }); },
-  text: c => { c.roundRect(3, 3, 14, 14, 2.5); c.moveTo(7, 7.5); c.lineTo(13, 7.5); c.moveTo(10, 7.5); c.lineTo(10, 14); },
-  pen: c => { c.moveTo(6, 13); c.lineTo(6, 9); c.lineTo(10, 4); c.lineTo(14, 9); c.lineTo(14, 13); c.moveTo(10, 4); c.lineTo(10, 9); c.moveTo(4, 17); c.lineTo(16, 17); },
-  marker: c => { c.moveTo(6, 14); c.lineTo(6, 7); c.lineTo(11, 4); c.lineTo(14, 7); c.lineTo(14, 14); c.moveTo(4, 17); c.lineTo(16, 17); },
-  eraser: c => { c.moveTo(3, 13); c.lineTo(10, 5); c.lineTo(16, 10); c.lineTo(10, 16); c.lineTo(6, 16); c.closePath(); c.moveTo(11, 17); c.lineTo(17, 17); },
-  select: c => { c.setLineDash([2.6, 2.4]); c.roundRect(3, 3, 14, 14, 1.5); },
-  group: c => { c.roundRect(2.5, 2.5, 15, 15, 3); c.roundRect(6, 6, 5, 5, 1); c.roundRect(9, 9, 5, 5, 1); },
-  undo: c => { c.moveTo(7, 5); c.lineTo(3, 9); c.lineTo(7, 13); c.moveTo(3, 9); c.lineTo(12, 9); c.quadraticCurveTo(17, 9, 17, 14); },
-  redo: c => { c.moveTo(13, 5); c.lineTo(17, 9); c.lineTo(13, 13); c.moveTo(17, 9); c.lineTo(8, 9); c.quadraticCurveTo(3, 9, 3, 14); },
-  cursor: c => { c.moveTo(5, 3); c.lineTo(5, 16); c.lineTo(9, 12.5); c.lineTo(12, 18); c.lineTo(14, 17); c.lineTo(11, 11.5); c.lineTo(16, 11.5); c.closePath(); },
-  ibeam: c => { c.roundRect(3, 3, 14, 14, 2.5); c.moveTo(8, 6.5); c.lineTo(12, 6.5); c.moveTo(8, 13.5); c.lineTo(12, 13.5); c.moveTo(10, 6.5); c.lineTo(10, 13.5); },
-  cols: c => { c.moveTo(4, 4); c.lineTo(4, 16); c.moveTo(16, 4); c.lineTo(16, 16); c.moveTo(10, 7); c.lineTo(10, 13); },
-  more: c => { [5, 10, 15].forEach(x => { c.moveTo(x + 1.2, 10); c.arc(x, 10, 1.2, 0, 6.29); }); },
-  chevron: c => { c.moveTo(5, 8); c.lineTo(10, 13); c.lineTo(15, 8); },
-  search: c => { c.arc(9, 9, 5, 0, 6.29); c.moveTo(13, 13); c.lineTo(17, 17); },
-  split: c => { c.roundRect(3, 4, 14, 12, 2); c.moveTo(10, 4); c.lineTo(10, 16); },
-  close: c => { c.moveTo(5, 5); c.lineTo(15, 15); c.moveTo(15, 5); c.lineTo(5, 15); },
-  copy: c => { c.roundRect(6, 6, 10, 11, 2); c.moveTo(4, 13); c.lineTo(4, 5); c.quadraticCurveTo(4, 3, 6, 3); c.lineTo(12, 3); },
-  gear: c => { c.arc(10, 10, 3, 0, 6.29); c.moveTo(16.5, 10); c.arc(10, 10, 6.5, 0, 6.29); for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; c.moveTo(10 + Math.cos(a) * 6.5, 10 + Math.sin(a) * 6.5); c.lineTo(10 + Math.cos(a) * 8.3, 10 + Math.sin(a) * 8.3); } },
-  dots: c => { [5, 10, 15].forEach(x => { c.moveTo(x + 1.3, 10); c.arc(x, 10, 1.3, 0, 6.29); }); },
-  menu: c => { [6, 10, 14].forEach(y => { c.moveTo(5, y); c.lineTo(15, y); }); },
-  expand: c => { c.moveTo(11, 4); c.lineTo(16, 4); c.lineTo(16, 9); c.moveTo(16, 4); c.lineTo(10, 10); c.moveTo(9, 16); c.lineTo(4, 16); c.lineTo(4, 11); c.moveTo(4, 16); c.lineTo(10, 10); },
-  sun: c => { c.arc(10, 10, 3.5, 0, 6.29); for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; c.moveTo(10 + Math.cos(a) * 6, 10 + Math.sin(a) * 6); c.lineTo(10 + Math.cos(a) * 8, 10 + Math.sin(a) * 8); } },
-  back: c => { c.moveTo(8, 5); c.lineTo(4, 9); c.lineTo(8, 13); c.moveTo(4, 9); c.lineTo(12, 9); c.quadraticCurveTo(16, 9, 16, 13); c.lineTo(16, 15); },
-  play: c => { c.moveTo(7, 5); c.lineTo(15, 10); c.lineTo(7, 15); c.closePath(); },
+  move: S('M5 9 2 12 5 15M9 5 12 2 15 5M19 9 22 12 19 15M9 19 12 22 15 19M2 12H22M12 2V22'),
+  text: S('M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2ZM9 8H15M12 8V16'),
+  pen: M('m240-320 100-360h60v-60l60-140h40l60 140v60h60l100 360H240Zm105-80h270l-56-200H401l-56 200ZM160-120l22-65q8-25 29-40t47-15h444q26 0 47 15t29 40l22 65H160Z'),
+  highlight: M('M280-320v-440q0-33 23.5-56.5T360-840q9 0 18 2t17 6l240 119q20 10 32.5 29.5T680-641v321H280Zm80-80h240v-241L360-760v360ZM160-120l22-65q8-25 29-40t47-15h444q26 0 47 15t29 40l22 65H160Zm200-280h240-240Z'),
+  eraser: M('M690-240h190v80H610l80-80Zm-500 80-85-85q-23-23-23.5-57t22.5-58l440-456q23-24 56.5-24t56.5 23l199 199q23 23 23 57t-23 57L520-160H190Zm296-80 314-322-198-198-442 456 64 64h262Zm-6-240Z'),
+  select: S('M7 3H3V7M17 3H21V7M7 21H3V17M17 21H21V17M10 3H14M10 21H14M3 10V14M21 10V14'),
+  group: S('M5 2h14a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3ZM7 7h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1ZM13 12h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1Z'),
+  undo: S('M9 7 4 12l5 5M5 12h8a6 6 0 0 1 6 6'),
+  redo: S('m15 7 5 5-5 5M19 12h-8a6 6 0 0 0-6 6'),
+  cursor: M('m320-410 79-110h170L320-716v306ZM551-80 406-392 240-160v-720l560 440H516l144 309-109 51ZM399-520Z'),
+  excerpt: M('M240-80q-66 0-113-47T80-240v-560q0-66 47-113t113-47h480q66 0 113 47t47 113v560q0 66-47 113T720-80H240Zm0-80h480q33 0 56.5-23.5T800-240v-560q0-33-23.5-56.5T720-880H240q-33 0-56.5 23.5T160-800v560q0 33 23.5 56.5T240-160Zm240-320ZM360-280h240v-80h-80v-240h80v-80H360v80h80v240h-80v80Z'),
+  aloud: M('M160-80q-33 0-56.5-23.5T80-160v-640q0-33 23.5-56.5T160-880h326l-80 80H160v640h440v-80h80v80q0 33-23.5 56.5T600-80H160Zm80-160v-80h280v80H240Zm0-120v-80h200v80H240Zm360 0L440-520H320v-200h120l160-160v520Zm80-122v-276q36 21 58 57t22 81q0 45-22 81t-58 57Zm0 172v-84q70-25 115-86.5T840-620q0-78-45-139.5T680-846v-84q104 27 172 112.5T920-620q0 112-68 197.5T680-310Z'),
+  orient: M('M80-80v-800h80v800H80Zm340-200v-400h120v400H420ZM800-80v-800h80v800h-80Z'),
+  more: S('M5.5 10.8a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4ZM12 10.8a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4ZM18.5 10.8a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z'),
+  chevron: S('m5 8 7 7 7-7'),
+  back: S('m15 6-6 6 6 6', 2.4),
+  search: S('M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM20 20l-4.8-4.8'),
+  split: S('M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1ZM12 4v16'),
+  close: S('M6 6l12 12M18 6 6 18'),
+  menu: S('M5 7h14M5 12h14M5 17h14'),
+  expand: S('M14 5h5v5M19 5l-6 6M10 19H5v-5M5 19l6-6'),
+  fit: S('M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4M12 10.6a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8Z'),
+  dots: M('M6 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM18 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z', 24),
+  flashcards: M('M456-316H320q-33 0-56-23-24-24-24-57V-760q0-33 24-56 23-24 56-24H800q33 0 57 24 23 23 23 56v327a250 250 0 0 0-80-56V-760H320v364H490a250 250 0 0 0-34 80ZM130-189 81-546q-5-32 16-58 20-26 52-31l61 435 241-34a250 250 0 0 0 22 78L218-121q-33 5-58-15-25-20-30-53ZM400-600H720v-80H400v80Zm0 40H600v71a250 250 0 0 0-19 9H400ZM633-81q-31-14-55-37-23-24-37-55-13-31-13-67h38q0 56 39 95 39 39 95 39 57 0 96-39 39-39 39-95 0-57-39-96-39-39-96-39h-2l29 30-27 28-76-77 76-77 27 28-29 30h2q36 0 68 14 31 13 55 37 23 23 37 54 13 32 13 68 0 36-13 67-14 31-37 55-24 23-55 37-32 13-68 13-36 0-67-13Z'),
+  settings: M('m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z'),
+  play: M('M8 5.5v13l10.5-6.5L8 5.5Z', 24),
+  book: S('M3.5 5.5Q8 4 12 6.5q4-2.5 8.5-1v13q-4.5-1.5-8.5 1-4-2.5-8.5-1Zm8.5 1v13', 1.6),
 };
-function icon(ctx, name, x, y, color, size = 20, lw = 1.6, fill = false) {
-  ctx.save(); ctx.translate(x, y); ctx.scale(size / 20, size / 20);
-  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  ctx.beginPath(); ICON[name](ctx); fill ? ctx.fill() : ctx.stroke(); ctx.restore();
+const PATHS = new Map();
+function icon(ctx, name, x, y, color, size = 20) {
+  const ic = ICON[name];
+  if (!PATHS.has(name)) PATHS.set(name, new Path2D(ic.d));
+  ctx.save(); ctx.translate(x, y + (ic.vb === 960 ? size : 0)); ctx.scale(size / ic.vb, size / ic.vb);
+  if (ic.fill) { ctx.fillStyle = color; ctx.fill(PATHS.get(name)); }
+  else { ctx.strokeStyle = color; ctx.lineWidth = ic.lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke(PATHS.get(name)); }
+  ctx.restore();
 }
-function toolbar(ctx, cx, y, items, active) {
-  const B = 34, G = 6, SEP = 13;
-  const w = items.reduce((a, it) => a + (it === '|' ? SEP : B + G), 0) - G + 16;
-  const x0 = cx - w / 2;
-  shadowed(ctx, () => { ctx.fillStyle = UI.tool; rr(ctx, x0, y, w, 46, 14); ctx.fill(); }, 22, 6, .09);
-  ctx.strokeStyle = 'rgba(0,0,0,.05)'; ctx.lineWidth = 1; rr(ctx, x0 + .5, y + .5, w - 1, 45, 14); ctx.stroke();
-  let x = x0 + 8;
+// a floating tool bar as in KineX: frosted white, 12px corners, 34px buttons; the active tool sits on a soft grey
+// square with a thin ring in the accent colour
+function toolbar(ctx, x0, y, items, active) {
+  const B = 34, G = 2, P = 6, DIV = 7;
+  const w = items.reduce((a, it) => a + (it === '|' ? DIV : B + G), 0) - G + P * 2;
+  shadowed(ctx, () => { ctx.fillStyle = 'rgba(255,255,255,.96)'; rr(ctx, x0, y, w, B + P * 2, 12); ctx.fill(); }, 30, 8, .13);
+  ctx.strokeStyle = 'rgba(0,0,0,.12)'; ctx.lineWidth = 1; rr(ctx, x0 + .5, y + .5, w - 1, B + P * 2 - 1, 12); ctx.stroke();
+  let x = x0 + P;
   items.forEach(it => {
-    if (it === '|') { ctx.fillStyle = UI.line; ctx.fillRect(x + SEP / 2 - 6 - .5, y + 13, 1, 20); x += SEP; return; }
-    if (it === active) { shadowed(ctx, () => { ctx.fillStyle = UI.accent; rr(ctx, x, y + 6, B, B, 9); ctx.fill(); }, 10, 3, .18); }
-    icon(ctx, it, x + 7, y + 13, it === active ? '#FFFFFF' : UI.ink2, 20, 1.6);
+    if (it === '|') { ctx.fillStyle = UI.line; ctx.fillRect(x + 2, y + P + 7, 1, 20); x += DIV; return; }
+    if (it === active) {
+      ctx.fillStyle = UI.activeSoft; rr(ctx, x, y + P, B, B, 8); ctx.fill();
+      ctx.strokeStyle = 'rgba(61,61,61,.45)'; ctx.lineWidth = 1.5; rr(ctx, x + .75, y + P + .75, B - 1.5, B - 1.5, 7.5); ctx.stroke();
+    }
+    icon(ctx, it, x + 8, y + P + 8, it === active ? UI.accent : UI.ink2, 18);
     x += B + G;
   });
+  return w;
 }
 const NO_START = '，。、；：！？）」』”’》…—,.;:!?)';
 function wrap(ctx, text, x, y, maxW, lh, cjk) {
@@ -336,13 +359,14 @@ function wrap(ctx, text, x, y, maxW, lh, cjk) {
   if (line) { ctx.fillText(line, x, yy); yy += lh; }
   return yy;
 }
-function miniMark(ctx, x, y, s) { // the KineX mark, simplified: a hexagon split into a deep K and light pieces
+// the E10 mark (core/logo.js), in its own colours
+let MARK = null;
+function mark(ctx, x, y, s) {
+  MARK ??= { light: PIECES_LIGHT.map(d => new Path2D(d)), k: PIECES_K.map(d => new Path2D(d)) };
   ctx.save(); ctx.translate(x, y); ctx.scale(s / 100, s / 100);
-  const g = ctx.createRadialGradient(94, 2, 0, 94, 2, 118); g.addColorStop(0, '#7DEBFB'); g.addColorStop(.3, '#22D3EE'); g.addColorStop(.6, '#0EA5E9'); g.addColorStop(.85, '#2563EB'); g.addColorStop(1, '#4338CA');
-  ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(50, 4); ctx.lineTo(90, 27); ctx.lineTo(90, 73); ctx.lineTo(50, 96); ctx.lineTo(10, 73); ctx.lineTo(10, 27); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = '#312E81'; ctx.beginPath(); ctx.moveTo(10, 27); ctx.lineTo(30, 16); ctx.lineTo(30, 84); ctx.lineTo(10, 73); ctx.closePath(); ctx.fill();
-  ctx.beginPath(); ctx.moveTo(30, 42); ctx.lineTo(70, 14); ctx.lineTo(80, 20); ctx.lineTo(30, 64); ctx.closePath(); ctx.fill();
-  ctx.beginPath(); ctx.moveTo(30, 58); ctx.lineTo(76, 80); ctx.lineTo(64, 88); ctx.lineTo(30, 72); ctx.closePath(); ctx.fill();
+  const grad = stops => { const g = ctx.createRadialGradient(94, 2, 0, 94, 2, 118); stops.forEach(([o, c]) => g.addColorStop(o, c)); return g; };
+  ctx.fillStyle = grad([[0, '#7DEBFB'], [.1, '#67E8F9'], [.3, '#22D3EE'], [.56, '#0EA5E9'], [.84, '#2563EB'], [1, '#4338CA']]); MARK.light.forEach(p => ctx.fill(p));
+  ctx.fillStyle = grad([[0, '#4740D4'], [.55, '#3730A3'], [1, '#312E81']]); MARK.k.forEach(p => ctx.fill(p));
   ctx.restore();
 }
 
@@ -352,99 +376,121 @@ const TXT = {
     p2a: '铁是终点。聚变到这里不再放出能量，核心在几秒内塌缩，外层被炸向星际空间。所以，',
     hl: ['你血液里的铁，来自一颗早已', '死去的恒星。'],
     p3: '这些元素在星云里重新聚集，形成新的恒星、行星，和我们。你骨骼里的钙，也曾是某颗星的一部分。',
-    ex: '你血液里的铁，来自一颗早已死去的恒星。', exSrc: '恒星的余烬 · 第 47 页', concept: '超新星核合成', conceptK: '概念',
-    video: '天体物理导论 · 第 7 讲', play: '播放' },
+    ex: '你血液里的铁，来自一颗早已死去的恒星。', exSrc: '恒星的余烬.epub · 第 47 页', concept: '超新星核合成', conceptD: '恒星爆发时合成新元素',
+    video: '天体物理导论 · 第 7 讲', play: '听读', pos: '47 / 268' },
   en: { title: 'Life of a star', file: 'Embers of stars.epub', ch: 'Chapter 3 — Embers of stars', board: 'Main board',
     p1: 'In the beginning there was almost only hydrogen and helium. Everything heavier was forged inside stars: carbon, oxygen, silicon, and finally iron.',
     p2a: 'Iron is where fusion stops paying. The core collapses within seconds and the shell is blown into space. So',
     hl: ['the iron in your blood came from', 'a star that died long ago.'],
     p3: 'Those elements gather again in nebulae, forming new stars, planets — and us. The calcium in your bones was once part of a star.',
-    ex: 'The iron in your blood came from a star that died long ago.', exSrc: 'Embers of stars · p.47', concept: 'Supernova nucleosynthesis', conceptK: 'Concept',
-    video: 'Astrophysics · Lecture 7', play: 'Play' },
+    ex: 'The iron in your blood came from a star that died long ago.', exSrc: 'Embers of stars.epub · p.47', concept: 'Supernova nucleosynthesis', conceptD: 'New elements forged as stars explode',
+    video: 'Astrophysics · Lecture 7', play: 'Listen', pos: '47 / 268' },
 };
 
-export function drawScreen(ctx, w, h, lang) {
+// The reader's highlight as a tile of its own (the 3D scene lays it over the page and sweeps it in, so the screen
+// texture never has to be uploaded again): the band and its edge on white, drawn at k pixels per design unit.
+export function highlightTile(bw, bh, k) {
+  const c = document.createElement('canvas'); c.width = Math.ceil(bw * k); c.height = Math.ceil(bh * k);
+  const x = c.getContext('2d', SOFT); x.scale(k, k);
+  x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, bw, bh);
+  x.fillStyle = UI.hl; rr(x, 0, 0, bw, bh, 4); x.fill();
+  x.strokeStyle = UI.hlEdge; x.lineWidth = 1.2; rr(x, .6, .6, bw - 1.2, bh - 1.2, 3.5); x.stroke();
+  return c;
+}
+
+// highlight: false leaves the sentence plain (and without its dashed link to the excerpt card), for the scene to
+// sweep its own highlight over it
+export function drawScreen(ctx, w, h, lang, { highlight = true } = {}) {
   const zh = lang === 'zh', L = TXT[zh ? 'zh' : 'en'];
   const s = w / 1600; ctx.save(); ctx.scale(s, s); const W = 1600, H = h / s;
   const F = (wt, px) => `${wt} ${px}px ${UI.font}`;
   const SERIF = zh ? '"Noto Serif SC", "Songti SC", serif' : '"Instrument Serif", Georgia, serif';
 
-  // ---- top bar
-  ctx.fillStyle = UI.top; ctx.fillRect(0, 0, W, 52); ctx.fillStyle = UI.line; ctx.fillRect(0, 51, W, 1);
-  miniMark(ctx, 22, 15, 22);
-  ctx.fillStyle = UI.ink; ctx.font = F(700, 17); ctx.fillText('KineX', 52, 32);
-  ctx.fillStyle = '#F0F0F2'; rr(ctx, 110, 17, 70, 20, 5); ctx.fill(); ctx.fillStyle = UI.ink2; ctx.font = F(500, 11); ctx.fillText('v0.1.0-alpha', 116, 31);
-  ctx.fillStyle = UI.ink; ctx.font = F(600, 16); ctx.textAlign = 'center'; ctx.fillText(L.title, W / 2, 32); ctx.textAlign = 'left';
-  icon(ctx, 'copy', 1494, 16, UI.ink2, 19); icon(ctx, 'gear', 1528, 16, UI.ink2, 19); icon(ctx, 'dots', 1562, 16, UI.ink2, 19);
+  // ---- title bar: mark and name, the theme's title, then 闪卡 · 设置 · “…”
+  ctx.fillStyle = UI.workspace; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = UI.bar; ctx.fillRect(0, 0, W, 48); ctx.fillStyle = UI.line; ctx.fillRect(0, 47, W, 1);
+  // (the tablet's screen has rounded corners about 52 units across: nothing sits in them)
+  mark(ctx, 40, 13, 22);
+  ctx.fillStyle = UI.ink; ctx.font = F(700, 16); ctx.fillText('KineX', 70, 30);
+  ctx.fillStyle = UI.ink; ctx.font = F(600, 15); ctx.textAlign = 'center'; ctx.fillText(L.title, W / 2, 30); ctx.textAlign = 'left';
+  icon(ctx, 'flashcards', 1446, 14, UI.ink2, 20); icon(ctx, 'settings', 1484, 14, UI.ink2, 20); icon(ctx, 'dots', 1522, 14, UI.ink2, 20);
 
-  // ---- reader pane
-  const RW = 748;
-  ctx.fillStyle = UI.readerBg; ctx.fillRect(0, 52, RW, H - 52);
-  ctx.fillStyle = UI.readerBar; ctx.fillRect(0, 52, RW, 36); ctx.fillStyle = '#ECEBE6'; ctx.fillRect(0, 87, RW, 1);
-  ctx.fillStyle = UI.ink; ctx.font = F(600, 13); ctx.textAlign = 'center'; ctx.fillText(L.file, RW / 2, 75); ctx.textAlign = 'left';
-  icon(ctx, 'search', 660, 61, UI.ink2, 17); icon(ctx, 'split', 688, 61, UI.ink2, 17); icon(ctx, 'close', 716, 61, UI.ink2, 17);
-  // the page
-  const PX = 64, PW = RW - 128;
-  shadowed(ctx, () => { ctx.fillStyle = '#FFFFFF'; ctx.fillRect(PX, 104, PW, H); }, 30, 8, .08);
-  ctx.strokeStyle = 'rgba(0,0,0,.05)'; ctx.strokeRect(PX + .5, 104.5, PW - 1, H);
-  toolbar(ctx, RW / 2, 112, ['cursor', '|', 'ibeam', 'marker', 'eraser', '|', 'undo', 'redo', '|', 'cols', 'more', 'chevron'], 'ibeam');
-  ctx.fillStyle = '#9B968A'; ctx.font = `500 14px "JetBrains Mono", monospace`; ctx.fillText(L.ch.toUpperCase(), PX + 46, 198); ctx.textAlign = 'right'; ctx.fillText('47', PX + PW - 46, 198); ctx.textAlign = 'left';
-  ctx.fillStyle = '#1F1C2A'; ctx.font = zh ? `500 24px ${SERIF}` : `400 28px ${SERIF}`;
-  const lh = zh ? 44 : 38, mw = PW - 92, tx = PX + 46;
-  let y = wrap(ctx, L.p1, tx, 246, mw, lh, zh) + 16;
+  // ---- reader pane: a white panel with the file's bar, the floating reader tools and the reflowed book
+  const RW = 748, PY = 54, R = 10;
+  shadowed(ctx, () => { ctx.fillStyle = UI.panel; rr(ctx, 6, PY, RW - 9, H - PY - 6, R); ctx.fill(); }, 6, 1, .06);
+  ctx.fillStyle = UI.ink; ctx.font = F(600, 14); ctx.fillText(L.file, 30, PY + 26);
+  icon(ctx, 'search', 640, PY + 10, UI.ink2, 18); icon(ctx, 'split', 672, PY + 10, UI.ink2, 18); icon(ctx, 'close', 704, PY + 10, UI.ink2, 18);
+  ctx.fillStyle = UI.line; ctx.fillRect(6, PY + 40, RW - 9, 1);
+  const tools = ['cursor', '|', 'excerpt', 'highlight', 'eraser', '|', 'aloud', '|', 'undo', 'redo', '|', 'orient', '|', 'more', 'chevron'];
+  const tw = tools.reduce((a, it) => a + (it === '|' ? 7 : 36), 0) - 2 + 12;
+  toolbar(ctx, (6 + RW - 3) / 2 - tw / 2, PY + 52, tools, 'excerpt');
+  ctx.fillStyle = UI.ink3; ctx.font = `500 13px "JetBrains Mono", monospace`; ctx.fillText(L.ch.toUpperCase(), 92, 186);
+  ctx.fillStyle = '#26221F'; ctx.font = zh ? `500 24px ${SERIF}` : `400 28px ${SERIF}`;
+  const lh = zh ? 44 : 38, mw = RW - 184, tx = 92;
+  let y = wrap(ctx, L.p1, tx, 236, mw, lh, zh) + 16;
   y = wrap(ctx, L.p2a, tx, y, mw, lh, zh);
   const hlBox = [];
   L.hl.forEach((t, i) => {
-    const tw = ctx.measureText(t).width, yy = y + i * lh;
-    ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = 'rgba(34,211,238,.42)'; rr(ctx, tx - 4, yy - (zh ? 30 : 27), tw + 8, zh ? 40 : 36, 4); ctx.fill(); ctx.restore();
-    hlBox.push([tx - 4, yy - 30, tw + 8, 40]);
-    ctx.fillStyle = '#1F1C2A'; ctx.fillText(t, tx, yy);
+    const tw2 = ctx.measureText(t).width, yy = y + i * lh, top = yy - (zh ? 30 : 27), hh = zh ? 40 : 36;
+    if (highlight) {
+      ctx.fillStyle = UI.hl; rr(ctx, tx - 4, top, tw2 + 8, hh, 4); ctx.fill();
+      ctx.strokeStyle = UI.hlEdge; ctx.lineWidth = 1.2; rr(ctx, tx - 3.4, top + .6, tw2 + 6.8, hh - 1.2, 3.5); ctx.stroke();
+    }
+    hlBox.push([tx - 4, top, tw2 + 8, hh]);
+    ctx.fillStyle = '#26221F'; ctx.fillText(t, tx, yy);
   });
   y += lh * 2 + 16;
   wrap(ctx, L.p3, tx, y, mw, lh, zh);
+  ctx.fillStyle = UI.ink2; ctx.font = F(500, 13); ctx.textAlign = 'right'; ctx.fillText(L.pos, RW - 30, H - 24); ctx.textAlign = 'left';
   // bottom-left pane controls
-  [['menu', 18], ['expand', 54]].forEach(([n, x]) => { shadowed(ctx, () => { ctx.fillStyle = '#FFFFFF'; rr(ctx, x, H - 52, 30, 30, 8); ctx.fill(); }, 8, 2, .08); icon(ctx, n, x + 6, H - 46, UI.ink, 18); });
+  [['menu', 40], ['expand', 78]].forEach(([n, x]) => { shadowed(ctx, () => { ctx.fillStyle = '#FFFFFF'; rr(ctx, x, H - 62, 32, 32, 8); ctx.fill(); }, 8, 2, .1); ctx.strokeStyle = 'rgba(0,0,0,.08)'; ctx.lineWidth = 1; rr(ctx, x + .5, H - 61.5, 31, 31, 8); ctx.stroke(); icon(ctx, n, x + 7, H - 55, UI.ink, 18); });
 
-  // ---- divider + board pane
+  // ---- board pane
   const BX = RW + 4;
-  ctx.fillStyle = UI.line; ctx.fillRect(RW, 52, 4, H - 52);
-  ctx.fillStyle = UI.boardBg; ctx.fillRect(BX, 52, W - BX, H - 52);
-  ctx.fillStyle = UI.dot; for (let gx = BX + 14; gx < W; gx += 26) for (let gy = 70; gy < H; gy += 26) ctx.fillRect(gx, gy, 2, 2);
-  // board chip + toolbar + menu
-  shadowed(ctx, () => { ctx.fillStyle = '#FFFFFF'; rr(ctx, BX + 14, 64, 100, 32, 9); ctx.fill(); }, 10, 2, .07);
-  ctx.fillStyle = '#90CAF9'; rr(ctx, BX + 26, 74, 12, 12, 3); ctx.fill(); icon(ctx, 'chevron', BX + 40, 73, UI.ink2, 13, 2);
-  ctx.fillStyle = UI.ink; ctx.font = F(700, 13); ctx.fillText(L.board, BX + 58, 85);
-  toolbar(ctx, (BX + W) / 2, 60, ['move', '|', 'text', 'pen', 'marker', 'eraser', '|', 'select', 'group', '|', 'undo', 'redo'], 'move');
-  shadowed(ctx, () => { ctx.fillStyle = '#FFFFFF'; rr(ctx, W - 50, 62, 36, 36, 9); ctx.fill(); }, 10, 2, .07); icon(ctx, 'dots', W - 42, 70, UI.ink, 20, 1.8);
-  shadowed(ctx, () => { ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(W - 34, H - 38, 17, 0, 6.29); ctx.fill(); }, 8, 2, .08); icon(ctx, 'sun', W - 43, H - 47, UI.ink2, 18);
+  ctx.fillStyle = UI.board; rr(ctx, BX, PY, W - BX - 6, H - PY - 6, R); ctx.fill();
+  ctx.save(); rr(ctx, BX, PY, W - BX - 6, H - PY - 6, R); ctx.clip();
+  ctx.fillStyle = UI.dot; for (let gx = BX + 14; gx < W; gx += 26) for (let gy = PY + 16; gy < H; gy += 26) ctx.fillRect(gx, gy, 2, 2);
+  ctx.restore();
+  // board chip (colour, menu, name), the tool bar, the board's “…”, and fit-to-view
+  shadowed(ctx, () => { ctx.fillStyle = '#FFFFFF'; rr(ctx, BX + 14, PY + 12, 104, 34, 10); ctx.fill(); }, 10, 2, .08);
+  ctx.fillStyle = '#90CAF9'; rr(ctx, BX + 26, PY + 22, 13, 13, 3); ctx.fill(); icon(ctx, 'chevron', BX + 42, PY + 21, UI.ink2, 13);
+  ctx.fillStyle = UI.ink; ctx.font = F(700, 14); ctx.fillText(L.board, BX + 62, PY + 34);
+  const bt = ['move', '|', 'text', 'pen', 'highlight', 'eraser', '|', 'select', 'group', '|', 'undo', 'redo'];
+  const bw = bt.reduce((a, it) => a + (it === '|' ? 7 : 36), 0) - 2 + 12;
+  toolbar(ctx, (BX + W) / 2 - bw / 2, PY + 10, bt, 'move');
+  shadowed(ctx, () => { ctx.fillStyle = '#FFFFFF'; rr(ctx, W - 56, PY + 12, 38, 38, 10); ctx.fill(); }, 10, 2, .08); icon(ctx, 'dots', W - 47, PY + 21, UI.ink, 20);
+  shadowed(ctx, () => { ctx.fillStyle = '#FFFFFF'; rr(ctx, W - 76, H - 64, 34, 34, 9); ctx.fill(); }, 8, 2, .1); icon(ctx, 'fit', W - 68, H - 56, UI.ink, 18);
 
-  // cards: white, 10px radius, hairline border, soft shadow
-  const card = (x, y, w, h, fn) => { shadowed(ctx, () => { ctx.fillStyle = '#FFFFFF'; rr(ctx, x, y, w, h, 10); ctx.fill(); }, 22, 6, .09); ctx.strokeStyle = 'rgba(0,0,0,.07)'; ctx.lineWidth = 1; rr(ctx, x + .5, y + .5, w - 1, h - 1, 10); ctx.stroke(); fn(x, y, w, h); };
-  const link = (x0, y0, x1, y1) => { ctx.strokeStyle = UI.accent; ctx.lineWidth = 2.2; ctx.globalAlpha = .75; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.bezierCurveTo((x0 + x1) / 2, y0, (x0 + x1) / 2, y1, x1, y1); ctx.stroke(); ctx.globalAlpha = 1; [[x0, y0], [x1, y1]].forEach(([px, py]) => { ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(px, py, 5, 0, 7); ctx.fill(); ctx.strokeStyle = UI.accent; ctx.lineWidth = 2; ctx.stroke(); }); };
+  // cards: white, 8px corners, a hairline border (KineX's board cards)
+  const card = (x, y, w, h, fn) => { shadowed(ctx, () => { ctx.fillStyle = '#FFFFFF'; rr(ctx, x, y, w, h, 8); ctx.fill(); }, 14, 3, .06); ctx.strokeStyle = 'rgba(0,0,0,.12)'; ctx.lineWidth = 1; rr(ctx, x + .5, y + .5, w - 1, h - 1, 8); ctx.stroke(); fn(x, y, w, h); };
+  // connections: KineX's grey structure edges
+  const link = (x0, y0, x1, y1) => { ctx.strokeStyle = UI.edge; ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.bezierCurveTo((x0 + x1) / 2, y0, (x0 + x1) / 2, y1, x1, y1); ctx.stroke(); };
   link(1120, 330, 1250, 225); link(1050, 430, 1180, 640);
   // the excerpt's link back to the page: from the end of the highlight, along its line (empty there), over to the card
-  const [hx, hy, hw] = hlBox[0], lx0 = hx + hw + 12, ly0 = hy + 20;
-  ctx.save(); ctx.strokeStyle = ctx.fillStyle = UI.ink3; ctx.lineWidth = 2.2; ctx.lineCap = 'round'; ctx.setLineDash([5, 7]);
-  ctx.beginPath(); ctx.moveTo(lx0, ly0); ctx.bezierCurveTo(Math.max(lx0 + 120, 640), ly0, 700, 352, 798, 352); ctx.stroke();
-  ctx.setLineDash([]); ctx.beginPath(); ctx.arc(lx0, ly0, 3.6, 0, 6.29); ctx.fill(); ctx.restore();
-  // excerpt card: coloured retrace stripe, text, source breadcrumb
+  if (highlight) {
+    const [hx, hy, hw, hh] = hlBox[0], lx0 = hx + hw + 12, ly0 = hy + hh / 2;
+    ctx.save(); ctx.strokeStyle = ctx.fillStyle = '#A9A39E'; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.setLineDash([4, 7]);
+    ctx.beginPath(); ctx.moveTo(lx0, ly0); ctx.bezierCurveTo(Math.max(lx0 + 120, 640), ly0, 700, 352, 798, 352); ctx.stroke();
+    ctx.setLineDash([]); ctx.beginPath(); ctx.arc(lx0, ly0, 3.4, 0, 6.29); ctx.fill(); ctx.restore();
+  }
+  // excerpt card: the stripe in the highlight's colour with a “back to source” chevron, the text, its source
   card(800, 270, 320, 160, (x, y, w, h) => {
-    ctx.save(); rr(ctx, x, y, w, h, 10); ctx.clip(); ctx.fillStyle = '#0EA5E9'; ctx.globalAlpha = .88; ctx.fillRect(x, y, 15, h); ctx.restore();
-    icon(ctx, 'back', x + 1, y + h / 2 - 7, '#FFFFFF', 13, 2.2);
-    ctx.fillStyle = UI.ink; ctx.font = F(400, 18); wrap(ctx, L.ex, x + 30, y + 40, w - 52, 28, zh);
-    ctx.fillStyle = UI.ink3; ctx.font = F(500, 12); ctx.textAlign = 'right'; ctx.fillText(L.exSrc, x + w - 14, y + h - 14); ctx.textAlign = 'left';
+    ctx.save(); rr(ctx, x, y, w, h, 8); ctx.clip(); ctx.fillStyle = UI.stripe; ctx.fillRect(x, y, 24, h); ctx.restore();
+    icon(ctx, 'back', x + 3, y + h / 2 - 9, '#FFFFFF', 18);
+    ctx.fillStyle = UI.ink; ctx.font = F(400, 18); wrap(ctx, L.ex, x + 40, y + 40, w - 60, 29, zh);
+    ctx.fillStyle = UI.ink3; ctx.font = F(400, 12.5); ctx.textAlign = 'right'; ctx.fillText(L.exSrc, x + w - 14, y + h - 14); ctx.textAlign = 'left';
   });
-  // concept card
+  // a text card (the pen underlines its title and adds a star)
   card(1250, 165, 280, 120, (x, y, w) => {
-    ctx.fillStyle = UI.ink3; ctx.font = F(500, 12); ctx.fillText(L.conceptK, x + 22, y + 32);
-    ctx.fillStyle = UI.ink; ctx.font = F(700, zh ? 25 : 21); wrap(ctx, L.concept, x + 22, y + 72, w - 44, 28, zh);
+    ctx.fillStyle = UI.ink; ctx.font = F(700, zh ? 25 : 21); wrap(ctx, L.concept, x + 20, y + 68, w - 40, 28, zh);
+    ctx.fillStyle = UI.ink2; ctx.font = F(400, 14); ctx.fillText(L.conceptD, x + 20, y + 104);
   });
-  // media card: cover, title, play tag
+  // media card: the lecture's frame with its time, title, and 听读
   card(1180, 520, 330, 250, (x, y, w) => {
-    ctx.save(); rr(ctx, x + 10, y + 10, w - 20, 166, 7); ctx.clip(); drawSlide(ctx, x + 10, y + 10, w - 20, 166, zh ? 'zh' : 'en', { font: UI.font }); ctx.restore();
-    ctx.fillStyle = 'rgba(0,0,0,.5)'; rr(ctx, x + 22, y + 140, 62, 26, 6); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = `500 14px "JetBrains Mono", monospace`; ctx.fillText('12:48', x + 30, y + 158);
+    ctx.save(); rr(ctx, x + 10, y + 10, w - 20, 166, 6); ctx.clip(); drawSlide(ctx, x + 10, y + 10, w - 20, 166, zh ? 'zh' : 'en', { font: UI.font }); ctx.restore();
+    ctx.fillStyle = 'rgba(0,0,0,.55)'; rr(ctx, x + 22, y + 140, 62, 26, 6); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = `500 14px "JetBrains Mono", monospace`; ctx.fillText('12:48', x + 30, y + 158);
     ctx.fillStyle = UI.ink; ctx.font = F(600, 17); ctx.fillText(L.video, x + 18, y + 210);
-    ctx.fillStyle = '#EEF4FF'; rr(ctx, x + 18, y + 222, 70, 22, 6); ctx.fill(); icon(ctx, 'play', x + 22, y + 225, UI.accent, 15, 1.8, true); ctx.fillStyle = UI.accent; ctx.font = F(600, 12); ctx.fillText(L.play, x + 42, y + 238);
+    ctx.fillStyle = UI.activeSoft; rr(ctx, x + 18, y + 222, zh ? 70 : 78, 24, 6); ctx.fill(); icon(ctx, 'play', x + 22, y + 225, UI.accent, 18); ctx.fillStyle = UI.accent; ctx.font = F(600, 12.5); ctx.fillText(L.play, x + 42, y + 239);
   });
   ctx.restore();
   return { hl: hlBox.map(b => b.map(v => v * s)), tip: null, scale: s };

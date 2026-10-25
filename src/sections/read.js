@@ -36,6 +36,19 @@ const PAUSE_D = ['M40.5 28.5 Q41.6 50 40.4 71.5', 'M60 28 Q59.2 50.5 60.6 71'];
 const strokes = ds => ds.map(d => `<path d="${d}" pathLength="1"/>`).join('');
 const PP = `<svg viewBox="22 20 56 60" aria-hidden="true"><g class="i-play">${strokes(PLAY_D)}</g><g class="i-pause">${strokes(PAUSE_D)}</g></svg>`;
 
+// the read-aloud plate: the page's sentences (the one being read is shaded, as in KineX) and the read-aloud bar's
+// glyphs, after KineX's (prev / play-pause / next / replay, rate, sleep timer, 摘录本句 “99”, follow, close)
+const ALOUD = () => (Z()
+  ? ['光一年能走约九万五千亿公里。', '抬头看到的星星，是它们很久以前的样子。', '有些星光出发的时候，那颗星也许已经不在了。', '所以，夜空也是一部历史书。']
+  : ['Light covers about 9.5 trillion kilometres in a year. ', 'The stars overhead are how they looked long ago. ', 'Some of that light set out before its star was gone. ', 'So the night sky is a history book, too.']);
+const ico = d => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
+const RA = {
+  grip: '<svg viewBox="0 0 24 24" aria-hidden="true">' + [8, 12, 16].map(y => `<circle cx="9.5" cy="${y}" r="1.3"/><circle cx="14.5" cy="${y}" r="1.3"/>`).join('') + '</svg>',
+  prev: ico('M7 6.5v11M17.5 6.5 9.5 12l8 5.5Z'), next: ico('M17 6.5v11M6.5 6.5l8 5.5-8 5.5Z'),
+  play: ico('M8.5 5.8v12.4L18.5 12Z').replace('<svg', '<svg class="i-play"'), pause: ico('M8.5 6v12M15.5 6v12').replace('<svg', '<svg class="i-pause"'),
+  replay: ico('M19 12.5A7 7 0 1 1 16.9 7.4M18 4v4.5h-4.5'), moon: ico('M19 14.4A7.5 7.5 0 1 1 9.6 5a6 6 0 0 0 9.4 9.4Z'),
+  follow: ico('M5 7.5h14M5 12h14M5 16.5h14'), close: ico('M6.5 6.5l11 11M17.5 6.5l-11 11'),
+};
 const ART = {
   pdf: () => `
     <div class="art pdf">
@@ -46,9 +59,9 @@ const ART = {
         <p class="serif-t">${T('铁是终点。核心在几秒内塌缩，外层被炸向星际空间。所以，', 'Iron is where fusion stops. The core collapses in seconds and the shell is blown into space. So ')}<span class="mark-hl">${words(EXCERPT())}</span></p>
         <div class="ln"></div><div class="ln m"></div><div class="ln s"></div>
         <svg class="margin-ink" viewBox="0 0 60 80"><path d="M30 6 C 12 8, 6 30, 10 46 C 14 66, 44 72, 52 52 C 58 36, 50 12, 30 10"/><path d="M30 26 L 30 46 M30 54 L30 56"/></svg>
-        <i class="sel-caret"></i>
+        <span class="ptr" aria-hidden="true"><svg class="arrow" viewBox="0 0 16 22"><path d="M1.5 1.5v16l4.2-4 2.9 6.6 2.7-1.2-2.9-6.4h5.9Z"/></svg><svg class="ibeam" viewBox="0 0 12 22"><path d="M2.5 1.5h1.5a2 2 0 0 1 2 2v15a2 2 0 0 1-2 2H2.5M9.5 1.5H8a2 2 0 0 0-2 2M6 18.5a2 2 0 0 0 2 2h1.5M4 11h4"/></svg></span>
       </div>
-      <div class="xc"><span class="k">${T('摘录 · 第 47 页', 'Excerpt · p.47')}</span><p>${EXCERPT()}</p><span class="back">↩ ${T('回到原文', 'Back to source')}</span></div>
+      <div class="xc"><i class="st"><svg viewBox="0 0 24 24"><path d="m14.5 6-6 6 6 6"/></svg></i><p>${EXCERPT()}</p><span class="src">${T('恒星的余烬.pdf · 第 47 页', 'Embers of stars.pdf · p.47')}</span></div>
       <div class="chips"><span class="chip">47 / 268</span><span class="chip">100%</span></div>
     </div>`,
   epub: () => `
@@ -119,6 +132,19 @@ L = 4*pi*R**2*sigma*T**4
       </div>
       <div class="cap-card"><div class="mini-frame">${slideSVG(getLang(), { labels: false })}</div><div><b>${T('截帧 · 12:48', 'Frame · 12:48')}</b><span>${T('红巨星：恒星的晚年', 'Red giant: a star’s old age')}</span></div></div>
     </div>`,
+  aloud: () => `
+    <div class="art aloud">
+      <div class="doc">
+        <div class="h"><span>${T('第 2 章 · 光年', 'Ch. 2 · Light-years')}</span><span>18</span></div>
+        <p class="serif-t">${ALOUD().map((s, i) => `<span class="sn${i === aloudAt ? ' on' : ''}">${s}</span>`).join('')}</p>
+        <div class="ln"></div><div class="ln m"></div><div class="ln"></div><div class="ln s"></div><div class="ln"></div><div class="ln m"></div>
+      </div>
+      <div class="ra-toast"><span>✓</span>${T('已摘录本句到白板', 'Sentence excerpted to the board')}</div>
+      <div class="ra-bar${aloudPlaying ? ' playing' : ''}" role="button" aria-label="${T('朗读', 'Read aloud')}">
+        <span class="grip">${RA.grip}</span><span>${RA.prev}</span><span class="pp">${RA.play}${RA.pause}</span><span>${RA.next}</span><span>${RA.replay}</span><i></i>
+        <span class="spd">1.0×</span><span>${RA.moon}</span><i></i><span class="q">99</span><span>${RA.follow}</span><i></i><span>${RA.close}</span>
+      </div>
+    </div>`,
   search: () => `
     <div class="art search">
       <div class="sbox"><span class="ico">⌕</span><span class="q">${T('铁', 'iron')}</span><span class="caret"></span><span class="kbd">Ctrl K</span></div>
@@ -135,6 +161,8 @@ L = 4*pi*R**2*sigma*T**4
 let epubFont = 'wk';
 // the web plate: once seen, the clutter is gone for good (a repaint for a new language keeps it gone)
 let webClean = false;
+// the read-aloud plate: the sentence being read, and whether it is playing (a repaint keeps both)
+let aloudAt = 0, aloudPlaying = false;
 function paint() {
   document.querySelectorAll('article[data-plate]').forEach(pl => { pl.querySelector('.plate-art').innerHTML = ART[pl.dataset.plate](); });
 }
@@ -213,35 +241,45 @@ export function initRead() {
   }), { threshold: [0, .3, .6, .9] });
   plates.forEach(pl => seen.observe(pl.querySelector('.plate-art')));
 
-  // PDF: a selection caret sweeps the highlight across the sentence, which then lifts off the page as an excerpt card.
-  // It plays the first time the plate is seen, and again on hover; the excerpt stays.
+  // PDF: as with KineX's 自动摘录 tool, the mouse comes in, drags across the sentence (the selection follows it), and
+  // lets go: the selection turns into the highlight, and a moment later the excerpt card rises into view beside the
+  // page. It plays the first time the plate is seen, and again on hover; the excerpt stays.
   const pdfArt = () => byName('pdf').querySelector('.pdf');
+  const SEL = 'rgba(56,132,255,.3)', HL = 'rgba(124,141,166,.42)'; // the browser's selection, then KineX's highlight
   let pdfTl = null, pdfPlayed = false;
   function pdfHide() {
     const a = pdfArt();
     gsap.set(a.querySelectorAll('.mark-hl .w'), { backgroundSize: '0% 100%' });
-    gsap.set([a.querySelector('.xc'), a.querySelector('.sel-caret')], { autoAlpha: 0 });
+    gsap.set(a.querySelector('.mark-hl'), { '--hlc': SEL });
+    gsap.set([a.querySelector('.xc'), a.querySelector('.ptr')], { autoAlpha: 0 });
   }
   function pdfPlay() {
     if (reduceMotion || pdfTl?.isActive()) return null;
     pdfPlayed = true;
-    const a = pdfArt(), ws = [...a.querySelectorAll('.mark-hl .w')], card = a.querySelector('.xc'), caret = a.querySelector('.sel-caret'), doc = a.querySelector('.doc.front');
+    const a = pdfArt(), ws = [...a.querySelectorAll('.mark-hl .w')], card = a.querySelector('.xc'), ptr = a.querySelector('.ptr'), doc = a.querySelector('.doc.front');
     pdfHide();
     const tl = pdfTl = gsap.timeline(), total = ws.reduce((t, w) => t + w.offsetWidth, 0);
-    tl.set(caret, { x: ws[0].offsetLeft, y: ws[0].offsetTop, height: ws[0].offsetHeight }, 0).to(caret, { autoAlpha: 1, duration: .2 }, .1);
-    let at = .4;
+    const mid = w => w.offsetTop + w.offsetHeight * .55;
+    // the pointer drifts in from the lower right, slowing onto the first word, where it becomes the text cursor
+    tl.set(ptr, { x: doc.offsetWidth * .86, y: doc.offsetHeight * .9 }, 0).call(() => ptr.classList.remove('text'), null, 0)
+      .to(ptr, { autoAlpha: 1, duration: .2 }, .05)
+      .to(ptr, { x: ws[0].offsetLeft - 1, y: mid(ws[0]), duration: .85, ease: 'power2.inOut' }, .05)
+      .call(() => ptr.classList.add('text'), null, .82);
+    // the drag: steady along a line, a quick diagonal hop to the next one, the selection always under the cursor
+    let at = 1.05, line = ws[0].offsetTop;
     ws.forEach(w => {
-      const d = 1.15 * w.offsetWidth / total;
-      tl.set(caret, { x: w.offsetLeft, y: w.offsetTop, height: w.offsetHeight }, at) // at a line break the caret moves down
-        .to(w, { backgroundSize: '100% 100%', duration: d, ease: 'none' }, at)
-        .to(caret, { x: w.offsetLeft + w.offsetWidth, duration: d, ease: 'none' }, at);
+      if (w.offsetTop !== line) { line = w.offsetTop; tl.to(ptr, { x: w.offsetLeft, y: mid(w), duration: .14, ease: 'power1.inOut' }, at); at += .14; }
+      const d = 1.25 * w.offsetWidth / total;
+      tl.to(w, { backgroundSize: '100% 100%', duration: d, ease: 'none' }, at)
+        .to(ptr, { x: w.offsetLeft + w.offsetWidth, y: mid(w), duration: d, ease: 'none' }, at);
       at += d;
     });
-    tl.to(caret, { autoAlpha: 0, duration: .25 }, at + .15);
-    // the card starts small on the end of the highlight and settles beside the page
-    const last = ws[ws.length - 1], sx = doc.offsetLeft + last.offsetLeft + last.offsetWidth, sy = doc.offsetTop + last.offsetTop;
-    tl.fromTo(card, { x: sx - card.offsetLeft - card.offsetWidth / 2, y: sy - card.offsetTop - card.offsetHeight / 2, scale: .3, rotate: -7, autoAlpha: 0 },
-      { x: 0, y: 0, scale: 1, rotate: 0, autoAlpha: 1, duration: 1, ease: 'expo.out' }, at + .2);
+    // release: the selection settles into the highlight's colour; the pointer moves off and fades
+    tl.to(a.querySelector('.mark-hl'), { '--hlc': HL, duration: .35, ease: 'power1.out' }, at + .12)
+      .call(() => ptr.classList.remove('text'), null, at + .2)
+      .to(ptr, { x: '+=26', y: '+=34', autoAlpha: 0, duration: .7, ease: 'power2.in' }, at + .45);
+    // and the excerpt card rises into place beside the page
+    tl.fromTo(card, { y: 22, scale: .96, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, duration: 1.1, ease: 'power3.out' }, at + .55);
     return new Promise(res => tl.eventCallback('onComplete', res));
   }
   demos.pdf = on => on && pdfPlay();
@@ -360,8 +398,39 @@ export function initRead() {
   function showInk() { if (playing) return; inkTw?.kill(); gsap.set(inkSvg(), { opacity: 1 }); rib()?.setAttribute('d', ribbonPath(INK)); }
   showInk(); paintPh(); // it starts stopped halfway through the loop, with its note on the frame
 
+  // Read aloud. Once the plate settles in view it reads from the first sentence, the shading moving on sentence by
+  // sentence; it pauses on the third, and 摘录本句 sends that one to the board. A click on the bar reads it again.
+  // Wholly out of view, it is set back.
+  const aloud = byName('aloud');
+  let raTl = null, raDone = null;
+  const raFinish = () => { raDone?.(); raDone = null; };
+  const raPaint = () => {
+    aloud.querySelectorAll('.sn').forEach((s, i) => s.classList.toggle('on', i === aloudAt));
+    aloud.querySelector('.ra-bar').classList.toggle('playing', aloudPlaying);
+  };
+  function raPlay() {
+    raTl?.kill(); raFinish();
+    const toast = aloud.querySelector('.ra-toast'), q = aloud.querySelector('.ra-bar .q');
+    if (reduceMotion) { aloudAt = 2; aloudPlaying = false; raPaint(); gsap.set(toast, { autoAlpha: 1 }); return null; }
+    aloudAt = 0; aloudPlaying = true; raPaint(); gsap.set(toast, { autoAlpha: 0 });
+    return new Promise(res => {
+      raDone = res;
+      const tl = raTl = gsap.timeline({ onComplete: raFinish });
+      [1, 2].forEach((k, j) => tl.call(() => { aloudAt = k; raPaint(); }, null, 1.9 * (j + 1)));
+      tl.call(() => { aloudPlaying = false; raPaint(); }, null, 5.4)
+        .to(q, { scale: .82, duration: .12, yoyo: true, repeat: 1, ease: 'power1.inOut' }, 5.8)
+        .fromTo(toast, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: .5, ease: 'power3.out' }, 6)
+        .to({}, { duration: .6 });
+    });
+  }
+  plays.aloud = () => raPlay();
+  away.aloud = r => { if (r === 0 && !reduceMotion) { raTl?.kill(); raFinish(); aloudAt = 0; aloudPlaying = false; raPaint(); gsap.set(aloud.querySelector('.ra-toast'), { autoAlpha: 0 }); } };
+  aloud.addEventListener('click', e => { if (e.target.closest('.ra-bar')) raPlay(); });
+  if (!reduceMotion) gsap.set(aloud.querySelector('.ra-toast'), { autoAlpha: 0 });
+
   // a new language repaints the plates: keep each demo where it was
   addEventListener('kx:lang', () => requestAnimationFrame(() => {
+    gsap.set(aloud.querySelector('.ra-toast'), { autoAlpha: reduceMotion || (raTl && !raTl.isActive() && aloudAt === 2) ? 1 : 0 });
     if (!pdfPlayed && !reduceMotion) pdfHide();
     player().classList.toggle('playing', playing); paintPh(); showInk();
   }));

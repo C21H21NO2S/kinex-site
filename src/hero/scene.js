@@ -5,7 +5,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Line2 } from 'three/addons/lines/Line2.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
-import { makePage, makeCard, drawScreen, SCREEN, rng, VARIANTS, SOFT } from './textures.js';
+import { makePage, makeCard, drawScreen, highlightTile, SCREEN, rng, VARIANTS, SOFT } from './textures.js';
 import { heroPose, LINKED_POSE } from './pose.js';
 
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -30,7 +30,9 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   // (?shaders turns them back on, to see a broken shader's log)
   renderer.debug.checkShaderErrors = DBG0.has('shaders');
   // phones have 3x screens: below 2x the tablet's UI and the paper text turn soft, so only 'low' drops under it
-  const DPR = { high: Math.min(devicePixelRatio, 2), mid: Math.min(devicePixelRatio, 2), low: Math.min(devicePixelRatio, 1.5) }[tier];
+  // On a 1x desktop screen ('high') it draws at 1.5x and lets the browser scale down: at 1x the tablet's small text
+  // broke up into jagged, faint strokes.
+  const DPR = { high: Math.min(Math.max(devicePixelRatio, 1.5), 2), mid: Math.min(devicePixelRatio, 2), low: Math.min(devicePixelRatio, 1.5) }[tier];
   renderer.setPixelRatio(DPR);
   renderer.toneMapping = THREE.NeutralToneMapping;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -56,7 +58,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   }
   function paintBackground(k) {
     const c = bgCanvas.getContext('2d', SOFT), w = 1024, h = 640, mix = (a, b) => a.map((v, i) => Math.round(v + (b[i] - v) * k));
-    const base = mix([205, 207, 214], [6, 6, 10]), glow = mix([232, 235, 242], [44, 38, 120]), glow2 = mix([214, 226, 240], [12, 60, 90]);
+    const base = mix([210, 210, 210], [32, 32, 32]), glow = mix([238, 238, 238], [74, 74, 76]), glow2 = mix([224, 224, 226], [46, 50, 54]);
     c.fillStyle = `rgb(${base})`; c.fillRect(0, 0, w, h);
     let g = c.createRadialGradient(w * .92, -h * .1, 0, w * .92, -h * .1, w * .9); g.addColorStop(0, `rgba(${glow},${.9 - k * .5})`); g.addColorStop(1, `rgba(${glow},0)`); c.fillStyle = g; c.fillRect(0, 0, w, h);
     g = c.createRadialGradient(w * .62, h * .55, 0, w * .62, h * .55, w * .5); g.addColorStop(0, `rgba(${glow2},${.35 + k * .1})`); g.addColorStop(1, `rgba(${glow2},0)`); c.fillStyle = g; c.fillRect(0, 0, w, h);
@@ -64,7 +66,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     c.fillStyle = grain || (grain = c.createPattern(grainTile(), 'repeat')); c.fillRect(0, 0, w, h); // dithers the gradients
     bgTex.needsUpdate = true;
   }
-  scene.fog = new THREE.FogExp2(0x06060a, .035);
+  scene.fog = new THREE.FogExp2(0x262626, .035);
   const key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(6, 7, 5); scene.add(key);
   const rim = new THREE.DirectionalLight(0x67e8f9, 1.4); rim.position.set(-6, 2, -6); scene.add(rim);
   const fill = new THREE.HemisphereLight(0x9aa6ff, 0x0a0a12, .35); scene.add(fill);
@@ -76,7 +78,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   const BLEND = { transparent: false, blending: THREE.CustomBlending, blendSrc: THREE.SrcAlphaFactor, blendDst: THREE.OneMinusSrcAlphaFactor };
   const BLEND_ADD = { ...BLEND, blendDst: THREE.OneFactor };
   const tablet = new THREE.Group(); scene.add(tablet);
-  const TW = 3.3, TH = 2.07, TD = .056, BEZ = .075, SW = TW - 2 * BEZ, SH = TH - 2 * BEZ, CR = .13;
+  const TW = 3.3, TH = 2.07, TD = .056, BEZ = .025, SW = TW - 2 * BEZ, SH = TH - 2 * BEZ, CR = .13;
   const rrShape = (w, h, r) => { const s = new THREE.Shape(), x = -w / 2, y = -h / 2; s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r); s.lineTo(x + w, y + h - r); s.quadraticCurveTo(x + w, y + h, x + w - r, y + h); s.lineTo(x + r, y + h); s.quadraticCurveTo(x, y + h, x, y + h - r); s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y); return s; };
   const planeUV = (geo, w, h) => { const p = geo.attributes.position, uv = geo.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i) / w + .5, p.getY(i) / h + .5); uv.needsUpdate = true; return geo; };
   const bodyMat = new THREE.MeshStandardMaterial({ color: 0x3a3b40, metalness: 1, roughness: .36 });
@@ -90,23 +92,51 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   const maxAniso = renderer.capabilities.getMaxAnisotropy();
   const scrTex = new THREE.CanvasTexture(scrCanvas); scrTex.colorSpace = THREE.SRGBColorSpace; scrTex.anisotropy = maxAniso;
   const scrMat = new THREE.MeshBasicMaterial({ map: scrTex, toneMapped: false, fog: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 });
-  const screen = new THREE.Mesh(planeUV(new THREE.ShapeGeometry(rrShape(SW, SH, .05), 24), SW, SH), scrMat); screen.position.z = FRONT + .004; tablet.add(screen);
-  const camDot = new THREE.Mesh(new THREE.CircleGeometry(.012, 24), new THREE.MeshStandardMaterial({ color: 0x0b0d16, roughness: .2 }));
+  // the screen is seen small and at a slant, where mipmapping picks too blurry a level: read it half a level sharper
+  scrMat.onBeforeCompile = sh => { sh.fragmentShader = sh.fragmentShader.replace('#include <map_fragment>', '#ifdef USE_MAP\n vec4 sampledDiffuseColor = texture( map, vMapUv, -.5 );\n diffuseColor *= sampledDiffuseColor;\n#endif'); };
+  const screen = new THREE.Mesh(planeUV(new THREE.ShapeGeometry(rrShape(SW, SH, CR - BEZ), 24), SW, SH), scrMat); screen.position.z = FRONT + .004; tablet.add(screen);
+  const camDot = new THREE.Mesh(new THREE.CircleGeometry(.0075, 24), new THREE.MeshStandardMaterial({ color: 0x0b0d16, roughness: .2 }));
   camDot.position.set(0, TH / 2 - BEZ / 2, FRONT + .004); tablet.add(camDot);
   const sheenC = document.createElement('canvas'); sheenC.width = 512; sheenC.height = 512; { const c = sheenC.getContext('2d', SOFT), g = c.createLinearGradient(0, 0, 512, 512); g.addColorStop(.3, 'rgba(255,255,255,0)'); g.addColorStop(.42, 'rgba(255,255,255,.5)'); g.addColorStop(.5, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(0, 0, 512, 512); }
-  const sheen = new THREE.Mesh(planeUV(new THREE.ShapeGeometry(rrShape(SW, SH, .05), 24), SW, SH), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sheenC), opacity: .025, ...BLEND_ADD, depthWrite: false }));
+  const sheen = new THREE.Mesh(planeUV(new THREE.ShapeGeometry(rrShape(SW, SH, CR - BEZ), 24), SW, SH), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sheenC), opacity: .025, ...BLEND_ADD, depthWrite: false }));
   sheen.position.z = FRONT + .007; sheen.renderOrder = 3; tablet.add(sheen);
   // The screen UI is painted once per language. Uploading a 2D canvas to WebGL costs ~90 ms, so nothing on the
-  // screen texture changes while scrolling; the pen's ink is a ribbon mesh revealed with a draw range.
+  // screen texture changes while scrolling; the pen's ink is a ribbon mesh revealed with a draw range, and the
+  // sentence's highlight is a tile per line laid over the page (multiplied, so the text shows through) and swept in
+  // by uncovering more of it.
   let screenInfo = null, screenLang = '';
+  const hlTiles = [];
   function paintScreen() {
     if (screenLang === getLang()) return;
     const ctx = scrCanvas.getContext('2d', SOFT); ctx.clearRect(0, 0, scrCanvas.width, scrCanvas.height);
-    screenInfo = drawScreen(ctx, scrCanvas.width, scrCanvas.height, getLang(), 0, 'light');
+    screenInfo = drawScreen(ctx, scrCanvas.width, scrCanvas.height, getLang(), { highlight: false });
     screenLang = getLang();
     scrTex.needsUpdate = true;
+    placeHighlight();
   }
   const scrToLocal = (px, py) => V((px / scrCanvas.width - .5) * SW, (.5 - py / scrCanvas.height) * SH, FRONT + .008);
+  function placeHighlight() {
+    hlTiles.forEach(m => { tablet.remove(m); m.geometry.dispose(); m.material.map.dispose(); m.material.dispose(); });
+    hlTiles.length = 0;
+    const s = screenInfo.scale;
+    screenInfo.hl.forEach(([x, y, w, h]) => {
+      const map = new THREE.CanvasTexture(highlightTile(w / s, h / s, s)); map.colorSpace = THREE.SRGBColorSpace; map.anisotropy = maxAniso;
+      // drawn with the tablet, right after the screen (not in the transparent pass: that would land on cards in front)
+      const mat = new THREE.MeshBasicMaterial({ map, toneMapped: false, fog: false, depthWrite: false, blending: THREE.CustomBlending, blendSrc: THREE.DstColorFactor, blendDst: THREE.ZeroFactor, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -6 });
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1).translate(.5, 0, 0), mat); m.renderOrder = 1; // grows from its left edge
+      const at = scrToLocal(x, y + h / 2); m.position.set(at.x, at.y, FRONT + .005);
+      m.userData.w = w / scrCanvas.width * SW; m.userData.len = w; m.scale.set(m.userData.w, h / scrCanvas.height * SH, 1);
+      tablet.add(m); hlTiles.push(m);
+    });
+  }
+  // k: how much of the sentence is highlighted, 0 → 1 in reading order (line by line)
+  function setHighlight(k) {
+    let left = k * hlTiles.reduce((a, m) => a + m.userData.len, 0);
+    hlTiles.forEach(m => {
+      const f = Math.min(1, Math.max(0, left / m.userData.len)); left -= m.userData.len;
+      m.visible = f > .002; m.scale.x = m.userData.w * Math.max(f, .002); m.material.map.repeat.x = Math.max(f, .002);
+    });
+  }
   // ink: the pen underlines the concept card's title and adds a small star — short strokes, like marking a book
   const VH = 1600 * scrCanvas.height / scrCanvas.width;
   const toLocal = (x, y) => [(x / 1600 - .5) * SW, (.5 - y / VH) * SH];
@@ -314,7 +344,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     LY.P0 = { pos: V(...HP.P0.pos), look: V(...HP.P0.look), fov: HP.P0.fov };
     if (!portrait) {
       LY.P3 = { pos: V(.85, 4.1, 21), look: V(1.2, 1.15, -2), fov: 28 };
-      LY.look1 = V(-1.6, -.45, 0); LY.d1 = 7.9; LY.look2 = V(-.62, -.1, 0); LY.d2 = 5.6;
+      LY.look1 = V(-1.6, -.45, 0); LY.d1 = 7.9; LY.p1y = -1.2; LY.look2 = V(-.62, -.1, 0); LY.d2 = 5.6;
       LY.hub = V(1.25, 1.65, -3.4);
       // keep the cards off the first screen's copy (where it actually is), not off the whole left half
       const rs = [...(document.querySelector('.hero')?.children || [])].map(c => { const rg = document.createRange(); rg.selectNodeContents(c); return rg.getBoundingClientRect(); }).filter(r => r.width && r.height);
@@ -322,7 +352,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
       LY.textZone = (sx, sy) => sx < zx && sy > zy;
     } else {
       LY.P3 = { pos: V(.2, 3.2, 30 + 6 / aspect), look: V(.2, 1.4, -2), fov: 30 };
-      LY.look1 = V(0, -1.5, 0); LY.d1 = 8.6; LY.look2 = V(0, -1.25, 0); LY.d2 = 8.2;
+      LY.look1 = V(0, -1.5, 0); LY.d1 = 8.6; LY.p1y = -2.4; LY.look2 = V(0, -1.25, 0); LY.d2 = 8.2;
       LY.hub = V(.2, 2.2, -3.4); LY.textZone = (sx, sy) => sy > .52;
     }
     heroCam.aspect = aspect; heroCam.fov = LY.P0.fov; heroCam.position.copy(LY.P0.pos); heroCam.lookAt(LY.P0.look); heroCam.updateProjectionMatrix(); heroCam.updateMatrixWorld();
@@ -524,7 +554,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   function applyTheme(k) {
     T.k = k;
     paintBackground(k);
-    scene.fog.color.setRGB(.9 * (1 - k) + .024 * k, .9 * (1 - k) + .024 * k, .91 * (1 - k) + .04 * k);
+    scene.fog.color.setRGB(.9 * (1 - k) + .13 * k, .9 * (1 - k) + .13 * k, .9 * (1 - k) + .13 * k);
     scene.fog.density = .004 + k * .034;
     scene.environmentIntensity = .55 - k * .35;
     key.intensity = 2.6 - k * 1.2; rim.intensity = .25 + k * .95; fill.intensity = .75 - k * .6;
@@ -582,7 +612,9 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     const hlB = screenInfo.hl[0], hlPt = tablet.localToWorld(scrToLocal(hlB[0] + hlB[2] * .5, hlB[1] + hlB[3] * .9));
 
     // camera
-    const P1 = { pos: circleC.clone().addScaledVector(normal, LY.d1).add(V(.1, .5, .2)), look: circleC.clone().add(LY.look1), fov: LY.portrait ? 30 : 22 };
+    // while the pen writes, the camera sits a little below the screen's normal (p1y), so the screen faces slightly up, as a
+    // tablet propped on a desk does (from above it, the top edge leaned toward the viewer)
+    const P1 = { pos: circleC.clone().addScaledVector(normal, LY.d1).add(V(.1, LY.p1y, .2)), look: circleC.clone().add(LY.look1), fov: LY.portrait ? 30 : 22 };
     const cardEnd = hlPt.clone().addScaledVector(normal, 1.7).add(V(-.2, .35, .25));
     const P2 = { pos: cardEnd.clone().add(V(LY.portrait ? -.4 : -1.2, .3, LY.d2)), look: cardEnd.clone().add(LY.look2), fov: LY.portrait ? 32 : 24 };
     const P0 = { pos: LY.P0.pos.clone().add(LY.P0.pos.clone().sub(LY.P0.look).multiplyScalar((1 - smooth(S.intro)) * .18)), look: LY.P0.look, fov: LY.P0.fov };
@@ -617,15 +649,19 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     stylus.visible = showPen > .01; stylus.scale.setScalar(.999 * showPen + .001);
     stylusOcc.position.copy(stylus.position); stylusOcc.quaternion.copy(stylus.quaternion); stylusOcc.scale.copy(stylus.scale); stylusOcc.visible = stylus.visible;
 
+    // the sentence is selected, as a drag along it would: the highlight sweeps in from its first word to its last, and
+    // only then does the excerpt lift off it (there is none before)
+    setHighlight(seg(p, .335, .405));
+
     // lifted card
-    const lu = ease(seg(p, .4, .62));
+    const lu = ease(seg(p, .41, .62));
     lift.position.lerpVectors(hlPt.clone().addScaledVector(normal, .02), cardEnd, lu);
     lift.position.y += Math.sin(lu * Math.PI) * .25;
     qFace.copy(camera.quaternion);
     lift.quaternion.copy(qWorld).slerp(qFace, lu * .85);
     if (!reduceMotion) lift.rotateZ(Math.sin(t * .6) * .02 * lu);
-    lift.scale.setScalar(.25 + .75 * smooth(seg(p, .4, .52)));
-    lift.visible = p > .4;
+    lift.scale.setScalar(.25 + .75 * smooth(seg(p, .41, .52)));
+    lift.visible = p > .41;
     const toGraph = ease(seg(p, .7, .95));
     // The excerpt's brightness (untonemapped). As it leaves the page it is lit from within, as bright as the page it
     // is peeled from (never darker than the tablet behind it); as it rises it becomes a card of its theme: lit like the
@@ -655,7 +691,14 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     // it far to near (no card tests depth against another or the tablet, so none can cut through them)
     const camFwd0 = tB.set(0, 0, -1).applyQuaternion(camera.quaternion), depthOf = o => eT.subVectors(o.position, camera.position).dot(camFwd0);
     paint.length = 0;
-    for (const o of cardGroups) if (o.visible) paint.push([o, depthOf(o), eT.subVectors(o.position, tablet.position).dot(normal) > 0]);
+    // Which side a card is on is read while the cards float around the tablet, and kept through the flight to the
+    // constellation: there the tablet and the cards cross paths, and a card whose side flipped mid-flight seemed to
+    // pass through the tablet. (In the constellation no card overlaps the tablet, so the side no longer shows.)
+    for (const o of cardGroups) {
+      if (!o.visible) continue;
+      if (toGraph === 0 || o.userData.front === undefined) o.userData.front = eT.subVectors(o.position, tablet.position).dot(normal) > 0;
+      paint.push([o, depthOf(o), o.userData.front]);
+    }
     paint.sort((a, b) => (a[2] - b[2]) || (b[1] - a[1]));
     const front = paint.findIndex(it => it[2]), split = front < 0 ? paint.length : front;
     paint.forEach((it, k) => { it[0].renderOrder = k < split ? k + 1 : k + 3; });
@@ -687,7 +730,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     hubLines.forEach((l, i) => { const f = hubTargets[i]; if (!f) { l.visible = false; if (l.userData.halo) l.userData.halo.visible = false; pulses[heroLinks.length + i].visible = false; return; } const lp = tablet.worldToLocal(f.m.position.clone()); const k2 = 1 / Math.max(Math.abs(lp.x) / (TW / 2), Math.abs(lp.y) / (TH / 2), 1e-3); const edge = tablet.localToWorld(V(lp.x * k2, lp.y * k2, 0)); arc(l, edge, edgeOf(f, edge, eB), .3, g * .55, pulses[heroLinks.length + i], t); });
     // a touch below white (light theme) so the screen sits with the cards; it dims while the excerpt is lifted off it,
     // and in the constellation it settles to the cards' brightness
-    const liftUp = smooth(seg(p, .4, .52)) * (1 - hubK);
+    const liftUp = smooth(seg(p, .41, .52)) * (1 - hubK);
     scrMat.color.setScalar(1 - T.k * .05 - (1 - T.k) * .1 - liftUp * (.5 * T.k + .19 * (1 - T.k)) - hubK * (.65 * T.k + .07 * (1 - T.k)));
 
     const _t2 = performance.now();

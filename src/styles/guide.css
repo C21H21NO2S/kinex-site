@@ -1,6 +1,7 @@
 /* 使用手册 (guide/): the terms / privacy pages' long-reading frame, plus the header's section links (as on 动态 and 下载)
    and what a manual needs: tables, code, notes, the pre-drawn diagrams and the live forgetting curve. */
 @import './legal.css';
+@import './spark.css';
 
 /* ----- header with links (updates.css) */
 .nav { grid-template-columns: 1fr auto 1fr; }
@@ -25,7 +26,7 @@
   --g-label: var(--bg); --g-group: color-mix(in oklab, var(--fg) 3%, var(--bg)); --g-group-line: var(--rule);
   --g-note: color-mix(in oklab, var(--cyan) 10%, var(--bg)); --g-accent: var(--cyan); --acc-ink: var(--cyan);
 }
-:root[data-theme="light"] { --cyan: #0891B2; --acc-ink: #0E7490; --g-node: #F4F4F6; --g-node-2: #EDEDF1; --g-label: #F4F4F6; }
+:root[data-theme="light"] { --cyan: #0891B2; --acc-ink: #0E7490; --g-node: #F7F7F7; --g-node-2: #EFEFEF; --g-label: #F7F7F7; }
 
 /* ----- the document: a wider measure than the policies, for tables and diagrams */
 .gd-doc { grid-template-columns: 210px minmax(0, 780px); }
@@ -116,7 +117,7 @@
 .lg-doc video { width: 100%; aspect-ratio: auto; }
 /* phone recordings stand upright: cap the height and centre them instead of filling the column */
 .lg-doc img[src*="p13-phone"] { width: auto; max-height: min(560px, 70vh); margin-inline: auto; }
-.lg-doc video.phone { width: auto; height: min(560px, 70vh); aspect-ratio: 390 / 844; margin-inline: auto; background: #f4f4f6; }
+.lg-doc video.phone { width: auto; height: min(560px, 70vh); aspect-ratio: 390 / 844; margin-inline: auto; background: #f7f7f7; }
 .lg-doc p + p > img { margin-top: 8px; }
 
 @media (max-width: 960px) {

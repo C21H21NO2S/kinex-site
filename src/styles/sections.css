@@ -25,17 +25,45 @@
 .pdf .margin-ink { position: absolute; right: 6px; top: 46%; width: 30px; fill: none; stroke: #C2410C; stroke-width: 2.2; stroke-linecap: round; opacity: .8; }
 .pdf .chips { position: absolute; left: 50%; bottom: 4.5%; transform: translateX(-50%); display: flex; gap: 6px; }
 .pdf .mark-hl { background: none; }
-.pdf .mark-hl .w { background: linear-gradient(transparent 12%, rgba(34,211,238,.5) 12%, rgba(34,211,238,.5) 92%, transparent 92%) no-repeat 0 0 / 100% 100%; }
-/* the selection caret: a thin bar with a drop-shaped handle under it, as on a tablet */
-.pdf .sel-caret { position: absolute; left: 0; top: 0; width: 2px; height: 20px; margin-left: -1px; border-radius: 1px; background: #0EA5E9; opacity: 0; visibility: hidden; pointer-events: none; }
-.pdf .sel-caret::after { content: ""; position: absolute; left: 50%; bottom: -8px; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 0 50% 50% 50%; background: #0EA5E9; transform: rotate(45deg); }
-/* the excerpt card, as on the board: white, a coloured retrace stripe, the source under the quote */
-.pdf .xc { position: absolute; left: 188px; top: 288px; width: 226px; padding: 12px 14px 12px 19px; border-radius: 9px; background: #FFFFFF; color: #1F1C2A; box-shadow: 0 1px 0 rgba(0,0,0,.05), 0 26px 48px -20px rgba(0,0,0,.6); rotate: 1.6deg; overflow: hidden; }
-.pdf .xc::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: #0EA5E9; }
-.pdf .xc .k { font: 500 8.5px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: #8E8A98; }
-.pdf .xc p { margin: 8px 0 9px; font: 400 16px/1.25 var(--f-serif); letter-spacing: -.005em; }
-html[data-lang="zh"] .pdf .xc p { font: 500 13.5px/1.6 var(--f-cn-serif); letter-spacing: 0; }
-.pdf .xc .back { font: 600 10.5px/1 var(--f-sans); color: #1D4ED8; }
+/* --hlc: the selection's blue while the mouse drags, then KineX's highlight (read.js tweens it on release) */
+.pdf .mark-hl { --hlc: rgba(124,141,166,.42); }
+.pdf .mark-hl .w { background: linear-gradient(transparent 10%, var(--hlc) 10%, var(--hlc) 94%, transparent 94%) no-repeat 0 0 / 100% 100%; }
+/* the mouse pointer: an arrow, or the text cursor while it selects; its hot spot sits on (x, y) */
+.pdf .ptr { position: absolute; left: 0; top: 0; z-index: 3; width: 0; height: 0; opacity: 0; visibility: hidden; pointer-events: none; }
+.pdf .ptr svg { position: absolute; overflow: visible; filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.35)); }
+.pdf .ptr .arrow { left: -1.5px; top: -1.5px; width: 16px; height: 22px; fill: #FFFFFF; stroke: #1B1B1F; stroke-width: 1.2; stroke-linejoin: round; }
+.pdf .ptr .ibeam { left: -6px; top: -11px; width: 12px; height: 22px; display: none; fill: none; stroke: #1B1B1F; stroke-width: 1.3; stroke-linecap: round; }
+.pdf .ptr.text .arrow { display: none; }
+.pdf .ptr.text .ibeam { display: block; }
+/* the excerpt card, as on a KineX board: white, a stripe in the highlight's colour with the back-to-source chevron,
+   the source under the quote */
+.pdf .xc { position: absolute; left: 188px; top: 288px; width: 226px; padding: 12px 14px 10px 30px; border-radius: 8px; background: #FFFFFF; color: #272320; box-shadow: 0 0 0 1px rgba(0,0,0,.1), 0 26px 48px -20px rgba(0,0,0,.6); rotate: 1.6deg; overflow: hidden; }
+.pdf .xc .st { position: absolute; left: 0; top: 0; bottom: 0; width: 17px; display: grid; place-items: center; background: #97A1AF; }
+.pdf .xc .st svg { width: 13px; height: 13px; fill: none; stroke: #FFFFFF; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.pdf .xc p { margin: 0 0 8px; font: 400 16px/1.25 var(--f-serif); letter-spacing: -.005em; }
+html[data-lang="zh"] .pdf .xc p { font: 400 13.5px/1.6 var(--f-cn); letter-spacing: 0; }
+.pdf .xc .src { display: block; text-align: right; font: 400 9.5px/1 var(--f-sans); color: #9A948F; }
+
+/* Read aloud: a page with the sentence being read shaded (KineX's grey band with an underline), its read-aloud bar
+   floating below, and the note that 摘录本句 left */
+.aloud .doc { left: 9%; right: 9%; top: 8%; height: 60%; padding: 22px 22px 0; transform: rotate(-.8deg); transition: transform .8s var(--ease); }
+.fmt.hot .aloud .doc { transform: rotate(0deg) translateY(-4px); }
+.aloud .doc p { margin-top: 12px; }
+.aloud .sn { padding: 2px 0; border-radius: 2px; transition: background-color .35s, box-shadow .35s; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.aloud .sn.on { background: rgba(39,35,32,.1); box-shadow: inset 0 -1.5px 0 rgba(39,35,32,.42); }
+.aloud .ra-bar { position: absolute; left: 50%; bottom: 9%; transform: translateX(-50%); display: flex; align-items: center; gap: 1px; padding: 5px 7px; border-radius: 13px; background: #FFFFFF; color: #272320; box-shadow: 0 0 0 1px rgba(0,0,0,.12), 0 16px 34px -14px rgba(0,0,0,.5); cursor: pointer; white-space: nowrap; }
+.aloud .ra-bar > span { display: grid; place-items: center; min-width: 28px; height: 28px; border-radius: 7px; }
+.aloud .ra-bar > i { width: 1px; height: 16px; margin: 0 4px; background: #E0E0E0; }
+.aloud .ra-bar svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.aloud .ra-bar .grip svg { fill: #9A948F; stroke: none; }
+.aloud .ra-bar .pp svg { width: 19px; height: 19px; fill: currentColor; stroke-width: 2.6; }
+.aloud .ra-bar .pp .i-pause { display: none; fill: none; }
+.aloud .ra-bar.playing .pp .i-play { display: none; }
+.aloud .ra-bar.playing .pp .i-pause { display: block; }
+.aloud .ra-bar .spd { padding: 0 3px; font: 600 11.5px/1 var(--f-sans); }
+.aloud .ra-bar .q { font: 700 12.5px/1 var(--f-sans); letter-spacing: .02em; }
+.aloud .ra-toast { position: absolute; left: 50%; bottom: calc(9% + 50px); translate: -50% 0; display: flex; align-items: center; gap: 7px; padding: 8px 12px; border-radius: 10px; background: #FFFFFF; color: #272320; font: 500 11.5px/1 var(--f-sans); white-space: nowrap; box-shadow: 0 0 0 1px rgba(0,0,0,.1), 0 14px 28px -14px rgba(0,0,0,.5); }
+.aloud .ra-toast span { display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: #3D3D3D; color: #FFFFFF; font-size: 9.5px; }
 
 /* EPUB */
 .epub .spread { position: absolute; left: 26px; right: 26px; top: 30px; height: 290px; display: grid; grid-template-columns: 1fr 1fr; background: #FBFAF6; border-radius: 4px; box-shadow: 0 30px 60px -30px rgba(0,0,0,.6); overflow: hidden; }

@@ -7,8 +7,8 @@ import SketchWorker from './sketch.worker.js?worker&inline';
 
 // the reader pane's text lines on the screen texture (textures.js drawScreen): [baseline, width] in its design space
 const READER = {
-  zh: { x: 110, mid: 9, lines: [[246, 528], [290, 552], [334, 144], [394, 528], [438, 408], [482, 312], [526, 144], [586, 552], [630, 528]] },
-  en: { x: 110, mid: 7, lines: [[246, 505], [284, 481], [322, 380], [376, 490], [414, 484], [452, 314], [490, 232], [544, 507], [582, 518], [620, 174]] },
+  zh: { x: 92, mid: 9, lines: [[236, 576], [280, 552], [324, 96], [384, 552], [428, 384], [472, 312], [516, 144], [576, 552], [620, 528]] },
+  en: { x: 92, mid: 7, lines: [[236, 505], [274, 558], [312, 302], [366, 558], [404, 416], [442, 314], [480, 232], [534, 562], [572, 555], [610, 81]] },
 };
 
 // evenly spaced points along a polyline (the pencil smooths through its points with Catmull-Rom, which overshoots
@@ -47,7 +47,8 @@ function strokes(W, H, lang, still) {
   const S = [];
   const add = (pts, kind, t0, dur) => S.push({ pts: resample(pts, 4), kind, t0, t1: t0 + dur });
   add(closed(roundRect(TW - .012, TH - .012, CR, 8).map(([x, y]) => onTablet(x, y, FRONT))), 'body', 0, .95);
-  add(closed(roundRect(SW, SH, .05, 4).map(([x, y]) => onTablet(x, y, FRONT + .004))), 'screen', .2, .8);
+  // the screen, where the render puts it: inside the slim bezel, its corners concentric with the body's
+  add(closed(roundRect(SW, SH, CR - TABLET.BEZ, 6).map(([x, y]) => onTablet(x, y, FRONT + .004))), 'screen', .2, .8);
   // the three cards around the tablet, where their slow float has them at the scene's first frame
   LINKED_POSE.forEach((c, i) => {
     const f = still ? 0 : 1, d = Math.sin(c.phase) * f;
@@ -56,10 +57,9 @@ function strokes(W, H, lang, still) {
     const pts = roundRect(c.w, c.h, Math.min(c.w, c.h) * .045, 3).map(([x, y]) => { const w = mul(R, [x, y, 0]); return cam([w[0] + center[0], w[1] + center[1], w[2] + center[2]]); });
     add(closed(pts), 'card', .32 + i * .12, .62);
   });
-  // the workspace: top bar, the page in the reader, the divider, the text, the board's cards and links
-  add([ui(0, 52), ui(1600, 52)], 'ui', .5, .3);
-  add([ui(64, VH), ui(64, 104), ui(684, 104), ui(684, VH)], 'ui', .58, .42);
-  add([ui(750, 52), ui(750, VH)], 'ui', .62, .3);
+  // the workspace: the gap between the reader and the board, the text, the board's cards and links (the title bar
+  // and the panels' outlines are left out: so close to the screen's edge they doubled its line)
+  add([ui(750, 110), ui(750, VH - 70)], 'ui', .58, .36);
   const R0 = READER[lang] || READER.zh;
   R0.lines.forEach(([y, w], i) => add([ui(R0.x, y - R0.mid), ui(R0.x + w, y - R0.mid)], 'text', .74 + i * .055, .26));
   [[800, 270, 320, 160], [1250, 165, 280, 120], [1180, 520, 330, 250]].forEach(([x, y, w, h], i) => add(closed(uiRound(x, y, w, h, 10)), 'ui', .86 + i * .1, .45));

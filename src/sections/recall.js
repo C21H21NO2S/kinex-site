@@ -85,7 +85,7 @@ export function initRecall() {
     const ticks = reviews.map((r, i) => ({ d: r.d, label: dayLabel(r.d), grade: r.g, cls: '' })).concat([{ d: due, label: dayLabel(due), cls: 'due' }]);
     let lastX = -1e9; const shown = [];
     ticks.forEach((tk, i) => { const px = x(tk.d); if (px - lastX >= 58 || tk.cls === 'due') { if (tk.cls === 'due' && px - lastX < 58) shown.pop(); shown.push(tk); lastX = px; } });
-    const G = { 1: ZH() ? '重来' : 'Again', 2: ZH() ? '困难' : 'Hard', 3: ZH() ? '良好' : 'Good', 4: ZH() ? '简单' : 'Easy' };
+    const G = { 1: ZH() ? '遗忘' : 'Again', 2: ZH() ? '困难' : 'Hard', 3: ZH() ? '一般' : 'Good', 4: ZH() ? '容易' : 'Easy' };
 
     svg.innerHTML = `<defs><linearGradient id="curveFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="cf0"/><stop offset="1" class="cf1"/></linearGradient>
         <clipPath id="plotClip"><rect x="${L}" y="${T - 8}" width="${pw + 4}" height="${ph + 8}"/></clipPath></defs>

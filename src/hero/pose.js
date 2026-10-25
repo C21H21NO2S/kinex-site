@@ -1,7 +1,7 @@
 // The hero's opening pose, shared by the 3D scene and by the line sketch that is drawn before the scene exists.
 // Plain numbers only (no three.js), so the sketch can be placed while three.js is still downloading.
 
-export const TABLET = { W: 3.3, H: 2.07, D: .056, BEZ: .075, CR: .13 };
+export const TABLET = { W: 3.3, H: 2.07, D: .056, BEZ: .025, CR: .13 };
 TABLET.SW = TABLET.W - 2 * TABLET.BEZ;
 TABLET.SH = TABLET.H - 2 * TABLET.BEZ;
 TABLET.FRONT = TABLET.D / 2 + .006;

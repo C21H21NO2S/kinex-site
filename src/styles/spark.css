@@ -1,0 +1,80 @@
+/* The 加入内测 button, after Jhey Tompkins' “Sparkle Button” (codepen.io/jh3y/pen/LYJMPBL), built the same way: a spark
+   (a thin bright wedge of a conic gradient) sweeps along the top half of the rim, fading in and out as it goes, then
+   along the bottom half, round and round; a backdrop the colour of the button covers all but a hairline of the rim.
+   On hover (or keyboard focus) the button fills with indigo light from below, glows, grows a little, gains a soft ring
+   of its own colour, its sparkle icon bounces and stars drift round it (the stars only beside the hero's and the closing
+   section's buttons). --sp-on is registered, so everything that hangs off it eases. Indigo is the logo's deepest hue. */
+@property --sp-on { syntax: "<number>"; inherits: true; initial-value: 0; }
+
+/* The hover colours are a palette of their own (--sp-c the fill, --sp-l1/--sp-l2 the light from below, --sp-glow the
+   glow, --sp-ring the ring, --sp-hi/--sp-lo the top and bottom edges, --sp-ink the text and icon). */
+.pill.spark {
+  --sp-rest: #272320; --sp-cut: 1.5px; --sp-t: .25s; --sp-run: 1.8s;
+  /* 深靛 (chosen 2026-10-25 from proposals/spark-colors): the logo's K, with indigo light from below */
+  --sp-c: #3730A3; --sp-l1: #818CF8; --sp-l2: #6366F1; --sp-glow: rgb(79 70 229 / .45);
+  --sp-ring: rgb(67 56 202 / .45); --sp-hi: #A5B4FC; --sp-lo: #4338CA; --sp-ink: #FFFFFF;
+  --sp-bg:
+    radial-gradient(40% 50% at 50% 100%, color-mix(in oklab, var(--sp-l1) calc(var(--sp-on) * 100%), transparent), transparent),
+    radial-gradient(80% 100% at 50% 120%, color-mix(in oklab, var(--sp-l2) calc(var(--sp-on) * 100%), transparent), transparent),
+    color-mix(in oklab, var(--sp-rest), var(--sp-c) calc(var(--sp-on) * 100%));
+  position: relative; isolation: isolate; gap: 7px; color: #FFFFFF; background: var(--sp-bg);
+  box-shadow:
+    0 0 calc(var(--sp-on) * 3.4em) calc(var(--sp-on) * 1.1em) color-mix(in oklab, var(--sp-glow) calc(var(--sp-on) * 100%), transparent),
+    0 .05em 0 0 color-mix(in oklab, hsl(0 0% 30%), var(--sp-hi) calc(var(--sp-on) * 100%)) inset,
+    0 -.05em 0 0 color-mix(in oklab, #000, var(--sp-lo) calc(var(--sp-on) * 100%)) inset;
+  scale: calc(1 + var(--sp-on) * .08);
+  transition: --sp-on var(--sp-t), scale var(--sp-t), transform .5s var(--ease);
+}
+:root:not([data-theme="light"]) .pill.spark { --sp-rest: #161616; }
+.pill.spark:is(:hover, :focus-visible) { --sp-on: 1; }
+.pill.spark:active { scale: 1; }
+/* the ring that appears round it on hover, flush with its edge */
+.pill.spark::before {
+  content: ""; position: absolute; inset: -.25em; z-index: -1; border: .25em solid var(--sp-ring); border-radius: inherit;
+  opacity: var(--sp-on); pointer-events: none;
+}
+/* the spark: its holder shows only the top half (fading towards the middle) and turns half a turn at a time, so the
+   spark runs the top edge, then the bottom one; between runs it is out of sight */
+.spark .sp-spark { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none;
+  -webkit-mask: linear-gradient(#FFF, transparent 50%); mask: linear-gradient(#FFF, transparent 50%);
+  animation: sp-flip calc(var(--sp-run) * 2) infinite steps(2, end); }
+.spark .sp-spark::before { content: ""; position: absolute; left: 50%; top: 0; width: 200%; aspect-ratio: 1; translate: -50% -15%; transform: rotate(-90deg);
+  background: conic-gradient(from 0deg, transparent 0 340deg, #FFFFFF 360deg); opacity: calc(var(--sp-on) + .4);
+  animation: sp-sweep var(--sp-run) linear infinite both; }
+.spark .sp-back { position: absolute; inset: var(--sp-cut); border-radius: inherit; background: var(--sp-bg); pointer-events: none; }
+@keyframes sp-flip { to { rotate: 360deg; } }
+@keyframes sp-sweep { to { transform: rotate(90deg); } }
+
+.spark .sp-icon, .spark .sp-text { position: relative; }
+.spark .sp-icon { width: 1.2em; height: 1.2em; flex: none; overflow: visible; margin-left: -.15em; }
+.spark .sp-icon path { transform-box: fill-box; transform-origin: center; fill: currentColor; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round;
+  color: color-mix(in oklab, hsl(0 0% var(--b)), var(--sp-ink) calc(var(--sp-on) * 100%)); animation: .6s calc(var(--sp-t) * 1.5 + var(--d) * 1s) both; }
+.spark .sp-icon path:nth-child(1) { --s: .5; --d: .1; --b: 60%; }
+.spark .sp-icon path:nth-child(2) { --s: 1.5; --d: .2; --b: 42%; }
+.spark .sp-icon path:nth-child(3) { --s: 2.5; --d: .35; --b: 50%; }
+.pill.spark:is(:hover, :focus-visible) .sp-icon path { animation-name: sp-bounce; }
+@keyframes sp-bounce { 35%, 65% { scale: var(--s); } }
+.spark .sp-text {
+  background: linear-gradient(90deg, color-mix(in oklab, #F5F5F5, var(--sp-ink) calc(var(--sp-on) * 100%)), color-mix(in oklab, #B3B3B3, var(--sp-ink) calc(var(--sp-on) * 100%)));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* the stars (core/ui.js adds them beside the hero's and the closing section's buttons, behind the button): small
+   sparkles circling far-off centres, so each drifts along a gentle arc; masked to a soft disc */
+.spark-wrap { position: relative; display: inline-flex; }
+.sp-pen { position: absolute; left: 50%; top: 50%; z-index: -1; width: 200%; aspect-ratio: 1; translate: -50% -50%; pointer-events: none;
+  -webkit-mask: radial-gradient(#000, transparent 65%); mask: radial-gradient(#000, transparent 65%); opacity: 0; transition: opacity .25s; }
+.sp-pen svg { position: absolute; left: calc(var(--x) * 1%); top: calc(var(--y) * 1%); width: calc(var(--size) * 1rem); aspect-ratio: 1; opacity: var(--alpha);
+  transform-origin: var(--ox) var(--oy); animation: sp-orbit calc(var(--dur) * 1s) calc(var(--delay) * -1s) linear infinite paused; }
+.sp-pen svg:nth-child(even) { animation-direction: reverse; }
+.sp-pen path { fill: hsl(0 0% 90%); }
+:root[data-theme="light"] .sp-pen path { fill: #6366F1; }
+.spark-wrap:has(.spark:is(:hover, :focus-visible)) .sp-pen { opacity: 1; }
+.spark-wrap:has(.spark:is(:hover, :focus-visible)) .sp-pen svg { animation-play-state: running; }
+@keyframes sp-orbit { to { rotate: 360deg; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pill.spark { scale: 1; }
+  .spark .sp-spark, .spark .sp-spark::before, .spark .sp-icon path { animation: none; }
+  .sp-pen { display: none; }
+}
