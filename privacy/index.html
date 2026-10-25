@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="zh-CN" class="legal" data-lang="zh" data-theme="dark"
+  data-title-zh="隐私政策 — KineX 跃知" data-title-en="Privacy Policy — KineX"
+  data-desc-zh="KineX 的应用、账号服务和网站怎样处理你的个人信息。" data-desc-en="How the KineX app, the KineX account service and this website handle your personal information.">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>隐私政策 — KineX 跃知</title>
+<meta name="description" content="KineX 的应用、账号服务和网站怎样处理你的个人信息。">
+<meta name="theme-color" content="#06060A" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#E9E9EC" media="(prefers-color-scheme: light)">
+<link rel="canonical" href="https://kinexnote.com/privacy/">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<script>
+  // theme + language before first paint, as on the home page (same stored choice)
+  (function () {
+    var q = new URLSearchParams(location.search), r = document.documentElement, s = {};
+    try { s = JSON.parse(localStorage.getItem('kx-prefs') || '{}'); } catch (e) {}
+    var theme = q.get('theme') || s.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    var lang = q.get('lang') || s.lang || ((navigator.language || '').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en');
+    r.dataset.theme = theme === 'light' ? 'light' : 'dark';
+    r.dataset.lang = lang === 'en' ? 'en' : 'zh';
+    r.lang = lang === 'en' ? 'en' : 'zh-CN';
+  })();
+</script>
+<link rel="preload" href="/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/src/styles/legal.css">
+</head>
+<body>
+<header class="nav">
+  <a class="brand" href="../" aria-label="KineX"><span class="brand-mark"><svg class="mark" viewBox="5.83 -1 88.34 102" role="img" aria-label="KineX"><defs><radialGradient id="pkxl" cx="94" cy="2" r="118" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#7DEBFB"/><stop offset="0.1" stop-color="#67E8F9"/><stop offset="0.3" stop-color="#22D3EE"/><stop offset="0.56" stop-color="#0EA5E9"/><stop offset="0.84" stop-color="#2563EB"/><stop offset="1" stop-color="#4338CA"/></radialGradient><radialGradient id="kkxl" cx="94" cy="2" r="118" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#4740D4"/><stop offset="0.55" stop-color="#3730A3"/><stop offset="1" stop-color="#312E81"/></radialGradient></defs><path class="plate" d="M43.5 2.75 Q50 -1 56.5 2.75 L87.68 20.75 Q94.17 24.5 94.17 32 L94.17 68 Q94.17 75.5 87.68 79.25 L56.5 97.25 Q50 101 43.5 97.25 L12.32 79.25 Q5.83 75.5 5.83 68 L5.83 32 Q5.83 24.5 12.32 20.75 Z" fill="#F5F5F7"/><path d="M47.58 5.4 Q50 4 52.42 5.4 L57.57 8.37 Q59.99 9.77 57.92 11.66 L34.07 33.4 Q32 35.29 32 32.49 L32 17.19 Q32 14.39 34.42 12.99 Z" fill="url(#pkxl)"/><path d="M77.92 23.2 Q79.98 21.31 82.41 22.71 L87.41 25.6 Q89.84 27 89.84 29.8 L89.84 70.2 Q89.84 73 87.41 74.4 L80.53 78.37 Q78.1 79.77 76 77.92 L48.57 53.72 Q46.47 51.87 48.54 49.98 Z" fill="url(#pkxl)"/><path d="M55.9 89.53 Q58 91.38 55.58 92.78 L52.42 94.6 Q50 96 47.58 94.6 L34.42 87.01 Q32 85.61 32 82.81 L32 71.23 Q32 68.43 34.1 70.29 Z" fill="url(#pkxl)"/><path d="M30 81.65 Q30 84.45 27.58 83.05 L12.59 74.4 Q10.16 73 10.16 70.2 L10.16 29.8 Q10.16 27 12.59 25.6 L27.58 16.95 Q30 15.55 30 18.35 Z" fill="url(#kkxl)"/><path d="M59.74 12.7 Q61.81 10.82 64.23 12.22 L75.74 18.86 Q78.17 20.26 76.1 22.15 L31.07 63.2 Q29 65.09 29 62.29 L29 43.53 Q29 40.73 31.07 38.85 Z" fill="url(#kkxl)"/><path d="M74.18 78.98 Q76.28 80.83 73.85 82.23 L62.26 88.92 Q59.83 90.32 57.73 88.47 L31.1 64.97 Q29 63.12 29 60.32 L29 41.92 Q29 39.12 31.1 40.97 Z" fill="url(#kkxl)"/></svg></span><span>KineX</span></a>
+  <div class="nav-r">
+    <div class="seg" role="group" aria-label="语言" data-aria-zh="语言" data-aria-en="Language"><button data-set-lang="zh" lang="zh">中</button><button data-set-lang="en" lang="en">EN</button></div>
+    <button class="theme-btn" data-toggle-theme aria-label="切换明暗" data-aria-zh="切换明暗" data-aria-en="Toggle theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+        <mask id="moonmask"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/><circle class="moon-c" cx="26" cy="5" r="7" fill="#000"/></mask>
+        <circle cx="12" cy="12" r="5.2" fill="currentColor" stroke="none" mask="url(#moonmask)"/>
+        <g class="sun-rays"><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></g>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<main>
+<!-- ======================================================================== 中文 -->
+<article class="lg-doc" lang="zh-CN">
+  <header class="lg-head">
+    <p class="kicker"><b></b><span>KineX · 隐私</span></p>
+    <h1>隐私政策</h1>
+    <p class="lg-meta"><span>生效日期 2026-10-25</span><span>更新于 2026-10-25</span></p>
+    <p class="lg-lead">KineX 跃知（下称“我们”）重视你的个人信息和隐私。本政策适用于 KineX 跃知应用、KineX 账号服务和 kinexnote.com 网站（统称“本服务”），说明我们处理哪些个人信息、为什么处理、怎样保护，以及你享有的权利。请你在使用本服务前仔细阅读并充分理解本政策，<b>特别是以粗体标示的内容</b>。个人信息处理者为 KineX 跃知，联系方式为 <a class="inline" href="mailto:support@kinexnote.com">support@kinexnote.com</a>。</p>
+  </header>
+
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#zh-1"><i>01</i>我们处理的个人信息</a></li>
+      <li><a href="#zh-2"><i>02</i>设备权限</a></li>
+      <li><a href="#zh-3"><i>03</i>Cookie 和同类技术</a></li>
+      <li><a href="#zh-4"><i>04</i>个人信息的使用</a></li>
+      <li><a href="#zh-5"><i>05</i>委托处理、共享、转让与公开披露</a></li>
+      <li><a href="#zh-6"><i>06</i>存储地点与保存期限</a></li>
+      <li><a href="#zh-7"><i>07</i>个人信息出境</a></li>
+      <li><a href="#zh-8"><i>08</i>个人信息安全</a></li>
+      <li><a href="#zh-9"><i>09</i>你的权利</a></li>
+      <li><a href="#zh-10"><i>10</i>未成年人</a></li>
+      <li><a href="#zh-11"><i>11</i>本政策的更新</a></li>
+      <li><a href="#zh-12"><i>12</i>联系我们</a></li>
+    </ol>
+  </nav>
+
+  <div class="lg-body">
+    <section id="zh-1">
+      <h2><span class="no">01</span>我们处理的个人信息</h2>
+      <p>1.1 <b>你在本软件中保存的笔记、资料、批注、白板、卡片和学习记录存储在你的设备上，我们不收集。</b>你使用同步功能时，这些内容经端到端加密后传输至你自行选择的设备、存储服务或者同步服务，密钥只保存在你的设备上，我们无法获取或者读取。</p>
+      <p>1.2 账号注册与登录：你注册或者登录 KineX 账号时，我们处理你的电子邮箱地址和验证码，用于验证身份、登录和发送与账号有关的通知。你不提供的，无法使用需要账号的功能，但不影响无需账号的功能。</p>
+      <p>1.3 设备与授权：为管理已登录的设备并签发只在该设备上有效的授权，我们处理设备标识（由应用生成的设备公钥）、设备名称和型号、操作系统平台、应用版本，以及登录和使用的时间。</p>
+      <p>1.4 权益与激活码：为向你提供相应功能，我们处理你的权益种类、期限和激活码兑换记录。</p>
+      <p>1.5 同意记录：为证明你同意过本政策和《用户协议》，我们记录同意的版本和时间。</p>
+      <p>1.6 使用统计：为了解本服务的使用情况，本软件每天会发送一条使用记录，包括日期、账号编号（未登录时为与你身份无关的随机安装编号）、平台、应用版本，以及根据 IP 地址判断的国家或者地区。该记录不包含你的内容或者操作。</p>
+      <p>1.7 公告与更新检查：本软件会定期查询有无新公告和新版本，查询只携带平台和应用版本，不携带账号或者安装编号。</p>
+      <p>1.8 反馈：你提交建议或者问题报告时，我们处理标题、内容、分类、提交时的应用版本和平台、你设置的昵称和显示方式，以及你的投票和关注记录。你主动选择附加的设备型号、错误记录和诊断文件，仅在你勾选时上传。建议经审核后可能公开显示；问题报告不公开。</p>
+      <p>1.9 网页登录与通知邮件：你在 kinexnote.com 登录后，我们使用登录 Cookie 保持登录状态。你提交、投票或者关注的反馈有进展时，我们可能向你发送邮件通知，你可以随时退订。</p>
+      <p>1.10 安全保障：为防止滥用和攻击、保障服务安全，我们处理你的 IP 地址、电子邮箱地址和请求时间等信息，并记录账号的重要操作。服务器出错或者遭受异常访问时，系统日志可能记录相关 IP 地址。</p>
+      <p>1.11 国家或者地区根据 IP 地址在本地判断，我们只保存国家或者地区代码，不将 IP 地址与账号关联保存。</p>
+      <p>1.12 <b>我们不收集你的通讯录、精确位置、生物识别等与本服务无关的个人信息，不处理敏感个人信息；本软件不含广告、第三方统计或者崩溃上报组件。</b></p>
+      <p>1.13 你在本软件中主动使用的第三方服务（例如网页导入时访问的网站、词典网站、你自行添加的语音合成接口和存储服务）由本软件直接连接，相关信息由该第三方按其规则处理。</p>
+    </section>
+
+    <section id="zh-2">
+      <h2><span class="no">02</span>设备权限</h2>
+      <p>2.1 本软件仅在实现相应功能时使用必要的系统权限，包括：网络访问，用于账号、同步、公告和更新检查；麦克风，仅在你使用录音功能时；安装应用，用于在 Android 上经你确认后安装新版本；后台播放，用于朗读在锁屏或者切换到后台后继续；振动，用于操作反馈。</p>
+      <p>2.2 本软件通过系统提供的文件选择器导入文件，只能访问你选定的文件。</p>
+      <p>2.3 你可以在设备的系统设置中关闭相关权限。关闭后，对应功能将无法使用，但不影响其他功能。</p>
+    </section>
+
+    <section id="zh-3">
+      <h2><span class="no">03</span>Cookie 和同类技术</h2>
+      <p>3.1 浏览 kinexnote.com 不使用 Cookie，网站不含统计或者追踪代码。你选择的语言和明暗主题仅保存在你的浏览器本地。</p>
+      <p>3.2 你在网站登录后，账号服务会设置一个登录 Cookie，仅用于保持登录状态，不用于统计或者追踪；退出登录或者到期后失效。</p>
+      <p>3.3 本软件使用设备本地存储保存你的设置和数据。</p>
+    </section>
+
+    <section id="zh-4">
+      <h2><span class="no">04</span>个人信息的使用</h2>
+      <p>4.1 我们仅为本政策所述目的处理你的个人信息。超出上述目的的，我们将另行告知并取得你的同意。</p>
+      <p>4.2 <b>我们不将你的个人信息用于广告、用户画像或者自动化决策。</b></p>
+      <p>4.3 我们可能对个人信息进行去标识化或者匿名化处理后用于统计分析，匿名化处理后的信息不再属于个人信息。</p>
+      <p>4.4 依照法律规定，有下列情形之一的，我们处理个人信息无需取得你的同意：为订立、履行你作为一方当事人的合同所必需；为履行法定职责或者法定义务所必需；为应对突发公共卫生事件，或者紧急情况下为保护自然人的生命健康和财产安全所必需；在合理范围内处理你自行公开或者其他已经合法公开的个人信息；法律、行政法规规定的其他情形。</p>
+    </section>
+
+    <section id="zh-5">
+      <h2><span class="no">05</span>委托处理、共享、转让与公开披露</h2>
+      <p>5.1 委托处理：我们委托云服务、邮件发送和网站托管服务商协助提供本服务（具体见第七条）。我们会与其约定处理的目的、方式和保护义务，并对其处理活动进行监督；受托方不得超出约定处理你的个人信息。</p>
+      <p>5.2 共享：我们不向其他个人信息处理者提供你的个人信息，但取得你的单独同意或者法律另有规定的除外。</p>
+      <p>5.3 转让：因合并、分立、解散、被宣告破产等原因需要转移个人信息的，我们将告知你接收方的名称和联系方式，并要求接收方继续履行本政策规定的义务；接收方变更原处理目的、处理方式的，将重新取得你的同意。</p>
+      <p>5.4 公开披露：除你选择公开的建议、昵称等反馈内容外，我们不公开披露你的个人信息，但法律、行政法规另有规定或者有权机关依法要求的除外。</p>
+      <p>5.5 <b>我们不出售、不出租你的个人信息。</b></p>
+    </section>
+
+    <section id="zh-6">
+      <h2><span class="no">06</span>存储地点与保存期限</h2>
+      <p>6.1 账号服务的数据存储在阿里云位于境外（中国大陆以外）的服务器上。</p>
+      <p>6.2 我们仅在实现处理目的所必要的最短期限内保存你的个人信息：账号、设备、权益和同意记录在账号存续期间保存；使用统计、防滥用记录和服务器日志等短期记录在较短期限内自动删除；验证码、登录会话在失效后删除。</p>
+      <p>6.3 超出保存期限，或者你注销账号后，我们将删除你的个人信息或者进行匿名化处理。数据备份中的信息将在备份周期届满后删除。法律、行政法规规定的保存期限未届满，或者删除在技术上难以实现的，我们将停止除存储和采取必要安全措施之外的处理。</p>
+      <p>6.4 我们停止运营本服务的，将及时停止收集个人信息，以公告等方式通知你，并对所保存的个人信息进行删除或者匿名化处理。</p>
+    </section>
+
+    <section id="zh-7">
+      <h2><span class="no">07</span>个人信息出境</h2>
+      <p>7.1 <b>由于账号服务的服务器位于境外（中国大陆以外），你使用 KineX 账号及相关服务时，第一条所述与账号有关的个人信息将传输至境外处理。</b>注册账号时，我们会就此单独征得你的同意；你不同意的，无法注册账号，但不影响无需账号的功能。</p>
+      <p>7.2 境外接收方如下：</p>
+      <p>（1）阿里云计算有限公司，联系方式：400 801 3260。处理目的和方式：提供位于境外的服务器，存储和运行账号服务及其数据备份，并发送部分验证码和通知邮件。涉及的个人信息：第一条第 1.2 项至第 1.10 项所述信息。</p>
+      <p>（2）Plus Five Five, Inc.（Resend，美国），联系方式：privacy@resend.com。处理目的和方式：发送验证码和通知邮件。涉及的个人信息：电子邮箱地址和邮件内容。</p>
+      <p>（3）GitHub, Inc.（美国），联系方式：privacy@github.com。处理目的和方式：托管 kinexnote.com 网站及本软件读取的网站文件。涉及的个人信息：访问时的 IP 地址等网络信息。</p>
+      <p>7.3 你可以通过本政策所列联系方式，由我们协助你向境外接收方行使第九条规定的权利，也可以直接联系境外接收方。我们将采取必要措施，保障境外接收方处理你的个人信息达到中华人民共和国法律规定的保护标准。</p>
+    </section>
+
+    <section id="zh-8">
+      <h2><span class="no">08</span>个人信息安全</h2>
+      <p>8.1 我们采取符合业界标准的安全措施保护你的个人信息，包括：本软件与账号服务之间的通信全程加密；验证码、登录凭据和激活码仅保存加密摘要；设备私钥仅保存在你的设备上；授权凭据经过签名，无法伪造或者在其他设备上使用；严格限制可以访问个人信息的人员和权限。</p>
+      <p>8.2 互联网环境并非绝对安全。请你妥善保管注册邮箱和设备，发现账号可能被盗用时及时联系我们。</p>
+      <p>8.3 发生或者可能发生个人信息泄露、篡改、丢失等安全事件的，我们将立即采取补救措施，按照法律规定告知你事件的情况、可能的影响、我们已经采取的措施和你可以采取的措施，并向有关主管部门报告。</p>
+    </section>
+
+    <section id="zh-9">
+      <h2><span class="no">09</span>你的权利</h2>
+      <p>9.1 查阅和复制：你可以在本软件的账号设置中导出你的账号数据。</p>
+      <p>9.2 更正和补充：你发现个人信息不准确或者不完整的，可以通过应用内功能或者联系我们更正、补充。</p>
+      <p>9.3 删除：有下列情形之一的，你可以要求我们删除你的个人信息：处理目的已实现、无法实现或者为实现处理目的不再必要；我们停止提供服务或者保存期限已届满；你撤回同意；我们违反法律、行政法规或者约定处理个人信息；法律、行政法规规定的其他情形。</p>
+      <p>9.4 撤回同意和注销账号：你可以在本软件中注销账号，注销即撤回你对相关处理的同意。撤回同意不影响撤回前基于你的同意已进行的处理。<b>注销后，我们将删除或者匿名化处理你的账号信息；你已经公开的建议将保留内容但不再显示你的昵称，为防止同一激活码被重复兑换和保障安全所必需的、不能识别你身份的记录将予以保留。</b>注销账号不会删除你设备上的内容。</p>
+      <p>9.5 你有权要求我们对本政策进行解释说明；符合法律规定条件的，你有权请求将你的个人信息转移至你指定的个人信息处理者。</p>
+      <p>9.6 自然人死亡的，其近亲属为了自身的合法、正当利益，可以依照法律规定对死者的相关个人信息行使查阅、复制、更正、删除等权利，死者生前另有安排的除外。</p>
+      <p>9.7 你可以通过应用内功能或者第十二条的联系方式行使上述权利。为保障安全，我们可能需要先验证你的身份。我们将在收到请求并验证身份后十五个工作日内答复；拒绝你的请求的，将说明理由。</p>
+    </section>
+
+    <section id="zh-10">
+      <h2><span class="no">10</span>未成年人</h2>
+      <p>10.1 未满 14 周岁的未成年人，应当在监护人阅读并同意本政策后使用 KineX 账号及相关服务。我们按照法律规定对不满 14 周岁未成年人的个人信息予以特别保护。</p>
+      <p>10.2 我们发现在未事先取得监护人同意的情况下处理了不满 14 周岁未成年人的个人信息的，将尽快删除相关信息。监护人对此有疑问的，可以通过第十二条的联系方式联系我们。</p>
+    </section>
+
+    <section id="zh-11">
+      <h2><span class="no">11</span>本政策的更新</h2>
+      <p>我们可能适时修订本政策。修订后的政策将在网站或者应用内公布，并标明生效日期和更新日期。修订涉及处理目的、处理方式、个人信息种类等重大变化的，我们将以显著方式通知你，依法需要重新取得你同意的，将再次征得你的同意。</p>
+    </section>
+
+    <section id="zh-12">
+      <h2><span class="no">12</span>联系我们</h2>
+      <p>12.1 你对本政策或者你的个人信息有任何疑问、意见或者请求，可以发送邮件至 <a class="inline" href="mailto:support@kinexnote.com">support@kinexnote.com</a>，我们将在十五个工作日内答复。</p>
+      <p>12.2 你对我们的答复不满意，或者认为我们的个人信息处理行为损害了你的合法权益的，可以向网信、市场监管等主管部门投诉或者举报，也可以向依法有管辖权的人民法院提起诉讼。</p>
+    </section>
+  </div>
+</article>
+
+<!-- ======================================================================== English -->
+<article class="lg-doc" lang="en">
+  <header class="lg-head">
+    <p class="kicker"><b></b><span>KineX · Privacy</span></p>
+    <h1>Privacy Policy</h1>
+    <p class="lg-meta"><span>Effective 2026-10-25</span><span>Updated 2026-10-25</span></p>
+    <p class="lg-lead">KineX (“we”) respects your personal information and privacy. This policy applies to the KineX app, the KineX account service and the kinexnote.com website (together, the “Service”). It explains what personal information we handle, why, how we protect it, and your rights. Please read it carefully before using the Service, <b>in particular the parts in bold</b>. The personal information handler is KineX, reachable at <a class="inline" href="mailto:support@kinexnote.com">support@kinexnote.com</a>. This is a translation; if it differs from the Chinese version, the Chinese version prevails.</p>
+  </header>
+
+  <nav class="toc" aria-label="Contents">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#en-1"><i>01</i>Information we handle</a></li>
+      <li><a href="#en-2"><i>02</i>Device permissions</a></li>
+      <li><a href="#en-3"><i>03</i>Cookies and similar technologies</a></li>
+      <li><a href="#en-4"><i>04</i>How we use information</a></li>
+      <li><a href="#en-5"><i>05</i>Processors, sharing, transfer, disclosure</a></li>
+      <li><a href="#en-6"><i>06</i>Storage and retention</a></li>
+      <li><a href="#en-7"><i>07</i>Transfers abroad</a></li>
+      <li><a href="#en-8"><i>08</i>Security</a></li>
+      <li><a href="#en-9"><i>09</i>Your rights</a></li>
+      <li><a href="#en-10"><i>10</i>Minors</a></li>
+      <li><a href="#en-11"><i>11</i>Changes to this policy</a></li>
+      <li><a href="#en-12"><i>12</i>Contact us</a></li>
+    </ol>
+  </nav>
+
+  <div class="lg-body">
+    <section id="en-1">
+      <h2><span class="no">01</span>Personal information we handle</h2>
+      <p>1.1 <b>The notes, materials, annotations, boards, cards and study records you keep in the Software are stored on your devices; we do not collect them.</b> When you use sync, they are end-to-end encrypted and sent to devices, storage services or sync services you choose; the keys stay on your devices, and we cannot obtain or read them.</p>
+      <p>1.2 Sign-up and sign-in: when you create or sign in to a KineX account we handle your e-mail address and verification codes to verify your identity, sign you in and send account-related notices. Without them you cannot use features that need an account; features that do not need one are unaffected.</p>
+      <p>1.3 Devices and licences: to manage signed-in devices and issue licences valid only on that device, we handle a device identifier (a public key generated by the app), the device name and model, the operating system, the app version, and when the device signed in and was used.</p>
+      <p>1.4 Entitlements and activation codes: to provide the corresponding features we handle your entitlement types, their duration and your code redemptions.</p>
+      <p>1.5 Consent records: to show that you accepted this policy and the User Agreement, we record the version and time of your consent.</p>
+      <p>1.6 Usage statistics: to understand how the Service is used, the Software sends one record a day containing the date, your account number (or, when signed out, a random installation number unrelated to your identity), the platform, the app version, and the country or region inferred from your IP address. It contains none of your content or actions.</p>
+      <p>1.7 Announcements and update checks: the Software periodically asks whether there are new announcements or versions, sending only the platform and app version — no account or installation number.</p>
+      <p>1.8 Feedback: when you submit an idea or bug report we handle its title, text, category, the app version and platform at the time, the display name and display style you set, and your votes and subscriptions. The device model, error log and diagnostics files you choose to attach are uploaded only when you tick them. Ideas may be published after review; bug reports are not published.</p>
+      <p>1.9 Website sign-in and notification e-mails: after you sign in on kinexnote.com we use a sign-in cookie to keep you signed in. When feedback you submitted, voted for or follow makes progress, we may e-mail you; you can unsubscribe at any time.</p>
+      <p>1.10 Security: to prevent abuse and attacks and keep the Service secure, we handle your IP address, e-mail address, request times and similar information, and record important account actions. When a server error or unusual access occurs, system logs may record the IP addresses involved.</p>
+      <p>1.11 Country or region is determined locally from the IP address; we keep only the country or region code and do not store IP addresses linked to accounts.</p>
+      <p>1.12 <b>We do not collect your contacts, precise location, biometrics or other personal information unrelated to the Service, and we do not handle sensitive personal information. The Software contains no advertising, third-party analytics or crash-reporting components.</b></p>
+      <p>1.13 Third-party services you choose to use from the Software (for example websites opened during web import, dictionary sites, speech-synthesis endpoints and storage services you add) are connected to directly by the Software, and the information involved is handled by those third parties under their own rules.</p>
+    </section>
+
+    <section id="en-2">
+      <h2><span class="no">02</span>Device permissions</h2>
+      <p>2.1 The Software uses system permissions only as needed for the related features: network access for the account, sync, announcements and update checks; the microphone, only when you record; installing apps, to install a new version on Android after you confirm; background playback, so read-aloud continues when the screen is locked or the app is in the background; vibration, for feedback on actions.</p>
+      <p>2.2 The Software imports files through the system file picker and can access only the files you pick.</p>
+      <p>2.3 You can turn these permissions off in your device’s settings. The related feature then stops working; other features are unaffected.</p>
+    </section>
+
+    <section id="en-3">
+      <h2><span class="no">03</span>Cookies and similar technologies</h2>
+      <p>3.1 Browsing kinexnote.com uses no cookies, and the site contains no analytics or tracking code. Your chosen language and theme are stored only in your own browser.</p>
+      <p>3.2 After you sign in on the website, the account service sets a sign-in cookie used only to keep you signed in, never for statistics or tracking; it stops working when you sign out or it expires.</p>
+      <p>3.3 The Software uses local storage on your device for your settings and data.</p>
+    </section>
+
+    <section id="en-4">
+      <h2><span class="no">04</span>How we use personal information</h2>
+      <p>4.1 We handle your personal information only for the purposes described in this policy. For any other purpose we will tell you and ask for your consent first.</p>
+      <p>4.2 <b>We do not use your personal information for advertising, profiling or automated decision-making.</b></p>
+      <p>4.3 We may de-identify or anonymise personal information for statistical analysis; anonymised information is no longer personal information.</p>
+      <p>4.4 As provided by law, we may handle personal information without your consent where it is necessary to conclude or perform a contract to which you are a party; to fulfil statutory duties or obligations; to respond to public-health emergencies or protect people’s life, health and property in an emergency; to handle, within a reasonable scope, information you have made public or that has otherwise been lawfully made public; or in other cases provided by laws and administrative regulations.</p>
+    </section>
+
+    <section id="en-5">
+      <h2><span class="no">05</span>Processors, sharing, transfer and public disclosure</h2>
+      <p>5.1 Processors: we engage cloud, e-mail and website-hosting providers to help provide the Service (see section 7). We agree with them on the purpose, method and protection obligations of the processing and supervise it; they may not handle your personal information beyond what is agreed.</p>
+      <p>5.2 Sharing: we do not provide your personal information to other personal information handlers, except with your separate consent or as otherwise provided by law.</p>
+      <p>5.3 Transfer: if personal information has to be transferred because of a merger, division, dissolution, bankruptcy or similar event, we will tell you the recipient’s name and contact details and require the recipient to continue to meet the obligations in this policy; if the recipient changes the purpose or method of processing, it will ask for your consent again.</p>
+      <p>5.4 Public disclosure: apart from ideas, display names and other feedback you choose to make public, we do not publicly disclose your personal information, except as otherwise required by laws and administrative regulations or lawfully requested by competent authorities.</p>
+      <p>5.5 <b>We do not sell or rent your personal information.</b></p>
+    </section>
+
+    <section id="en-6">
+      <h2><span class="no">06</span>Storage location and retention</h2>
+      <p>6.1 Data of the account service is stored on Alibaba Cloud servers outside mainland China.</p>
+      <p>6.2 We keep personal information only for the shortest time needed for the purpose: account, device, entitlement and consent records for as long as the account exists; usage statistics, anti-abuse records, server logs and other short-term records are deleted automatically after a short period; verification codes and sign-in sessions are deleted once they expire.</p>
+      <p>6.3 When the retention period ends, or after you delete your account, we delete or anonymise your personal information. Information in data backups is deleted when the backup cycle ends. Where a retention period required by laws or administrative regulations has not ended, or deletion is technically hard to achieve, we stop all processing other than storage and necessary security measures.</p>
+      <p>6.4 If we stop operating the Service, we will promptly stop collecting personal information, notify you by announcement or similar means, and delete or anonymise the personal information we hold.</p>
+    </section>
+
+    <section id="en-7">
+      <h2><span class="no">07</span>Transfers of personal information abroad</h2>
+      <p>7.1 <b>Because the servers of the account service are outside mainland China, the account-related personal information described in section 1 is transferred abroad for processing when you use a KineX account and related services.</b> We ask for your separate consent to this when you create an account; if you do not consent, you cannot create an account, but features that do not need one are unaffected.</p>
+      <p>7.2 The recipients abroad are:</p>
+      <p>(1) Alibaba Cloud Computing Co., Ltd. (阿里云计算有限公司), contact: +86 400 801 3260. Purpose and method: providing servers abroad that store and run the account service and its backups, and sending some verification and notification e-mails. Information involved: the information in items 1.2 to 1.10 of section 1.</p>
+      <p>(2) Plus Five Five, Inc. (Resend, USA), contact: privacy@resend.com. Purpose and method: sending verification and notification e-mails. Information involved: e-mail address and message content.</p>
+      <p>(3) GitHub, Inc. (USA), contact: privacy@github.com. Purpose and method: hosting the kinexnote.com website and the site files the Software reads. Information involved: IP addresses and other network information of visits.</p>
+      <p>7.3 Through the contact details in this policy, you can ask us to help you exercise the rights in section 9 against recipients abroad, or you can contact them directly. We take the necessary measures to ensure that their processing of your personal information meets the protection standards of the laws of the People’s Republic of China.</p>
+    </section>
+
+    <section id="en-8">
+      <h2><span class="no">08</span>Security</h2>
+      <p>8.1 We protect your personal information with industry-standard measures, including: encryption of all communication between the Software and the account service; storing only hashed verification codes, sign-in credentials and activation codes; keeping device private keys on your devices only; signed licence credentials that cannot be forged or used on other devices; and strictly limiting who can access personal information and how.</p>
+      <p>8.2 No internet environment is perfectly secure. Keep your registered mailbox and devices safe, and contact us promptly if you think your account has been misused.</p>
+      <p>8.3 If personal information is or may be leaked, altered or lost, we will take remedial action immediately, inform you as required by law of what happened, its possible effects, what we have done and what you can do, and report to the competent authorities.</p>
+    </section>
+
+    <section id="en-9">
+      <h2><span class="no">09</span>Your rights</h2>
+      <p>9.1 Access and copy: you can export your account data in the account settings of the Software.</p>
+      <p>9.2 Correction and completion: if your personal information is inaccurate or incomplete, you can correct or complete it in the app or by contacting us.</p>
+      <p>9.3 Deletion: you can ask us to delete your personal information where the purpose has been achieved, cannot be achieved or no longer requires it; we stop providing the service or the retention period has ended; you withdraw consent; we handle personal information in breach of laws, administrative regulations or our agreement; or in other cases provided by laws and administrative regulations.</p>
+      <p>9.4 Withdrawing consent and deleting your account: you can delete your account in the Software, which withdraws your consent to the related processing. Withdrawal does not affect processing carried out on the basis of your consent before it. <b>After deletion we delete or anonymise your account information; ideas you have made public keep their content but no longer show your display name, and records that cannot identify you but are needed to stop an activation code being redeemed again and for security are kept.</b> Deleting your account does not delete the content on your devices.</p>
+      <p>9.5 You may ask us to explain this policy, and, where the conditions set by law are met, ask for your personal information to be transferred to a personal information handler you designate.</p>
+      <p>9.6 When a person dies, their close relatives may, for their own lawful and legitimate interests, exercise the rights to access, copy, correct and delete the deceased’s relevant personal information as provided by law, unless the deceased arranged otherwise.</p>
+      <p>9.7 You can exercise these rights in the app or through the contact details in section 12. For security we may first need to verify your identity. We reply within fifteen working days of receiving the request and verifying your identity; if we refuse, we will explain why.</p>
+    </section>
+
+    <section id="en-10">
+      <h2><span class="no">10</span>Minors</h2>
+      <p>10.1 Minors under 14 should use a KineX account and related services only after a parent or guardian has read and accepted this policy. We give the personal information of minors under 14 special protection as required by law.</p>
+      <p>10.2 If we find that we have handled personal information of a minor under 14 without prior guardian consent, we will delete it as soon as possible. Parents and guardians with questions can contact us through section 12.</p>
+    </section>
+
+    <section id="en-11">
+      <h2><span class="no">11</span>Changes to this policy</h2>
+      <p>We may revise this policy from time to time. The revised policy is published on the website or in the app with its effective and update dates. Where a revision materially changes the purpose or method of processing, the kinds of personal information or similar, we will notify you prominently and, where the law requires, ask for your consent again.</p>
+    </section>
+
+    <section id="en-12">
+      <h2><span class="no">12</span>Contact us</h2>
+      <p>12.1 For any questions, comments or requests about this policy or your personal information, e-mail <a class="inline" href="mailto:support@kinexnote.com">support@kinexnote.com</a>; we reply within fifteen working days.</p>
+      <p>12.2 If you are not satisfied with our reply, or believe our handling of personal information has harmed your lawful rights, you may complain to or report to the cyberspace, market-regulation or other competent authorities, or bring a lawsuit before a people’s court with jurisdiction under the law.</p>
+    </section>
+  </div>
+</article>
+</main>
+
+<footer class="lg-foot">
+  <span data-zh="© 2026 KineX 跃知" data-en="© 2026 KineX">© 2026 KineX 跃知</span>
+  <nav>
+    <a href="../" data-zh="首页" data-en="Home">首页</a>
+    <a href="../terms/" data-zh="用户协议" data-en="User Agreement">用户协议</a>
+    <a href="mailto:support@kinexnote.com">support@kinexnote.com</a>
+  </nav>
+</footer>
+
+<script src="/legal.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="zh-CN" class="legal" data-lang="zh" data-theme="dark"
+  data-title-zh="用户协议 — KineX 跃知" data-title-en="User Agreement — KineX"
+  data-desc-zh="使用 KineX 应用、KineX 账号服务和本网站的约定。" data-desc-en="The agreement for using the KineX app, the KineX account service and this website.">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>用户协议 — KineX 跃知</title>
+<meta name="description" content="使用 KineX 应用、KineX 账号服务和本网站的约定。">
+<meta name="theme-color" content="#06060A" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#E9E9EC" media="(prefers-color-scheme: light)">
+<link rel="canonical" href="https://kinexnote.com/terms/">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<script>
+  // theme + language before first paint, as on the home page (same stored choice)
+  (function () {
+    var q = new URLSearchParams(location.search), r = document.documentElement, s = {};
+    try { s = JSON.parse(localStorage.getItem('kx-prefs') || '{}'); } catch (e) {}
+    var theme = q.get('theme') || s.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    var lang = q.get('lang') || s.lang || ((navigator.language || '').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en');
+    r.dataset.theme = theme === 'light' ? 'light' : 'dark';
+    r.dataset.lang = lang === 'en' ? 'en' : 'zh';
+    r.lang = lang === 'en' ? 'en' : 'zh-CN';
+  })();
+</script>
+<link rel="preload" href="/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/src/styles/legal.css">
+</head>
+<body>
+<header class="nav">
+  <a class="brand" href="../" aria-label="KineX"><span class="brand-mark"><svg class="mark" viewBox="5.83 -1 88.34 102" role="img" aria-label="KineX"><defs><radialGradient id="pkx2" cx="94" cy="2" r="118" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#7DEBFB"/><stop offset="0.1" stop-color="#67E8F9"/><stop offset="0.3" stop-color="#22D3EE"/><stop offset="0.56" stop-color="#0EA5E9"/><stop offset="0.84" stop-color="#2563EB"/><stop offset="1" stop-color="#4338CA"/></radialGradient><radialGradient id="kkx2" cx="94" cy="2" r="118" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#4740D4"/><stop offset="0.55" stop-color="#3730A3"/><stop offset="1" stop-color="#312E81"/></radialGradient></defs><path class="plate" d="M43.5 2.75 Q50 -1 56.5 2.75 L87.68 20.75 Q94.17 24.5 94.17 32 L94.17 68 Q94.17 75.5 87.68 79.25 L56.5 97.25 Q50 101 43.5 97.25 L12.32 79.25 Q5.83 75.5 5.83 68 L5.83 32 Q5.83 24.5 12.32 20.75 Z" fill="#F5F5F7"/><path d="M47.58 5.4 Q50 4 52.42 5.4 L57.57 8.37 Q59.99 9.77 57.92 11.66 L34.07 33.4 Q32 35.29 32 32.49 L32 17.19 Q32 14.39 34.42 12.99 Z" fill="url(#pkx2)"/><path d="M77.92 23.2 Q79.98 21.31 82.41 22.71 L87.41 25.6 Q89.84 27 89.84 29.8 L89.84 70.2 Q89.84 73 87.41 74.4 L80.53 78.37 Q78.1 79.77 76 77.92 L48.57 53.72 Q46.47 51.87 48.54 49.98 Z" fill="url(#pkx2)"/><path d="M55.9 89.53 Q58 91.38 55.58 92.78 L52.42 94.6 Q50 96 47.58 94.6 L34.42 87.01 Q32 85.61 32 82.81 L32 71.23 Q32 68.43 34.1 70.29 Z" fill="url(#pkx2)"/><path d="M30 81.65 Q30 84.45 27.58 83.05 L12.59 74.4 Q10.16 73 10.16 70.2 L10.16 29.8 Q10.16 27 12.59 25.6 L27.58 16.95 Q30 15.55 30 18.35 Z" fill="url(#kkx2)"/><path d="M59.74 12.7 Q61.81 10.82 64.23 12.22 L75.74 18.86 Q78.17 20.26 76.1 22.15 L31.07 63.2 Q29 65.09 29 62.29 L29 43.53 Q29 40.73 31.07 38.85 Z" fill="url(#kkx2)"/><path d="M74.18 78.98 Q76.28 80.83 73.85 82.23 L62.26 88.92 Q59.83 90.32 57.73 88.47 L31.1 64.97 Q29 63.12 29 60.32 L29 41.92 Q29 39.12 31.1 40.97 Z" fill="url(#kkx2)"/></svg></span><span>KineX</span></a>
+  <div class="nav-r">
+    <div class="seg" role="group" aria-label="语言" data-aria-zh="语言" data-aria-en="Language"><button data-set-lang="zh" lang="zh">中</button><button data-set-lang="en" lang="en">EN</button></div>
+    <button class="theme-btn" data-toggle-theme aria-label="切换明暗" data-aria-zh="切换明暗" data-aria-en="Toggle theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+        <mask id="moonmask"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/><circle class="moon-c" cx="26" cy="5" r="7" fill="#000"/></mask>
+        <circle cx="12" cy="12" r="5.2" fill="currentColor" stroke="none" mask="url(#moonmask)"/>
+        <g class="sun-rays"><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></g>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<main>
+<!-- ======================================================================== 中文 -->
+<article class="lg-doc" lang="zh-CN">
+  <header class="lg-head">
+    <p class="kicker"><b></b><span>KineX · 协议</span></p>
+    <h1>用户协议</h1>
+    <p class="lg-meta"><span>生效日期 2026-10-25</span><span>更新于 2026-10-25</span></p>
+    <p class="lg-lead">欢迎使用 KineX 跃知。本协议是你与 KineX 跃知（下称“我们”）之间就使用 KineX 跃知软件及相关服务所订立的协议。请你在使用前仔细阅读并充分理解本协议，<b>特别是以粗体标示的免除或者限制责任、限制权利、法律适用和争议解决等条款</b>。你勾选同意、注册账号或者以其他方式使用本服务，即表示你已阅读并同意本协议和<a class="inline" href="../privacy/">《隐私政策》</a>；如果你不同意，请停止使用。未满 18 周岁的，请在监护人陪同下阅读本协议。</p>
+  </header>
+
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#zh-1"><i>01</i>定义与适用范围</a></li>
+      <li><a href="#zh-2"><i>02</i>软件许可</a></li>
+      <li><a href="#zh-3"><i>03</i>软件获取与更新</a></li>
+      <li><a href="#zh-4"><i>04</i>账号</a></li>
+      <li><a href="#zh-5"><i>05</i>权益、激活码与费用</a></li>
+      <li><a href="#zh-6"><i>06</i>你的内容</a></li>
+      <li><a href="#zh-7"><i>07</i>反馈内容</a></li>
+      <li><a href="#zh-8"><i>08</i>使用规范</a></li>
+      <li><a href="#zh-9"><i>09</i>知识产权</a></li>
+      <li><a href="#zh-10"><i>10</i>第三方服务</a></li>
+      <li><a href="#zh-11"><i>11</i>个人信息保护</a></li>
+      <li><a href="#zh-12"><i>12</i>服务变更、中断与终止</a></li>
+      <li><a href="#zh-13"><i>13</i>免责与责任限制</a></li>
+      <li><a href="#zh-14"><i>14</i>未成年人</a></li>
+      <li><a href="#zh-15"><i>15</i>通知与联系</a></li>
+      <li><a href="#zh-16"><i>16</i>协议变更</a></li>
+      <li><a href="#zh-17"><i>17</i>法律适用与争议解决</a></li>
+      <li><a href="#zh-18"><i>18</i>其他</a></li>
+    </ol>
+  </nav>
+
+  <div class="lg-body">
+    <section id="zh-1">
+      <h2><span class="no">01</span>定义与适用范围</h2>
+      <p>1.1 “本软件”指我们开发并通过官方渠道发布的 KineX 跃知应用程序，包括各终端版本及其更新。“本服务”指本软件、KineX 账号服务、kinexnote.com 网站，以及我们通过上述途径提供的其他相关服务。</p>
+      <p>1.2 我们已经发布或者将来发布的与本服务有关的规则、说明和公告（包括《隐私政策》）是本协议的组成部分，与本协议具有同等效力。针对具体服务的规则与本协议不一致的，以该规则为准。</p>
+      <p>1.3 你不注册账号而使用本软件的，本协议中与软件使用有关的约定同样适用。</p>
+    </section>
+
+    <section id="zh-2">
+      <h2><span class="no">02</span>软件许可</h2>
+      <p>2.1 在你遵守本协议的前提下，我们授予你一项个人的、非排他的、不可转让、不可再许可、可撤销的许可，以便你在合法拥有或者使用的设备上安装和使用本软件。除非另有书面约定，本软件仅供你个人非商业性使用。</p>
+      <p>2.2 本协议未明确授予你的权利，均由我们保留。</p>
+    </section>
+
+    <section id="zh-3">
+      <h2><span class="no">03</span>软件获取与更新</h2>
+      <p>3.1 你应当从 kinexnote.com 或者我们认可的其他渠道获取本软件。<b>从其他来源获取的软件可能被篡改或者含有恶意程序，由此产生的风险和损失由你自行承担。</b></p>
+      <p>3.2 为改进功能、修复缺陷或者保障安全，我们可能提供软件更新，并可能通过应用内提示或者在你确认后自动下载和安装。新版本发布后，旧版本可能无法使用部分或者全部功能，我们不保证旧版本持续可用。</p>
+      <p>3.3 测试版本用于发现和修复问题，可能存在缺陷，功能和规则可能随时调整。测试版本可能需要定期联网验证；未按要求完成验证的，部分功能可能暂停使用，具体以应用内提示为准。</p>
+    </section>
+
+    <section id="zh-4">
+      <h2><span class="no">04</span>账号</h2>
+      <p>4.1 部分服务需要注册 KineX 账号。你应当使用本人合法持有、能够长期使用的电子邮箱注册，不得使用一次性邮箱，不得以自动化或者批量方式注册。</p>
+      <p>4.2 账号仅限你本人使用，不得以任何形式出借、出租、出售、转让或者与他人共用。你应当妥善保管注册邮箱和已登录的设备。<b>通过你的账号进行的操作视为你本人的行为，但你能证明系他人盗用且你没有过错的除外。</b></p>
+      <p>4.3 我们可以对同一账号同时登录的设备数量、自助退出设备的次数等作出合理限制，具体以应用内显示为准。</p>
+      <p>4.4 你可以按照应用内的指引注销账号。注销后，与账号相关的权益将失效，相关信息将按照《隐私政策》处理，且不可恢复。注销账号不会删除你设备上的内容。</p>
+    </section>
+
+    <section id="zh-5">
+      <h2><span class="no">05</span>权益、激活码与费用</h2>
+      <p>5.1 本服务的部分功能需要具备相应权益才能使用。权益的种类、内容、期限和获取方式以我们公布的规则或者应用内说明为准。</p>
+      <p>5.2 激活码仅可兑换一次，不得兑换现金，不得转让或者出售。<b>以盗取、批量猜测、非法转卖或者其他不正当方式取得的激活码及相应权益，我们有权停用。</b></p>
+      <p>5.3 权益到期、被停用或者账号注销后，相应功能将停止提供，设备上的授权将在一定期限内失效。</p>
+      <p>5.4 测试期间本服务免费提供。开始收费前，我们将公布收费项目、价格和规则，你可以自主决定是否购买；我们不会在你不知情或者未同意的情况下收取费用。</p>
+    </section>
+
+    <section id="zh-6">
+      <h2><span class="no">06</span>你的内容</h2>
+      <p>6.1 你在本软件中创作、编辑或者保存的笔记、批注、白板、卡片等内容，其权利归你或者原权利人所有，我们不因你使用本服务而取得这些内容的任何权利。</p>
+      <p>6.2 你的内容默认保存在你的设备上。你使用同步功能时，内容经端到端加密后传输至你自行选择的设备或者存储服务，我们无法读取。</p>
+      <p>6.3 你导入、阅读或者处理的书籍、文章、网页、音视频等内容应当有合法来源，你应当确保自己的使用方式不侵犯他人的合法权益。</p>
+      <p>6.4 <b>你应当自行备份重要内容。因设备故障、误操作、第三方服务或者其他非因我们原因造成内容丢失的，我们不承担责任。</b></p>
+    </section>
+
+    <section id="zh-7">
+      <h2><span class="no">07</span>反馈内容</h2>
+      <p>7.1 你通过本服务提交的建议、问题报告、补充说明、昵称等（下称“反馈内容”）应当合法、真实，不得包含本协议第八条禁止的内容，不得包含广告或者他人的个人信息。</p>
+      <p>7.2 你同意我们免费、非独占地使用、复制、修改、展示和公开你提交的建议类反馈内容，并据此改进本服务，无需另行支付报酬。问题报告仅用于处理问题，不公开展示。</p>
+      <p>7.3 为便于管理，我们可以对反馈内容进行审核、归类、修改标题、合并、隐藏或者删除。</p>
+    </section>
+
+    <section id="zh-8">
+      <h2><span class="no">08</span>使用规范</h2>
+      <p>8.1 你不得利用本服务制作、复制、发布、传播含有下列内容的信息：反对宪法所确定的基本原则的；危害国家安全，泄露国家秘密，颠覆国家政权，破坏国家统一的；损害国家荣誉和利益的；煽动民族仇恨、民族歧视，破坏民族团结的；破坏国家宗教政策，宣扬邪教和封建迷信的；散布谣言，扰乱社会秩序，破坏社会稳定的；散布淫秽、色情、赌博、暴力、凶杀、恐怖或者教唆犯罪的；侮辱或者诽谤他人，侵害他人名誉、隐私、知识产权和其他合法权益的；以及法律、行政法规禁止的其他内容。</p>
+      <p>8.2 除法律允许或者我们书面许可外，你不得从事下列行为：</p>
+      <p>（1）对本软件进行反向工程、反向汇编、反向编译，或者以其他方式尝试获取本软件的源代码；</p>
+      <p>（2）破解、规避或者干扰本软件的授权、验证、设备限制等技术保护措施，或者伪造、篡改授权凭据；</p>
+      <p>（3）复制、修改、出租、出售、传播本软件或者其衍生作品，或者删除本软件中的著作权等权利声明；</p>
+      <p>（4）以自动化或者批量方式请求验证码、尝试激活码，或者以其他方式攻击、干扰本服务及其服务器的正常运行；</p>
+      <p>（5）利用本服务从事任何违法活动，或者侵犯他人的合法权益。</p>
+      <p>8.3 <b>你违反本协议的，我们有权视情节采取删除内容、限制或者停止部分功能、停用相关权益、暂停或者终止账号等措施，并依法追究相应责任。</b></p>
+    </section>
+
+    <section id="zh-9">
+      <h2><span class="no">09</span>知识产权</h2>
+      <p>9.1 本软件以及本服务中由我们提供的程序、界面设计、图标、文字、图片，以及“KineX”“跃知”的名称和标识，其知识产权归我们或者相关权利人所有。未经许可，任何人不得使用。</p>
+      <p>9.2 本软件可能包含开源软件，其使用受相应开源许可证的约束。</p>
+    </section>
+
+    <section id="zh-10">
+      <h2><span class="no">10</span>第三方服务</h2>
+      <p>10.1 本软件可能提供访问第三方网站、词典、语音合成、存储等服务的功能。这些服务由第三方提供，你使用时应当遵守其规则，相关纠纷由你与该第三方解决。</p>
+      <p>10.2 <b>我们不对第三方服务的内容、可用性和安全性作出保证，也不对由此产生的损失承担责任，法律另有规定的除外。</b></p>
+    </section>
+
+    <section id="zh-11">
+      <h2><span class="no">11</span>个人信息保护</h2>
+      <p>我们依法保护你的个人信息。我们如何处理你的个人信息，以及你享有的权利，详见<a class="inline" href="../privacy/">《隐私政策》</a>。</p>
+    </section>
+
+    <section id="zh-12">
+      <h2><span class="no">12</span>服务变更、中断与终止</h2>
+      <p>12.1 我们可以根据运营需要调整、中断或者终止部分或者全部服务。涉及你重大权益的，我们会以合理方式事先通知你。</p>
+      <p>12.2 有下列情形之一的，我们可以不经事先通知中断或者终止向你提供服务：（1）你违反法律法规或者本协议的；（2）依照法律法规或者有权机关要求的；（3）出于安全原因或者其他紧急情况的。</p>
+      <p>12.3 本服务终止后，已经保存在你设备上的内容不受影响。</p>
+    </section>
+
+    <section id="zh-13">
+      <h2><span class="no">13</span>免责与责任限制</h2>
+      <p>13.1 <b>本服务按“现状”和“可得到”的状态提供。在法律允许的范围内，我们不对本服务的适用性、准确性、及时性、不出错或者不中断作出任何明示或者默示的保证。</b></p>
+      <p>13.2 <b>因不可抗力、网络或者通信故障、计算机病毒或者黑客攻击、第三方服务故障、设备或者系统兼容性问题，以及其他我们无法控制或者不能合理预见的原因，导致服务中断、数据丢失或者其他损失的，在法律允许的范围内，我们不承担责任。</b></p>
+      <p>13.3 <b>在法律允许的范围内，我们不对间接损失、预期利益损失承担责任；我们因本服务对你承担的赔偿总额，不超过你在损失发生前十二个月内就相关服务实际向我们支付的费用。</b></p>
+      <p>13.4 本条不排除或者限制依法不得排除或者限制的责任，包括因我们的故意或者重大过失造成你财产损失的责任，以及造成你人身损害的责任。</p>
+    </section>
+
+    <section id="zh-14">
+      <h2><span class="no">14</span>未成年人</h2>
+      <p>14.1 未满 14 周岁的未成年人，应当在监护人同意和指导下使用本服务；已满 14 周岁未满 18 周岁的未成年人，应当在监护人指导下阅读本协议并使用本服务。</p>
+      <p>14.2 监护人应当引导未成年人合理使用网络，合理安排学习和休息时间。</p>
+    </section>
+
+    <section id="zh-15">
+      <h2><span class="no">15</span>通知与联系</h2>
+      <p>15.1 我们可以通过应用内消息、网站公告、电子邮件等方式向你发送通知。通过电子邮件发送的，发出即视为送达；通过应用内消息或者网站公告发送的，发布即视为送达。</p>
+      <p>15.2 你可以通过 <a class="inline" href="mailto:support@kinexnote.com">support@kinexnote.com</a> 联系我们。</p>
+    </section>
+
+    <section id="zh-16">
+      <h2><span class="no">16</span>协议变更</h2>
+      <p>我们可以修改本协议。修改后的协议将在网站或者应用内公布；涉及你重大权益的，我们会以显著方式提前通知。修改后的协议生效后你继续使用本服务的，视为你接受修改后的协议；你不同意的，应当停止使用本服务，并可以注销账号。</p>
+    </section>
+
+    <section id="zh-17">
+      <h2><span class="no">17</span>法律适用与争议解决</h2>
+      <p><b>本协议的订立、生效、履行、解释和争议解决，适用中华人民共和国大陆地区法律（不包括冲突法规范）。因本协议或者本服务产生的争议，双方应当友好协商解决；协商不成的，任何一方均可以向依法有管辖权的人民法院提起诉讼。</b></p>
+    </section>
+
+    <section id="zh-18">
+      <h2><span class="no">18</span>其他</h2>
+      <p>18.1 本协议的任何条款因任何原因全部或者部分无效或者不可执行的，不影响其余条款的效力。</p>
+      <p>18.2 本协议各条的标题仅为方便阅读而设，不影响条款的含义和解释。</p>
+      <p>18.3 本协议以中文和英文发布，两种文本不一致的，以中文文本为准。</p>
+    </section>
+  </div>
+</article>
+
+<!-- ======================================================================== English -->
+<article class="lg-doc" lang="en">
+  <header class="lg-head">
+    <p class="kicker"><b></b><span>KineX · Agreement</span></p>
+    <h1>User Agreement</h1>
+    <p class="lg-meta"><span>Effective 2026-10-25</span><span>Updated 2026-10-25</span></p>
+    <p class="lg-lead">Welcome to KineX. This User Agreement (“Agreement”) is between you and KineX (“we”) for the use of the KineX software and related services. Please read it carefully before use, <b>in particular the clauses in bold, which exclude or limit liability, restrict rights, or concern governing law and disputes</b>. By ticking your consent, creating an account or otherwise using the Service, you confirm that you have read and accept this Agreement and the <a class="inline" href="../privacy/">Privacy Policy</a>; if you do not accept them, stop using the Service. If you are under 18, please read this Agreement with a parent or guardian. This is a translation; if it differs from the Chinese version, the Chinese version prevails.</p>
+  </header>
+
+  <nav class="toc" aria-label="Contents">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#en-1"><i>01</i>Definitions and scope</a></li>
+      <li><a href="#en-2"><i>02</i>Licence</a></li>
+      <li><a href="#en-3"><i>03</i>Obtaining and updating</a></li>
+      <li><a href="#en-4"><i>04</i>Accounts</a></li>
+      <li><a href="#en-5"><i>05</i>Entitlements, codes and fees</a></li>
+      <li><a href="#en-6"><i>06</i>Your content</a></li>
+      <li><a href="#en-7"><i>07</i>Feedback</a></li>
+      <li><a href="#en-8"><i>08</i>Acceptable use</a></li>
+      <li><a href="#en-9"><i>09</i>Intellectual property</a></li>
+      <li><a href="#en-10"><i>10</i>Third-party services</a></li>
+      <li><a href="#en-11"><i>11</i>Personal information</a></li>
+      <li><a href="#en-12"><i>12</i>Changes, suspension, termination</a></li>
+      <li><a href="#en-13"><i>13</i>Disclaimers and liability</a></li>
+      <li><a href="#en-14"><i>14</i>Minors</a></li>
+      <li><a href="#en-15"><i>15</i>Notices and contact</a></li>
+      <li><a href="#en-16"><i>16</i>Changes to this Agreement</a></li>
+      <li><a href="#en-17"><i>17</i>Governing law and disputes</a></li>
+      <li><a href="#en-18"><i>18</i>General</a></li>
+    </ol>
+  </nav>
+
+  <div class="lg-body">
+    <section id="en-1">
+      <h2><span class="no">01</span>Definitions and scope</h2>
+      <p>1.1 “Software” means the KineX application we develop and release through official channels, including all versions for different devices and their updates. “Service” means the Software, the KineX account service, the kinexnote.com website, and other related services we provide through them.</p>
+      <p>1.2 Rules, instructions and notices about the Service that we have published or publish in future (including the Privacy Policy) form part of this Agreement and have the same effect. Where a rule for a specific service differs from this Agreement, that rule prevails.</p>
+      <p>1.3 If you use the Software without an account, the provisions on using the Software still apply.</p>
+    </section>
+
+    <section id="en-2">
+      <h2><span class="no">02</span>Licence</h2>
+      <p>2.1 Subject to this Agreement, we grant you a personal, non-exclusive, non-transferable, non-sublicensable and revocable licence to install and use the Software on devices you lawfully own or use. Unless otherwise agreed in writing, the Software is for your personal, non-commercial use only.</p>
+      <p>2.2 All rights not expressly granted to you are reserved by us.</p>
+    </section>
+
+    <section id="en-3">
+      <h2><span class="no">03</span>Obtaining and updating the Software</h2>
+      <p>3.1 Obtain the Software from kinexnote.com or another channel we approve. <b>Software from other sources may have been altered or contain malicious code; you bear the risks and losses that result.</b></p>
+      <p>3.2 To improve features, fix defects or maintain security, we may provide updates and may download and install them through in-app prompts or, after you confirm, automatically. Once a new version is released, older versions may lose some or all functions; we do not guarantee that older versions remain usable.</p>
+      <p>3.3 Test versions exist to find and fix problems, may contain defects, and their features and rules may change at any time. Test versions may need to be verified online periodically; if verification is not completed as required, some features may be paused, as shown in the app.</p>
+    </section>
+
+    <section id="en-4">
+      <h2><span class="no">04</span>Accounts</h2>
+      <p>4.1 Some services require a KineX account. Register with an e-mail address that is lawfully yours and that you will keep using; disposable addresses and automated or bulk registration are not allowed.</p>
+      <p>4.2 An account is for you alone and may not be lent, rented, sold, transferred or shared in any form. Keep your registered mailbox and signed-in devices secure. <b>Actions taken through your account are deemed to be yours, unless you can show that someone else misused it without fault on your part.</b></p>
+      <p>4.3 We may set reasonable limits on, for example, the number of devices signed in to one account at a time and how often you can sign devices out yourself, as shown in the app.</p>
+      <p>4.4 You can delete your account by following the instructions in the app. After deletion, the entitlements tied to the account end and the related information is handled under the Privacy Policy; this cannot be undone. Deleting your account does not delete the content on your devices.</p>
+    </section>
+
+    <section id="en-5">
+      <h2><span class="no">05</span>Entitlements, activation codes and fees</h2>
+      <p>5.1 Some features of the Service require the corresponding entitlement. The kinds, content, duration and ways of obtaining entitlements are as set out in the rules we publish or in the app.</p>
+      <p>5.2 Each activation code can be redeemed once, cannot be exchanged for cash, and may not be transferred or sold. <b>We may revoke codes, and the entitlements they gave, that were obtained by theft, bulk guessing, unauthorised resale or other improper means.</b></p>
+      <p>5.3 When an entitlement expires or is revoked, or the account is deleted, the related features stop and the licences on your devices lapse within a period of time.</p>
+      <p>5.4 The Service is free during testing. Before we start charging, we will publish what is charged for, the prices and the rules, and you can decide whether to buy; we will never charge you without your knowledge or consent.</p>
+    </section>
+
+    <section id="en-6">
+      <h2><span class="no">06</span>Your content</h2>
+      <p>6.1 Notes, annotations, boards, cards and other content you create, edit or save in the Software belong to you or their original rights holders; we acquire no rights to them through your use of the Service.</p>
+      <p>6.2 Your content is stored on your devices by default. When you use sync, it is end-to-end encrypted and sent to devices or storage services you choose; we cannot read it.</p>
+      <p>6.3 Books, articles, web pages, audio, video and other content you import, read or process must come from lawful sources, and you must make sure your use does not infringe the lawful rights of others.</p>
+      <p>6.4 <b>Back up important content yourself. We are not liable for loss of content caused by device failure, user error, third-party services or other causes not attributable to us.</b></p>
+    </section>
+
+    <section id="en-7">
+      <h2><span class="no">07</span>Feedback</h2>
+      <p>7.1 Ideas, bug reports, additions, display names and other material you submit through the Service (“Feedback”) must be lawful and truthful, must not contain anything prohibited by section 8, and must not contain advertising or other people’s personal information.</p>
+      <p>7.2 You agree that we may use, copy, modify, display and publish the ideas you submit, free of charge and on a non-exclusive basis, and use them to improve the Service without further payment. Bug reports are used only to deal with the problem and are not published.</p>
+      <p>7.3 To keep things manageable, we may review, categorise, retitle, merge, hide or delete Feedback.</p>
+    </section>
+
+    <section id="en-8">
+      <h2><span class="no">08</span>Acceptable use</h2>
+      <p>8.1 You may not use the Service to create, copy, publish or spread information that opposes the basic principles of the Constitution; endangers national security, discloses state secrets, subverts state power or undermines national unity; harms national honour and interests; incites ethnic hatred or discrimination or undermines ethnic unity; undermines state religious policy or promotes cults or superstition; spreads rumours or disrupts social order and stability; spreads obscenity, pornography, gambling, violence, murder or terror, or incites crime; insults or defames others or infringes their reputation, privacy, intellectual property or other lawful rights; or is otherwise prohibited by laws and administrative regulations.</p>
+      <p>8.2 Unless permitted by law or by us in writing, you may not:</p>
+      <p>(1) reverse-engineer, disassemble or decompile the Software, or otherwise try to obtain its source code;</p>
+      <p>(2) crack, circumvent or interfere with licensing, verification, device limits or other technical protection measures of the Software, or forge or alter licence credentials;</p>
+      <p>(3) copy, modify, rent, sell or distribute the Software or works derived from it, or remove copyright or other rights notices from it;</p>
+      <p>(4) request verification codes or try activation codes by automated or bulk means, or otherwise attack or interfere with the normal operation of the Service and its servers;</p>
+      <p>(5) use the Service for any unlawful activity or to infringe the lawful rights of others.</p>
+      <p>8.3 <b>If you breach this Agreement, we may, depending on the circumstances, remove content, restrict or stop some features, revoke the entitlements concerned, suspend or terminate the account, and pursue liability under the law.</b></p>
+    </section>
+
+    <section id="en-9">
+      <h2><span class="no">09</span>Intellectual property</h2>
+      <p>9.1 The programs, interface designs, icons, text and images we provide in the Software and the Service, and the names and marks “KineX” and “跃知”, are the intellectual property of us or the relevant rights holders. No one may use them without permission.</p>
+      <p>9.2 The Software may include open-source software, whose use is governed by the respective open-source licences.</p>
+    </section>
+
+    <section id="en-10">
+      <h2><span class="no">10</span>Third-party services</h2>
+      <p>10.1 The Software may let you use third-party websites, dictionaries, speech synthesis, storage and other services. These are provided by third parties; follow their rules when you use them, and settle any disputes with them directly.</p>
+      <p>10.2 <b>We make no guarantee about the content, availability or security of third-party services and are not liable for losses arising from them, except as otherwise provided by law.</b></p>
+    </section>
+
+    <section id="en-11">
+      <h2><span class="no">11</span>Personal information</h2>
+      <p>We protect your personal information under the law. How we handle it, and your rights, are set out in the <a class="inline" href="../privacy/">Privacy Policy</a>.</p>
+    </section>
+
+    <section id="en-12">
+      <h2><span class="no">12</span>Changes, suspension and termination of the Service</h2>
+      <p>12.1 We may change, suspend or end part or all of the Service as operations require. Where this materially affects your interests, we will notify you in advance by reasonable means.</p>
+      <p>12.2 We may suspend or stop providing the Service to you without prior notice if: (1) you breach the law or this Agreement; (2) the law or a competent authority requires it; or (3) security or another emergency requires it.</p>
+      <p>12.3 If the Service ends, content already stored on your devices is unaffected.</p>
+    </section>
+
+    <section id="en-13">
+      <h2><span class="no">13</span>Disclaimers and limitation of liability</h2>
+      <p>13.1 <b>The Service is provided “as is” and “as available”. To the extent permitted by law, we make no express or implied warranty that the Service is fit for a purpose, accurate, timely, error-free or uninterrupted.</b></p>
+      <p>13.2 <b>To the extent permitted by law, we are not liable for interruptions, data loss or other losses caused by force majeure, network or communication failures, viruses or hacking, failures of third-party services, device or system compatibility problems, or other causes beyond our control or that we could not reasonably foresee.</b></p>
+      <p>13.3 <b>To the extent permitted by law, we are not liable for indirect losses or loss of expected benefits, and our total liability to you in connection with the Service does not exceed the fees you actually paid us for the service concerned in the twelve months before the loss occurred.</b></p>
+      <p>13.4 Nothing in this section excludes or limits liability that cannot be excluded or limited by law, including liability for property loss caused by our intent or gross negligence and for personal injury.</p>
+    </section>
+
+    <section id="en-14">
+      <h2><span class="no">14</span>Minors</h2>
+      <p>14.1 Minors under 14 should use the Service only with the consent and guidance of a parent or guardian; minors aged 14 to 17 should read this Agreement and use the Service under the guidance of a parent or guardian.</p>
+      <p>14.2 Parents and guardians should guide minors to use the internet sensibly and balance study and rest.</p>
+    </section>
+
+    <section id="en-15">
+      <h2><span class="no">15</span>Notices and contact</h2>
+      <p>15.1 We may send you notices by in-app message, website announcement, e-mail or similar means. A notice by e-mail is deemed delivered when sent; a notice by in-app message or website announcement is deemed delivered when published.</p>
+      <p>15.2 You can contact us at <a class="inline" href="mailto:support@kinexnote.com">support@kinexnote.com</a>.</p>
+    </section>
+
+    <section id="en-16">
+      <h2><span class="no">16</span>Changes to this Agreement</h2>
+      <p>We may change this Agreement. The changed Agreement is published on the website or in the app; where a change materially affects your interests, we will give prominent notice in advance. Continuing to use the Service after the changed Agreement takes effect means you accept it; if you do not, stop using the Service, and you may delete your account.</p>
+    </section>
+
+    <section id="en-17">
+      <h2><span class="no">17</span>Governing law and disputes</h2>
+      <p><b>The formation, validity, performance, interpretation and dispute resolution of this Agreement are governed by the laws of mainland China (excluding its conflict-of-laws rules). Disputes arising from this Agreement or the Service shall first be settled by friendly negotiation; failing that, either party may bring a lawsuit before a people’s court with jurisdiction under the law.</b></p>
+    </section>
+
+    <section id="en-18">
+      <h2><span class="no">18</span>General</h2>
+      <p>18.1 If any provision of this Agreement is wholly or partly invalid or unenforceable for any reason, the remaining provisions remain in effect.</p>
+      <p>18.2 Section headings are for convenience only and do not affect the meaning or interpretation of this Agreement.</p>
+      <p>18.3 This Agreement is published in Chinese and English; if the two differ, the Chinese text prevails.</p>
+    </section>
+  </div>
+</article>
+</main>
+
+<footer class="lg-foot">
+  <span data-zh="© 2026 KineX 跃知" data-en="© 2026 KineX">© 2026 KineX 跃知</span>
+  <nav>
+    <a href="../" data-zh="首页" data-en="Home">首页</a>
+    <a href="../privacy/" data-zh="隐私政策" data-en="Privacy Policy">隐私政策</a>
+    <a href="mailto:support@kinexnote.com">support@kinexnote.com</a>
+  </nav>
+</footer>
+
+<script src="/legal.js" defer></script>
+</body>
+</html>
