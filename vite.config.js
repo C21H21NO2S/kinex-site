@@ -26,8 +26,8 @@ export default defineConfig({
     assetsInlineLimit: 0,
     chunkSizeWarningLimit: 900,
     rollupOptions: {
-      // A644: the terms and privacy pages beside the home page (kinexnote.com/terms/, /privacy/); A660: 动态 and 下载
-      input: { main: 'index.html', terms: 'terms/index.html', privacy: 'privacy/index.html', updates: 'updates/index.html', download: 'download/index.html' },
+      // A644: the terms and privacy pages beside the home page (kinexnote.com/terms/, /privacy/); A660: 动态 and 下载; 手册 (guide/, built from Markdown by npm run guide)
+      input: { main: 'index.html', terms: 'terms/index.html', privacy: 'privacy/index.html', updates: 'updates/index.html', download: 'download/index.html', guide: 'guide/index.html' },
       output: { manualChunks: id => (id.includes('node_modules/three') ? 'three' : undefined) },
     },
   },

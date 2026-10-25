@@ -4,7 +4,7 @@ export const DICT = {
     'meta.title': 'KineX 跃知 — 知识 跃然纸上',
     'meta.desc': 'KineX 把阅读、白板、手写和记忆放在一起：书、论文、网页和讲座放进同一块白板，划线、手写、连线，再在快忘的时候回来复习。',
 
-    'nav.read': '阅读', 'nav.board': '白板', 'nav.ink': '笔迹', 'nav.recall': '记忆', 'nav.sync': '同步', 'nav.updates': '动态',
+    'nav.read': '阅读', 'nav.board': '白板', 'nav.ink': '笔迹', 'nav.recall': '记忆', 'nav.sync': '同步', 'nav.updates': '动态', 'nav.guide': '手册',
     'nav.cta': '加入内测', 'nav.menu': '菜单', 'nav.close': '关闭', 'nav.lang': '语言', 'nav.theme': '切换明暗',
     'skip': '跳到正文',
 
@@ -100,7 +100,7 @@ export const DICT = {
     'meta.title': 'KineX — Learning, in motion.',
     'meta.desc': 'KineX brings reading, an infinite board, real ink and spaced recall together. Put books, papers, web pages and lectures on one board — highlight, write, link, and review right before you forget.',
 
-    'nav.read': 'Read', 'nav.board': 'Board', 'nav.ink': 'Ink', 'nav.recall': 'Recall', 'nav.sync': 'Sync', 'nav.updates': 'Updates',
+    'nav.read': 'Read', 'nav.board': 'Board', 'nav.ink': 'Ink', 'nav.recall': 'Recall', 'nav.sync': 'Sync', 'nav.updates': 'Updates', 'nav.guide': 'Guide',
     'nav.cta': 'Join the beta', 'nav.menu': 'Menu', 'nav.close': 'Close', 'nav.lang': 'Language', 'nav.theme': 'Toggle theme',
     'skip': 'Skip to content',
 

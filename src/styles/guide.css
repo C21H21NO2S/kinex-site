@@ -1,0 +1,126 @@
+/* 使用手册 (guide/): the terms / privacy pages' long-reading frame, plus the header's section links (as on 动态 and 下载)
+   and what a manual needs: tables, code, notes, the pre-drawn diagrams and the live forgetting curve. */
+@import './legal.css';
+
+/* ----- header with links (updates.css) */
+.nav { grid-template-columns: 1fr auto 1fr; }
+.links { display: flex; align-items: center; gap: 34px; font: 450 13.5px/1 var(--f-sans); color: var(--fg-2); }
+.links a { position: relative; padding: 6px 0; transition: color .3s; }
+.links a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform .5s var(--ease); }
+.links a:hover, .links a[aria-current] { color: var(--fg); }
+.links a:hover::after, .links a[aria-current]::after { transform: scaleX(1); transform-origin: left; }
+.nav-sep { width: 1px; height: 14px; margin: 0 -12px; background: var(--rule-2); }
+.pill { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 42px; padding: 0 20px; border-radius: 999px; background: var(--fg); color: var(--bg); font: 600 14px/1 var(--f-sans); white-space: nowrap; }
+@media (max-width: 1100px) { .links { gap: 22px; } }
+@media (max-width: 900px) {
+  .nav { grid-template-columns: auto 1fr auto; gap: 16px; }
+  .links a.section, .nav-sep { display: none; }
+  .nav-r .pill { display: none; }
+}
+
+/* ----- tokens for the diagrams and the curve */
+:root {
+  --g-node: color-mix(in oklab, var(--fg) 6%, var(--bg)); --g-node-2: color-mix(in oklab, var(--fg) 10%, var(--bg));
+  --g-node-line: var(--rule-2); --g-text: var(--fg); --g-text-2: var(--fg-2); --g-line: color-mix(in oklab, var(--fg) 45%, var(--bg));
+  --g-label: var(--bg); --g-group: color-mix(in oklab, var(--fg) 3%, var(--bg)); --g-group-line: var(--rule);
+  --g-note: color-mix(in oklab, var(--cyan) 10%, var(--bg)); --g-accent: var(--cyan); --acc-ink: var(--cyan);
+}
+:root[data-theme="light"] { --cyan: #0891B2; --acc-ink: #0E7490; --g-node: #F4F4F6; --g-node-2: #EDEDF1; --g-label: #F4F4F6; }
+
+/* ----- the document: a wider measure than the policies, for tables and diagrams */
+.gd-doc { grid-template-columns: 210px minmax(0, 780px); }
+.gd-doc .lg-meta { margin-top: 22px; font: 500 12.5px/1.6 var(--f-sans); letter-spacing: 0; text-transform: none; }
+.gd-doc .gd-tag { margin-top: 20px; font-size: 19px; line-height: 1.6; color: var(--fg); }
+.gd-doc .gd-tag + .lg-lead { margin-top: 12px; }
+.toc li { padding-left: 0; }
+.toc li::before { content: none; }
+.gd-intro { padding-top: 36px; }
+.lg-body section { padding-top: 64px; }
+.lg-body section + section { margin-top: 8px; border-top: 1px solid var(--rule); }
+/* type scale: chapter 28 · section 20 · topic 16.5 · body 15.5 · tables 14 · captions and sources 13 */
+.lg-body h2 { margin-bottom: 22px; font-size: 28px; letter-spacing: -.02em; }
+.lg-body h3 { margin: 44px 0 12px; font-size: 20px; line-height: 1.4; letter-spacing: -.01em; color: var(--fg); }
+.lg-body h4 { margin: 30px 0 8px; font: 600 16.5px/1.5 var(--f-sans); color: var(--fg); }
+.lg-body h2 + h3 { margin-top: 8px; }
+.lg-body h3 + p, .lg-body h4 + p { margin-top: 0; }
+.lg-doc p + .tbl, .lg-doc .tbl + p, .lg-doc ul + .tbl, .lg-doc .tbl + ul, .lg-doc ol + p, .lg-doc p + ol, .lg-doc .tbl + .tbl { margin-top: 14px; }
+.lg-body ol { margin: 12px 0 0; padding: 0; list-style: none; counter-reset: item; display: grid; gap: 8px; }
+.lg-body ol > li { counter-increment: item; padding-left: 30px; }
+.lg-body ol > li::before { content: counter(item); left: 0; top: .3em; width: 20px; height: 20px; border-radius: 50%; background: none; box-shadow: inset 0 0 0 1px var(--rule-2); font: 600 11px/20px var(--f-mono); text-align: center; color: var(--fg-2); }
+.lg-doc li ul { margin-top: 8px; }
+.lg-doc ul { margin-top: 12px; }
+.lg-doc strong { font-weight: 600; color: var(--fg); }
+/* emphasis marks interface labels (“Add to board”): as bright as headings, not italic */
+.lg-doc em { font-style: normal; color: var(--fg); }
+/* captions under figures and diagrams: smaller and quieter than the text */
+.lg-doc p.gd-cap { margin-top: 10px; font-size: 13px; line-height: 1.75; color: var(--fg-3); }
+.gd-doc[lang="en"] p.gd-cap { line-height: 1.6; }
+.lg-doc .gd-cap + * { margin-top: 24px; }
+.lg-body a { color: var(--fg); text-decoration: underline; text-decoration-color: var(--rule-2); text-underline-offset: 3px; transition: text-decoration-color .3s; }
+.lg-body a:hover { text-decoration-color: currentColor; }
+.lg-doc code { font: 500 .88em/1 var(--f-mono); padding: .18em .42em; border-radius: 6px; background: color-mix(in oklab, var(--fg) 7%, transparent); color: var(--fg); white-space: nowrap; }
+.lg-doc pre { margin: 14px 0 0; padding: 16px 18px; border-radius: 12px; overflow-x: auto; background: color-mix(in oklab, var(--fg) 5%, transparent); box-shadow: inset 0 0 0 1px var(--rule); }
+.lg-doc pre code { padding: 0; background: none; font-size: 13px; line-height: 1.7; white-space: pre; }
+.lg-doc blockquote { margin: 18px 0 0; padding: 4px 0 4px 18px; border-left: 2px solid var(--rule-2); }
+.lg-doc blockquote p { font-size: 13px; line-height: 1.7; color: var(--fg-3); }
+.lg-doc blockquote a { color: var(--fg-2); }
+.lg-doc hr { margin: 32px 0; border: 0; border-top: 1px solid var(--rule); }
+
+/* tables: horizontal scroll inside their own box on a narrow screen */
+.tbl { margin-top: 14px; overflow-x: auto; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--rule); }
+.tbl table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.6; }
+.tbl th, .tbl td { padding: 10px 14px; text-align: left; vertical-align: top; border-top: 1px solid var(--rule); color: var(--fg-body); }
+.tbl th { border-top: 0; font: 600 12px/1.5 var(--f-sans); letter-spacing: .02em; color: var(--fg-2); background: color-mix(in oklab, var(--fg) 4%, transparent); white-space: nowrap; }
+.tbl td:first-child { color: var(--fg); }
+.tbl td code { white-space: nowrap; }
+@media (max-width: 640px) { .tbl table { font-size: 13.5px; } .tbl th, .tbl td { padding: 9px 12px; } .tbl td { min-width: 7em; } }
+
+/* diagrams: drawn at build time, coloured by the variables above */
+.dg { margin: 22px 0 0; padding: 22px 18px; border-radius: 14px; box-shadow: inset 0 0 0 1px var(--rule); background: color-mix(in oklab, var(--fg) 2%, transparent); overflow-x: auto; }
+.dg svg { display: block; margin: 0 auto; width: 100%; height: auto; }
+.dg svg text, .dg svg tspan { font-family: "Inter", var(--f-cn) !important; }
+.dg svg .edgeLabel rect, .dg svg .labelBkg { opacity: 1; }
+@media (max-width: 640px) { .dg { padding: 16px 12px; } .dg svg { min-width: 520px; } }
+
+/* the forgetting curve (home page's .curve, drawn by public/guide.js) */
+.curve { margin: 22px 0 0; padding: 22px 22px 16px; border-radius: 14px; box-shadow: inset 0 0 0 1px var(--rule); background: color-mix(in oklab, var(--fg) 2%, transparent); }
+.curve svg { display: block; width: 100%; height: 300px; overflow: visible; }
+.curve .axis, .curve .tick { stroke: var(--rule-2); stroke-width: 1; }
+.curve .grid { stroke: var(--rule); stroke-width: 1; }
+.curve .goal { stroke: var(--acc-ink); stroke-width: 1; stroke-dasharray: 3 5; opacity: .7; }
+.curve .c { fill: none; stroke: var(--cyan); stroke-width: 2.4; stroke-linejoin: round; }
+.curve .never { fill: none; stroke: var(--fg-3); stroke-width: 1.6; stroke-dasharray: 5 5; }
+.curve .area { fill: url(#gdCurveFill); }
+.curve .cf0 { stop-color: #22D3EE; stop-opacity: .22; } .curve .cf1 { stop-color: #22D3EE; stop-opacity: 0; }
+.curve .rv { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.curve .rvl { stroke: var(--fg-4); stroke-dasharray: 2 4; }
+.curve .duering { fill: none; stroke: var(--acc-ink); stroke-width: 1.4; transform-box: fill-box; transform-origin: center; animation: gdpulse 2s ease-out infinite; }
+.curve .duedot { fill: var(--acc-ink); }
+@keyframes gdpulse { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
+.curve .ct { font: 500 11.5px var(--f-cn); fill: var(--fg-3); letter-spacing: .02em; }
+.gd-doc[lang="en"] .curve .ct { font-family: var(--f-mono); font-size: 11px; }
+.curve .ct.ttl { fill: var(--fg-2); font-weight: 600; }
+.curve .ct.acc, .curve .ct.due { fill: var(--acc-ink); font-weight: 600; }
+.curve .ct.gr { fill: var(--fg-2); font-size: 10.5px; }
+.curve .ct.sub { fill: var(--fg-3); font-size: 10.5px; }
+.curve .lgd { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; font: 500 12px/1.4 var(--f-sans); color: var(--fg-2); }
+.curve .lg { display: inline-flex; align-items: center; gap: 8px; }
+.curve .lg i { width: 22px; height: 0; border-top: 2.4px solid var(--cyan); }
+.curve .lg.off i { border-top: 1.6px dashed var(--fg-3); }
+.curve .lg-note { margin-left: auto; color: var(--fg-3); font-size: 11.5px; }
+@media (max-width: 640px) { .curve { padding: 16px 12px 12px; } .curve svg { height: 270px; } .curve .lg-note { margin-left: 0; } }
+@media (prefers-reduced-motion: reduce) { .curve .duering { animation: none; } }
+
+/* screenshots and short videos of the real app */
+.lg-doc img, .lg-doc video { display: block; max-width: 100%; height: auto; margin-top: 18px; border-radius: 12px; box-shadow: 0 0 0 1px var(--rule); background: #fff; }
+.lg-doc video { width: 100%; aspect-ratio: auto; }
+.lg-doc p + p > img { margin-top: 8px; }
+
+@media (max-width: 960px) {
+  .gd-doc { grid-template-columns: minmax(0, 780px); }
+  .lg-body section { padding-top: 48px; }
+}
+@media print {
+  .dg, .curve, .tbl { box-shadow: none; break-inside: avoid; }
+  .lg-body section + section { border-top: 0; }
+}
