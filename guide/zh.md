@@ -152,7 +152,7 @@ flowchart TD
 
 *手机：首页底部的标签栏（左），点页面中间出现的阅读条（右）。*
 
-<video controls preload="none" playsinline poster="assets/v05-phone.jpg" src="assets/v05-phone.mp4"></video>
+<video class="phone" controls preload="none" playsinline poster="assets/v05-phone.jpg" src="assets/v05-phone.mp4"></video>
 
 *手机上打开主题 → 在顶部窄条上横滑切到白板 → 滑回阅读 → 点页面中间打开阅读条。*
 

@@ -114,6 +114,9 @@
 /* screenshots and short videos of the real app */
 .lg-doc img, .lg-doc video { display: block; max-width: 100%; height: auto; margin-top: 18px; border-radius: 12px; box-shadow: 0 0 0 1px var(--rule); background: #fff; }
 .lg-doc video { width: 100%; aspect-ratio: auto; }
+/* phone recordings stand upright: cap the height and centre them instead of filling the column */
+.lg-doc img[src*="p13-phone"] { width: auto; max-height: min(560px, 70vh); margin-inline: auto; }
+.lg-doc video.phone { width: auto; height: min(560px, 70vh); aspect-ratio: 390 / 844; margin-inline: auto; background: #f4f4f6; }
 .lg-doc p + p > img { margin-top: 8px; }
 
 @media (max-width: 960px) {

@@ -154,7 +154,7 @@ On a phone a theme opens with the reader at 100%; the board is a second full pag
 
 *On a phone: the home tab bar (left) and the reading bar that appears when you tap the middle of the page (right).*
 
-<video controls preload="none" playsinline poster="assets/v05-phone.jpg" src="assets/v05-phone.mp4"></video>
+<video class="phone" controls preload="none" playsinline poster="assets/v05-phone.jpg" src="assets/v05-phone.mp4"></video>
 
 *On a phone: open a theme → swipe the top bar to the board → swipe back → tap the middle of the page for the reading bar.*
 
