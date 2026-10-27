@@ -193,19 +193,15 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     else inkTip = V(...toLocal(e.p[0], e.p[1]), PEN_Z);
   }
 
-  // stylus — S Pen–like: slim, matte
-  const stylus = new THREE.Group(); scene.add(stylus);
-  // a graphite-grey pen lit by the room around it (its own neutral environment light), so the cyan rim light of the
-  // dark theme does not tint it teal
-  const penMat = new THREE.MeshStandardMaterial({ color: 0x5a5b60, roughness: .5, metalness: .05, envMap: scene.environment, envMapIntensity: 1 });
-  const nibMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1e, roughness: .7 });
-  const L = 1.42;
-  const addPen = (geo, mat, y, x = 0, z = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); stylus.add(m); };
-  addPen(new THREE.CylinderGeometry(.027, .027, L, 40, 1), penMat, L / 2 + .11);
-  addPen(new THREE.CylinderGeometry(.024, .027, .012, 40, 1), penMat, L + .116);
-  addPen(new THREE.CylinderGeometry(.027, .008, .1, 40, 1), penMat, .06);
-  addPen(new THREE.CylinderGeometry(.008, .003, .022, 16, 1), nibMat, .011);
-  addPen(new THREE.BoxGeometry(.01, .1, .006), penMat, .42, 0, .027);
+  // The pen: not a 3D stylus but KineX's own fountain-pen cursor, as the promo film writes with it (卖点 3): the pen-type
+  // icon (PenTypeIcon.vue), its nib to the upper left, light grey. It lies over the canvas, its nib on the head of the
+  // stroke, comes down as the story reaches the writing, writes, and goes once the line is done (frame()).
+  const FOUNTAIN = 'm307-320-87-360 260-240 260 240-87 360H307Zm63-80h220l61-253-131-121v106q14 10 22 25t8 33q0 29-20.5 49.5T480-540q-29 0-49.5-20.5T410-610q0-18 8-33t22-25v-106L309-653l61 253ZM160-120l22-65q8-25 29-40t47-15h444q26 0 47 15t29 40l22 65H160Z';
+  const penCursor = document.createElement('div');
+  penCursor.className = 'pen-cursor'; penCursor.setAttribute('aria-hidden', 'true');
+  // in icon units (the icon is 960 across) around the nib: turned −45° about the icon's centre, its nib (480, −920) at 0, 0
+  penCursor.innerHTML = `<svg viewBox="-1000 -1000 2000 2000"><g transform="rotate(-45) translate(0 451) translate(-480 480)"><path d="${FOUNTAIN}"/></g></svg>`;
+  canvas.after(penCursor);
 
   // ---------------------------------------------------------------- fragments
   // ordered so the low and mid tiers (the first 12 / 20) still get a varied mix; with each kind's variants counted
@@ -264,8 +260,8 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     scene.children.filter(o => o.isLight).forEach(l => pre.add(l.clone()));
     [blurMat({ map: dummy, roughness: .9, metalness: 0, emissive: 0xffffff, emissiveMap: dummy, emissiveIntensity: .2 }),
      blurMat({ map: dummy, roughness: .8, emissive: 0xffffff, emissiveMap: dummy, emissiveIntensity: .4, toneMapped: false }),
-     backMat, shadowMat, bodyMat, penMat, scrMat].forEach((m, i) => { const q = new THREE.Mesh(planeGeo, m); q.position.set(i * .1, 0, -2); q.frustumCulled = false; pre.add(q); });
-    pre.add(tablet.clone()); pre.add(stylus.clone());
+     backMat, shadowMat, bodyMat, scrMat].forEach((m, i) => { const q = new THREE.Mesh(planeGeo, m); q.position.set(i * .1, 0, -2); q.frustumCulled = false; pre.add(q); });
+    pre.add(tablet.clone());
     camera.position.set(0, 0, 4); camera.lookAt(0, 0, 0); camera.updateMatrixWorld();
     await renderer.compileAsync(pre, camera);
     renderer.setRenderTarget(null); renderer.render(pre, camera);
@@ -529,16 +525,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   }
 
   // ---------------------------------------------------------------- render
-  // The scene is drawn, depth is cleared, then the threads are drawn on top. Only the stylus occludes them, through
-  // a depth-only copy in the line scene that writes the nearest possible depth.
-  const occMat = new THREE.ShaderMaterial({
-    colorWrite: false,
-    vertexShader: 'void main(){ vec4 p = projectionMatrix * modelViewMatrix * vec4(position, 1.); p.z = -p.w * .999; gl_Position = p; }',
-    fragmentShader: 'void main(){ gl_FragColor = vec4(0.); }',
-  });
-  const stylusOcc = new THREE.Group();
-  stylus.children.forEach(c => { const m = new THREE.Mesh(c.geometry, occMat); m.position.copy(c.position); m.renderOrder = -1; stylusOcc.add(m); });
-  lineScene.add(stylusOcc);
+  // The scene is drawn, then the threads are drawn on top (the cards lay down their depth for them, see cardOcc).
   let linesReady = false; // see warmLines()
   function render() {
     renderer.clear();
@@ -561,10 +548,6 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     shadowMat.opacity = .26 + k * .2;
     pulseHaloMats.forEach(m => { m.blending = k > .5 ? THREE.AdditiveBlending : THREE.NormalBlending; m.color.set(k > .5 ? 0x22d3ee : 0x2563eb); m.needsUpdate = true; });
     bodyMat.color.setRGB(.8 - k * .56, .81 - k * .56, .83 - k * .55);
-    // light: pale grey; dark: deep graphite grey that takes little of the tinted lights and carries its own neutral glow
-    penMat.color.setRGB(.82 - k * .77, .82 - k * .772, .84 - k * .792);
-    penMat.emissive.setRGB(k * .03, k * .03, k * .031);
-    penMat.envMapIntensity = 1 + k * .2;
     pulseColor.setRGB(.07 + k * .45, .3 + k * .68, .92 + k * .1); // light: the links' blue; dark: a pale cyan, never blown out
     // light theme: the cards take less of the bright light (paper well below white, so it keeps its shading and the
     // print its contrast); dark theme as before
@@ -640,14 +623,18 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     // the constellation is shown sharp; on phones everything is small already, so the depth of field stays light
     const dofK = tier === 'low' ? 0 : (1 - seg(p, .66, .8)) * (LY.portrait ? .35 : 1);
 
-    // stylus
-    const tipLocal = inkTip ? inkTip.clone() : (ink >= 1 ? inkEnd.clone() : inkStart.clone());
-    if (!inkTip) tipLocal.z += ink >= 1 ? .03 + seg(p, .33, .4) * .1 : .025 + (1 - seg(p, .1, .16)) * .1;
-    stylus.position.copy(tablet.localToWorld(tipLocal));
-    stylus.quaternion.setFromUnitVectors(V(0, 1, 0), V(.62, .28, .73).normalize().applyQuaternion(qWorld));
-    const showPen = 1 - seg(p, .4, .5);
-    stylus.visible = showPen > .01; stylus.scale.setScalar(.999 * showPen + .001);
-    stylusOcc.position.copy(stylus.position); stylusOcc.quaternion.copy(stylus.quaternion); stylusOcc.scale.copy(stylus.scale); stylusOcc.visible = stylus.visible;
+    // the pen cursor: down onto the first stroke's start just before the writing, along the nib as it writes (lifted
+    // between strokes), away once the line is done
+    const penIn = smooth(seg(p, .125, .158)), penOut = smooth(seg(p, .335, .37)), penA = penIn * (1 - penOut);
+    if (penA > .005) {
+      const tipLocal = inkTip ? inkTip.clone() : (ink >= 1 ? inkEnd.clone() : inkStart.clone());
+      camera.updateMatrixWorld(); // this frame's camera (it is otherwise only brought up to date when drawn)
+      const v = tablet.localToWorld(tipLocal).project(camera);
+      const x = (v.x + 1) / 2 * vw(), y = (1 - v.y) / 2 * vh() - (1 - penIn) * 18 - penOut * 10;
+      penCursor.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+      penCursor.style.opacity = penA.toFixed(3);
+      penCursor.style.visibility = 'visible';
+    } else penCursor.style.visibility = 'hidden';
 
     // the sentence is selected, as a drag along it would: the highlight sweeps in from its first word to its last, and
     // only then does the excerpt lift off it (there is none before)
@@ -702,7 +689,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     paint.sort((a, b) => (a[2] - b[2]) || (b[1] - a[1]));
     const front = paint.findIndex(it => it[2]), split = front < 0 ? paint.length : front;
     paint.forEach((it, k) => { it[0].renderOrder = k < split ? k + 1 : k + 3; });
-    tablet.renderOrder = stylus.renderOrder = split + 1;
+    tablet.renderOrder = split + 1;
     if (toGraph < .3) lift.renderOrder = paint.length + 4; // while it is the subject, the lifted excerpt is never covered
 
     // threads
@@ -772,7 +759,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   }
   function start() { if (!running) { running = true; raf = requestAnimationFrame(loop); } }
 
-  if (DBG0.has('prof')) window.__dbg = { scene, lineScene, tablet, stylus, frags, renderer, camera, frame, glass, screen, sheen, lift, liftMat, key, rim, fill, render };
+  if (DBG0.has('prof')) window.__dbg = { scene, lineScene, tablet, penCursor, frags, renderer, camera, frame, glass, screen, sheen, lift, liftMat, key, rim, fill, render };
   addEventListener('resize', resize);
   paintScreen(); layout(); resize(); applyTheme(T.k); setInk(0);
   // Warm-up while the loader covers the page: draw every object once (hidden and off-screen ones included) so
@@ -818,7 +805,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     stop() { cancelAnimationFrame(raf); running = false; },
     setStory(p) { S.target = clamp(p); },
     snap() { S.p = S.target; }, // land on the current scroll position without animating through the story
-    setMode(m) { S.mode = m; canvas.style.visibility = m === 'off' ? 'hidden' : 'visible'; },
+    setMode(m) { S.mode = m; canvas.style.visibility = m === 'off' ? 'hidden' : 'visible'; if (m === 'off') penCursor.style.visibility = 'hidden'; },
     setJoin(k) { S.joinK = clamp(k); },
     get state() { return S; },
     set onStory(fn) { onStory = fn; },

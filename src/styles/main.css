@@ -102,6 +102,10 @@ html.intro .brand-mark .lp-plate { animation: kx-plate .8s cubic-bezier(.22, 1, 
 /* ================================================================ 3D canvas and its opening sketch */
 #gl { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100lvh; z-index: 0; pointer-events: none; opacity: 0; transition: opacity 1.3s cubic-bezier(.4, 0, .2, 1); }
 html.gl-on #gl { opacity: 1; }
+/* the pen cursor over the canvas (scene.js): KineX's fountain-pen icon, nib to the upper left, light grey */
+.pen-cursor { --s: clamp(28px, 2.5vw, 44px); position: fixed; left: 0; top: 0; z-index: 1; width: calc(var(--s) * 2.0834); height: calc(var(--s) * 2.0834); margin: calc(var(--s) * -1.0417) 0 0 calc(var(--s) * -1.0417); pointer-events: none; visibility: hidden; will-change: transform, opacity; }
+.pen-cursor svg { display: block; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 2px 4px rgba(20,24,32,.16)); }
+.pen-cursor path { fill: #7a808a; }
 /* the tablet and its cards drawn in pencil where the scene will put them; the render develops inside the lines */
 .boot-sketch { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100lvh; z-index: 1; pointer-events: none; }
 .boot-sketch-cv { display: block; width: 100%; height: 100%; animation: kx-breath 2.4s 1.8s ease-in-out infinite alternate; }
