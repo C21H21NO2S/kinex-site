@@ -67,7 +67,7 @@ const ART = {
   epub: () => `
     <div class="art epub">
       <div class="spread${epubFont === 'wk' ? ' wk' : ''}">
-        <div class="pg l"><span class="cap">${T('星', 'S')}</span><p class="serif-t">${T('星光走了几千年，才把这份记录带到你眼前。天文学家用光谱读出它的成分。', 'tarlight travels for millennia to bring you its record. Astronomers read its make-up from the spectrum.')}</p><div class="ln"></div><div class="ln m"></div></div>
+        <div class="pg l"><span class="cap">${T('星', 'S')}</span><p class="serif-t">${T('星光走了几千年，才把恒星的秘密带到你眼前。天文学家用光谱读出它的成分。', 'tarlight travels for millennia to bring you its record. Astronomers read its make-up from the spectrum.')}</p><div class="ln"></div><div class="ln m"></div></div>
         <div class="pg r"><p class="serif-t">${T('每一条暗线，都是一种元素留下的指纹：氢、钙、铁……', 'Every dark line is the fingerprint of an element: hydrogen, calcium, iron…')}</p><div class="ln"></div><div class="ln"></div><div class="ln s"></div><span class="pno">212</span></div>
       </div>
       <div class="aa">
@@ -87,7 +87,7 @@ const ART = {
         <div class="page">
           <div class="clutter top">AD</div>
           <div class="article">
-            <span class="kick">${T('星空杂志 · 6 分钟阅读', 'Night Sky Magazine · 6 min read')}</span>
+            <span class="kick">${T('星空杂志 · 6 分钟读完', 'Night Sky Magazine · 6 min read')}</span>
             <h5>${T('夜空为什么是黑的？', 'Why is the night sky dark?')}</h5>
             <div class="img">${deepField()}</div>
             <p>${flow(T('如果宇宙无限大、恒星无限多，每一条视线最后都会落在一颗星上，夜空应该亮如白昼。这个矛盾叫“奥伯斯佯谬”。', 'If the universe were infinite and full of stars, every line of sight would end on a star and the night would blaze like day. This is Olbers’ paradox.'))}</p>

@@ -60,6 +60,8 @@ html[data-lang="en"] .display em, html[data-lang="en"] .sec-title em, html[data-
 .kicker.center { justify-content: center; }
 .lede { font-size: 16px; line-height: 1.75; color: var(--fg-2); text-wrap: pretty; }
 html[data-lang="en"] .lede { line-height: 1.6; }
+/* no lone character on a paragraph's last line in Chinese; zero specificity, so a rule like balance still wins */
+:where(html[data-lang="zh"]) p { text-wrap: pretty; }
 .center { text-align: center; }
 
 /* buttons */

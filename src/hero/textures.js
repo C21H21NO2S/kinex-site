@@ -37,16 +37,23 @@ function paper(ctx, w, h, tone, r) {
   ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
 }
 
+const NO_START = '，。、；：！？）」』”’》…—,.;:!?)';
 function wrapText(ctx, text, x, y, maxW, lh, cjk) {
-  const units = cjk ? [...text] : text.split(/(\s+)/);
-  let line = '', yy = y;
+  const units = cjk ? [...text] : text.split(/(\s+)/), lines = [];
+  let line = '';
   for (const u of units) {
     const t = line + u;
-    if (ctx.measureText(t).width > maxW && line) { ctx.fillText(line.trimEnd(), x, yy); yy += lh; line = u.trimStart(); }
-    else line = t;
+    // CJK line breaking: punctuation never starts a line (it may overhang the margin slightly instead)
+    if (ctx.measureText(t).width > maxW && line && !(cjk && NO_START.includes(u))) { lines.push(line.trimEnd()); line = u.trimStart(); } else line = t;
   }
-  if (line) { ctx.fillText(line, x, yy); yy += lh; }
-  return yy;
+  if (line) lines.push(line);
+  // nor is one character left alone on the last line: it takes one more from the line above
+  const n = lines.length, prev = n > 1 ? [...lines[n - 2]] : [];
+  if (cjk && prev.length > 2 && !NO_START.includes(prev.at(-1)) && [...lines[n - 1]].filter(c => !NO_START.includes(c)).length < 2) {
+    lines[n - 1] = prev.pop() + lines[n - 1]; lines[n - 2] = prev.join('');
+  }
+  lines.forEach((l, i) => ctx.fillText(l, x, y + i * lh));
+  return y + lines.length * lh;
 }
 
 function highlightRun(ctx, x, y, w, h, color) {
@@ -58,7 +65,7 @@ const PAGES = {
   zh: [
     ['第 3 章　恒星的余烬', '宇宙诞生之初，几乎只有氢和氦。比它们更重的元素，都要在恒星内部一层层地“烧”出来：碳、氧、硅，直到铁。', '铁是终点。聚变到这里不再放出能量，核心在几秒内塌缩，外层被炸向星际空间。'],
     ['第 5 章　星云', '这些元素在星云里重新聚集，形成新的恒星、行星，和我们。你骨骼里的钙，也曾是某颗星的一部分。', '我们是宇宙认识自己的一种方式。'],
-    ['附录 B　测量', '天文学家用光谱读出远处恒星的成分。每一条暗线，都是一种元素留下的指纹。', '光走了几千年，才把这份记录带到你眼前。'],
+    ['附录 B　测量', '天文学家用光谱读出远处恒星的成分。每一条暗线，都是一种元素留下的指纹。', '光走了几千年，才把恒星的秘密带到你眼前。'],
     ['第 1 章　尺度', '如果把太阳缩成一粒沙，最近的恒星也在几十公里之外。宇宙大部分是空的。', '而正是这些空旷，让每一点光都显得珍贵。'],
     ['第 2 章　光年', '光一年能走约九万五千亿公里。抬头看到的星星，是它们过去的样子。', '有些星光出发时，那颗星也许已经不在了。'],
     ['第 4 章　红巨星', '恒星老去时外层膨胀，体积可达太阳的几百倍，表面却变得更冷、更红。', '大约五十亿年后，太阳也会走到这一步。'],
@@ -81,7 +88,7 @@ const PAGES = {
 const CARDS = {
   quote: [
     ['你血液里的铁，来自一颗早已死去的恒星。', 'The iron in your blood came from a star that died long ago.', 47],
-    ['我们看到的星光，是它很久以前发出的。', 'The starlight we see left its star long ago.', 18],
+    ['夜空中的星光，是恒星很久以前发出的。', 'The starlight we see left its star long ago.', 18],
     ['太阳每秒把四百万吨物质变成光。', 'Every second, the Sun turns four million tonnes of matter into light.', 62],
     ['一茶匙中子星物质，重达十亿吨以上。', 'A teaspoon of neutron star weighs over a billion tonnes.', 88],
     ['太阳的光，要走八分钟才到地球。', 'Sunlight takes eight minutes to reach Earth.', 12],
@@ -347,18 +354,6 @@ function toolbar(ctx, x0, y, items, active) {
   });
   return w;
 }
-const NO_START = '，。、；：！？）」』”’》…—,.;:!?)';
-function wrap(ctx, text, x, y, maxW, lh, cjk) {
-  const units = cjk ? [...text] : text.split(/(\s+)/);
-  let line = '', yy = y;
-  for (const u of units) {
-    const t = line + u;
-    // CJK line breaking: punctuation never starts a line (it may overhang the margin slightly instead)
-    if (ctx.measureText(t).width > maxW && line && !(cjk && NO_START.includes(u))) { ctx.fillText(line.trimEnd(), x, yy); yy += lh; line = u.trimStart(); } else line = t;
-  }
-  if (line) { ctx.fillText(line, x, yy); yy += lh; }
-  return yy;
-}
 // the E10 mark (core/logo.js), in its own colours
 let MARK = null;
 function mark(ctx, x, y, s) {
@@ -427,8 +422,8 @@ export function drawScreen(ctx, w, h, lang, { highlight = true } = {}) {
   ctx.fillStyle = UI.ink3; ctx.font = `500 13px "JetBrains Mono", monospace`; ctx.fillText(L.ch.toUpperCase(), 92, 186);
   ctx.fillStyle = '#26221F'; ctx.font = zh ? `500 24px ${SERIF}` : `400 28px ${SERIF}`;
   const lh = zh ? 44 : 38, mw = RW - 184, tx = 92;
-  let y = wrap(ctx, L.p1, tx, 236, mw, lh, zh) + 16;
-  y = wrap(ctx, L.p2a, tx, y, mw, lh, zh);
+  let y = wrapText(ctx, L.p1, tx, 236, mw, lh, zh) + 16;
+  y = wrapText(ctx, L.p2a, tx, y, mw, lh, zh);
   const hlBox = [];
   L.hl.forEach((t, i) => {
     const tw2 = ctx.measureText(t).width, yy = y + i * lh, top = yy - (zh ? 30 : 27), hh = zh ? 40 : 36;
@@ -440,7 +435,7 @@ export function drawScreen(ctx, w, h, lang, { highlight = true } = {}) {
     ctx.fillStyle = '#26221F'; ctx.fillText(t, tx, yy);
   });
   y += lh * 2 + 16;
-  wrap(ctx, L.p3, tx, y, mw, lh, zh);
+  wrapText(ctx, L.p3, tx, y, mw, lh, zh);
   ctx.fillStyle = UI.ink2; ctx.font = F(500, 13); ctx.textAlign = 'right'; ctx.fillText(L.pos, RW - 30, H - 24); ctx.textAlign = 'left';
   // bottom-left pane controls
   [['menu', 40], ['expand', 78]].forEach(([n, x]) => { shadowed(ctx, () => { ctx.fillStyle = '#FFFFFF'; rr(ctx, x, H - 62, 32, 32, 8); ctx.fill(); }, 8, 2, .1); ctx.strokeStyle = 'rgba(0,0,0,.08)'; ctx.lineWidth = 1; rr(ctx, x + .5, H - 61.5, 31, 31, 8); ctx.stroke(); icon(ctx, n, x + 7, H - 55, UI.ink, 18); });
@@ -477,12 +472,12 @@ export function drawScreen(ctx, w, h, lang, { highlight = true } = {}) {
   card(800, 270, 320, 160, (x, y, w, h) => {
     ctx.save(); rr(ctx, x, y, w, h, 8); ctx.clip(); ctx.fillStyle = UI.stripe; ctx.fillRect(x, y, 24, h); ctx.restore();
     icon(ctx, 'back', x + 3, y + h / 2 - 9, '#FFFFFF', 18);
-    ctx.fillStyle = UI.ink; ctx.font = F(400, 18); wrap(ctx, L.ex, x + 40, y + 40, w - 60, 29, zh);
+    ctx.fillStyle = UI.ink; ctx.font = F(400, 18); wrapText(ctx, L.ex, x + 40, y + 40, w - 60, 29, zh);
     ctx.fillStyle = UI.ink3; ctx.font = F(400, 12.5); ctx.textAlign = 'right'; ctx.fillText(L.exSrc, x + w - 14, y + h - 14); ctx.textAlign = 'left';
   });
   // a text card (the pen underlines its title and adds a star)
   card(1250, 165, 280, 120, (x, y, w) => {
-    ctx.fillStyle = UI.ink; ctx.font = F(700, zh ? 25 : 21); wrap(ctx, L.concept, x + 20, y + 68, w - 40, 28, zh);
+    ctx.fillStyle = UI.ink; ctx.font = F(700, zh ? 25 : 21); wrapText(ctx, L.concept, x + 20, y + 68, w - 40, 28, zh);
     ctx.fillStyle = UI.ink2; ctx.font = F(400, 14); ctx.fillText(L.conceptD, x + 20, y + 104);
   });
   // media card: the lecture's frame with its time, title, and 听读
