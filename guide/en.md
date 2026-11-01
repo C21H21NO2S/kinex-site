@@ -43,7 +43,7 @@ The diagrams are written in Mermaid: Typora, Obsidian, GitHub and VS Code show t
 19. [FAQ](#faq)
 <!-- /md-only -->
 
-KineX's interface is in Chinese for now. Where it helps you find a button, this guide gives its Chinese label in brackets, for example *Add to board* (添加到白板).
+The screenshots and videos use KineX with English selected and English demo materials. Button and menu names in this guide are the ones the English interface shows.
 
 ### I want to…
 
@@ -66,16 +66,19 @@ KineX's interface is in Chinese for now. Where it helps you find a button, this 
 
 For your first try, take a PDF or an e-book and go through these steps.
 
-1. **Create a theme.** On the home page, click *New* (新建) and give it a name you will recognise, such as “Photography basics”.
-2. **Import a material.** Open the theme, click “＋” in the materials panel → *Import material* (导入材料) and pick a file. On a computer you can also drag files into the panel.
+1. **Create a theme.** On the home page, click *New* and give it a name you will recognise, such as “Photography basics”.
+2. **Import a material.** Open the theme, click “＋” in the materials panel → *Import materials* and pick a file. On a computer you can also drag files into the panel.
 3. **Start reading.** Open what you imported: the reader shows the text, the board holds your notes.
-4. **Excerpt one key point.** Mark a passage with the highlighter, click the highlight and choose *Add to board* (添加到白板).
+4. **Excerpt one key point.** Mark a passage with the highlighter, click the highlight and choose *Add to whiteboard*.
 5. **Write your own take.** Add a text card on the board with a summary, a question or an example.
 6. **Go back to the source.** Use the excerpt card's source link and check that it takes you back to the same spot.
 
 You now have a study note with its source attached. Bring in flashcards, read-aloud and sync when you need them.
 
-<video controls preload="none" playsinline poster="assets/v01-first-excerpt.jpg" src="assets/v01-first-excerpt.mp4"></video>
+<video controls preload="none" playsinline poster="assets/en/v01-first-excerpt.webp">
+  <source src="assets/en/v01-first-excerpt-av1.mp4" type='video/mp4; codecs="av01.0.08M.08"'>
+  <source src="assets/en/v01-first-excerpt-h264.mp4" type="video/mp4">
+</video>
 
 *A new theme → import a PDF → highlight a sentence → add it to the board → back to the text through the card’s source.*
 
@@ -109,7 +112,7 @@ flowchart TD
 
 ### The home page
 
-*Overview* (概览) picks up where you left off, shows today's study and your bookshelf; *Library* (仓库) is where you manage themes. You can put themes into folders, favourite them, or mark them *Want to read / Reading / Finished*.
+*Overview* picks up where you left off, shows today's study and your bookshelf; *Repository* is where you manage themes. You can put themes into folders, favourite them, or mark them *Read soon / Reading / Finished*.
 
 On a computer, click a theme to select it and double-click to open it; on a touch screen, tap to open. More actions are in the right-click or long-press menu.
 
@@ -131,7 +134,7 @@ On a computer, one key switches the layout:
 | Switch to the other side | Alt+Q | — |
 | Left-right / top-bottom; swap sides | Alt+\; Alt+Shift+\ | — |
 
-With the board at 100%, clicking an excerpt's source switches straight to the reader at 100% and finds the place; a *Back to board* (返回白板) button appears at the bottom. The other way round, jumping to a board card from search, favourites or flashcards brings up *Back to reading* (返回阅读). When you excerpt with the reader at 100%, a note at the bottom says the excerpt is on the board, with a link to look at it.
+With the board at 100%, clicking an excerpt's source switches straight to the reader at 100% and finds the place; a *Back to whiteboard* button appears at the bottom. The other way round, jumping to a board card from search, favourites or flashcards brings up *Back to reading*. When you excerpt with the reader at 100%, a note at the bottom says the excerpt is on the board, with a link to look at it.
 
 ### The workspace on a phone
 
@@ -139,22 +142,25 @@ On a phone a theme opens with the reader at 100%; the board is a second full pag
 
 - **Switch between reading and board:** swipe left or right on the narrow bar at the top.
 - **More theme actions:** tap or pull down the top bar. Its *Layout* offers Reader / Stacked / Board; the row below has Home, Recording, Favourites and More.
-- **Reading bar:** tap the middle of the page for Contents · Materials · Progress · Layout · Read aloud · Board. Drag *Progress* to jump; the bar hides after you pick an item, tap the page or wait three seconds.
+- **Reading bar:** tap the middle of the page for Contents · Material · Progress · Layout · Listen · Board. Drag *Progress* to jump; the bar hides after you pick an item, tap the page or wait three seconds.
 - **Back to the home page:** swipe right from the left edge of the screen.
 
-![The home page: continue reading, today’s study and the bookshelf. A theme’s cover fans out its materials’ covers.](assets/p01-home.webp)
+![The home page: continue reading, today’s study and the bookshelf. A theme’s cover fans out its materials’ covers.](assets/en/p01-home.webp)
 
 *The home page: continue reading, today’s study and the bookshelf. A theme’s cover fans out its materials’ covers.*
 
-![A theme workspace: the materials panel and the reader on the left, the board on the right.](assets/p02-workspace.webp)
+![A theme workspace: the materials panel and the reader on the left, the board on the right.](assets/en/p02-workspace.webp)
 
 *A theme workspace: the materials panel and the reader on the left, the board on the right.*
 
-![On a phone: the home tab bar (left) and the reading bar that appears when you tap the middle of the page (right).](assets/p13-phone.webp)
+![On a phone: the home tab bar (left) and the reading bar that appears when you tap the middle of the page (right).](assets/en/p13-phone.webp)
 
 *On a phone: the home tab bar (left) and the reading bar that appears when you tap the middle of the page (right).*
 
-<video class="phone" controls preload="none" playsinline poster="assets/v05-phone.jpg" src="assets/v05-phone.mp4"></video>
+<video class="phone" controls preload="none" playsinline poster="assets/en/v05-phone.webp">
+  <source src="assets/en/v05-phone-av1.mp4" type='video/mp4; codecs="av01.0.04M.08"'>
+  <source src="assets/en/v05-phone-h264.mp4" type="video/mp4">
+</video>
 
 *On a phone: open a theme → swipe the top bar to the board → swipe back → tap the middle of the page for the reading bar.*
 
@@ -179,10 +185,10 @@ Click “＋” in a theme's materials panel and choose by source:
 
 | Entry | Good for |
 |---|---|
-| Import material (导入材料) | PDF, EPUB, MOBI, AZW3, FB2, TXT, HTML, Markdown, and local audio and video |
-| Add web page (添加网页) | Extracts the text of a public article and keeps it as a readable material |
-| Import Markdown folder (导入 Markdown 文件夹) | Markdown with its folder structure and attachments |
-| Add media source (添加音视频来源) | Local files, media URLs, or audio and video on OpenList |
+| Import materials | PDF, EPUB, MOBI, AZW3, FB2, TXT, HTML, Markdown, and local audio and video |
+| Add web page | Extracts the text of a public article and keeps it as a readable material |
+| Import Markdown folder | Markdown with its folder structure and attachments |
+| Add media source | Local files, media URLs, or audio and video on OpenList |
 
 Web extraction may not work for pages that need a login or load their content dynamically. Save such a page as a web file or a Markdown bundle first, then import it.
 
@@ -194,8 +200,8 @@ When you add local audio or video, KineX asks how to keep it.
 
 | Option | What happens to the file | When to use it |
 |---|---|---|
-| Link to the original (引用原文件) | Only its location is recorded; the file is not copied into the library | Large files you mostly use on this device |
-| Import into the library (导入数据库) | The file becomes part of the library and goes with its backups and sync | You want to play it on other devices directly |
+| Reference original file | Only its location is recorded; the file is not copied into the library | Large files you mostly use on this device |
+| Import into database | The file becomes part of the library and goes with its backups and sync | You want to play it on other devices directly |
 
 ```mermaid
 flowchart TD
@@ -213,7 +219,7 @@ Material folders suit chapters, courses or sources; tags cut across folders, for
 
 KineX keeps one tag tree for the whole library. Add or edit tags from a material's menu, or arrange them in tag management. The tag entry on the home page finds everything with a tag.
 
-![The materials panel’s “＋” menu.](assets/p03-add-menu.webp)
+![The materials panel’s “＋” menu.](assets/en/p03-add-menu.webp)
 
 *The materials panel’s “＋” menu.*
 
@@ -231,9 +237,9 @@ KineX reopens a material where you left it. To compare materials, split the read
 
 The reader's settings change paper colour, margins and layout. For e-books, TXT, Markdown and other text, you can also set font size, letter spacing, line spacing and paragraph spacing.
 
-Type settings such as font size apply to the current material only and are saved on this device. To get the book's own layout back, use *Follow the book* (跟随书籍) or the matching reset button.
+Type settings such as font size apply to the current material only and are saved on this device. To get the book's own layout back, use *Follow book* or the matching reset button.
 
-Choose the reading font in *Settings → Appearance → Reading font* (设置 → 外观 → 阅读字体). Scanned PDF pages are images: a different font does not make them selectable text.
+Choose the reading font in *Settings → Appearance → Reading fonts*. Scanned PDF pages are images: a different font does not make them selectable text.
 
 ### Highlights, handwriting and snapshots
 
@@ -254,21 +260,21 @@ You can write on PDFs; EPUB, TXT, Markdown and other text materials are mainly f
 ### Put key points on the board
 
 1. Click a highlight or snapshot you have made.
-2. Choose *Add to board* (添加到白板).
+2. Choose *Add to whiteboard*.
 3. Arrange the new excerpt card on the board and add your own notes.
 4. When you need the context, use the card's source link to go back to the text.
 
-*Auto-excerpt* (自动摘录) on the reader toolbar sends suitable selections straight to the board, which suits excerpting one passage after another. Turn it off when you only want to select text, look up a word or make a card.
+*Auto-excerpt* on the reader toolbar sends suitable selections straight to the board, which suits excerpting one passage after another. Turn it off when you only want to select text, look up a word or make a card.
 
 Excerpt cards keep their source. If the material has been deleted, replaced, or not yet synced to this device, KineX may not find the spot until the source is back.
 
 ### Working through your notes
 
-If you prefer to read first and sort out later, open the *Notes* (笔记) page of the materials panel. It lists the current material's highlights and comments.
+If you prefer to read first and sort out later, open the *Notes* page of the materials panel. It lists the current material's highlights and comments.
 
 - **Not excerpted:** by default, only what is not on the board yet.
 - **All:** also lists what is already on the board, marked as such.
-- Click the text to go back to its place; *To board* (摘到白板) puts it on the board; *Delete* (删除) removes the mark after a confirmation, and you can undo it in the reader.
+- Click the text to go back to its place; *Excerpt to whiteboard* puts it on the board; *Delete* removes the mark after a confirmation, and you can undo it in the reader.
 
 ```mermaid
 flowchart LR
@@ -278,11 +284,11 @@ flowchart LR
     B -->|Need the context| E["Click the text<br/>to go back to it"]
 ```
 
-![The menu of a highlight: style, colour, and add to board, make a Topic, comment and delete.](assets/p04-highlight-menu.webp)
+![The menu of a highlight: style, colour, and add to board, make a Topic, comment and delete.](assets/en/p04-highlight-menu.webp)
 
 *The menu of a highlight: style, colour, and add to board, make a Topic, comment and delete.*
 
-![Materials › Notes: a highlight not yet on the board.](assets/p14-notes.webp)
+![Materials › Notes: a highlight not yet on the board.](assets/en/p14-notes.webp)
 
 *Materials › Notes: a highlight not yet on the board.*
 
@@ -295,11 +301,11 @@ flowchart LR
 | Tool | Use | Key |
 |---|---|---|
 | Move | Move the canvas around | V |
-| Text box | New text card for a summary, a question or an example | T |
+| Text Box | New text card for a summary, a question or an example | T |
 | Pen | Write or draw | B |
 | Marker | Semi-transparent strokes for emphasis | H |
 | Eraser | Erase whole strokes, or parts of strokes within an area | E |
-| Selection | Select cards, images or ink to arrange them together | M |
+| Smart Select | Select cards, images or ink to arrange them together | M |
 
 Double-click a text card to edit it. Cards support common text styles, lists, code and formulas; type `/` at the start of a line for the insert menu. While editing a formula you type its source; when you finish, it is typeset.
 
@@ -311,7 +317,7 @@ Double-click a text card to edit it. Cards support common text styles, lists, co
 - With something selected you can move, copy, group, align or auto-arrange it; check the selection before deleting.
 - Shift+1 toggles between the whole board and your set zoom; Shift+2 zooms to the selection; Alt+↑ returns to the parent board.
 
-On touch screens the default is *Two-finger move* (双指移动): two fingers pan the canvas, one finger on empty space draws a selection box. If you prefer moving the canvas with one finger, switch to *One-finger move* (单指移动) in the board's Move tool options or in *Settings → Touch gestures*.
+On touch screens the default is *Pan with two fingers*: two fingers pan the canvas, one finger on empty space draws a selection box. If you prefer moving the canvas with one finger, switch to *Pan with one finger* in the board's Move tool options or in *Settings → Touch gestures*.
 
 Undo works on the current board. With several boards open, click the one you want to change first.
 
@@ -319,7 +325,7 @@ Undo works on the current board. With several boards open, click the one you wan
 
 A stylus works with pressure straight away. To draw with a mouse or finger, turn on the matching switch first; if the mouse only moves the canvas, check that switch.
 
-Pick the pen type, colour and width in the pen settings. Watercolour and crayon need a sheet of paper (画纸) to draw on; a sheet also keeps a piece of work together.
+Pick the pen type, colour and width in the pen settings. Watercolour and crayon need *Drawing paper* to draw on; a sheet also keeps a piece of work together.
 
 **Cards and sheets scale differently:** ink attached to a card follows the card; sheets and groups mainly resize their frame, and the text and ink inside do not scale with it.
 
@@ -331,19 +337,22 @@ The ends of a link take you from one card to the other. An excerpt card's source
 
 ### Several boards
 
-A theme can have several boards. Right-click or long-press empty space and choose *New sub-board* (新建子白板); the parent board gets an entry card: double-click it, or select it and press Enter, to go in.
+A theme can have several boards. Right-click or long-press empty space and choose *New child whiteboard*; the parent board gets an entry card: double-click it, or select it and press Enter, to go in.
 
-The board list switches and renames boards, and *Open beside* (在旁边打开) shows two side by side. Then you can drag content from one board to the other; hold Alt while dragging to copy instead.
+The board list switches and renames boards, and *Open beside* shows two side by side. Then you can drag content from one board to the other; hold Alt while dragging to copy instead.
 
-*Reference a board from another theme* (引用其他主题的白板) opens the original: edits are saved to that theme. To change a separate copy, copy the content instead.
+*Reference a whiteboard from another theme* opens the original: edits are saved to that theme. To change a separate copy, copy the content instead.
 
 On the desktop you can also detach a board into its own window, handy with two screens.
 
-![The selection bar after box-selecting cards.](assets/p05-board-selection.webp)
+![The selection bar after box-selecting cards.](assets/en/p05-board-selection.webp)
 
 *The selection bar after box-selecting cards.*
 
-<video controls preload="none" playsinline poster="assets/v02-board.jpg" src="assets/v02-board.mp4"></video>
+<video controls preload="none" playsinline poster="assets/en/v02-board.webp">
+  <source src="assets/en/v02-board-av1.mp4" type='video/mp4; codecs="av01.0.08M.08"'>
+  <source src="assets/en/v02-board-h264.mp4" type="video/mp4">
+</video>
 
 *A new card → three cards arranged in a column → a new sub-board → opened beside.*
 
@@ -359,17 +368,17 @@ KineX's flashcards are built on three methods with research behind them: **space
 
 What we learn fades over time (the “forgetting curve”). The same number of reviews **spread over days and weeks** keeps far more than the same reviews crammed into one day: this is the spacing effect. Each successful review makes the memory more stable, so the next one can wait longer.
 
-![FSRS memory model, illustrative: with on-time reviews retention is brought back each time it falls to 90%; after four grades the next review is on day 165; without reviews it keeps falling](assets/fsrs-forgetting-curve.svg)
+![FSRS memory model, illustrative: with on-time reviews retention is brought back each time it falls to 90%; after four grades the next review is on day 165; without reviews it keeps falling](assets/en/fsrs-forgetting-curve.webp)
 
 *Solid line: reviewed on time. Each time retention falls to about 90% you review the card, it goes back to 100% and then falls more slowly; four reviews on days 3, 8, 19 and 50, graded Hard, Good, Good and Easy, put the next review on day 165. Dashed line: never reviewed. Real intervals depend on your grades and the retention you set.*
 
-KineX schedules reviews with the open-source **FSRS** algorithm: from your grades it estimates how long you will remember each card and schedules it for around the day you would start to forget. So grade honestly: if you could not recall it, press *Again* (遗忘); a higher grade does not save you work later.
+KineX schedules reviews with the open-source **FSRS** algorithm: from your grades it estimates how long you will remember each card and schedules it for around the day you would start to forget. So grade honestly: if you could not recall it, press *Again*; a higher grade does not save you work later.
 
 #### The testing effect: recalling beats rereading
 
 **Pulling the answer out of your own memory** strengthens it, more than reading the answer again does: this is the testing effect, also called retrieval practice. Even a failed attempt helps, as long as you try before looking.
 
-Items in KineX are made for this: read the prompt, recall the answer yourself, then click *Show answer* (显示答案). Questions, cloze deletions and image occlusions are all forms of testing.
+Items in KineX are made for this: read the prompt, recall the answer yourself, then click *Show answer*. Questions, cloze deletions and image occlusions are all forms of testing.
 
 #### Incremental reading and writing: from SuperMemo
 
@@ -453,13 +462,13 @@ flowchart TD
 ### Making cards from what you read
 
 1. In the reader, switch to the **text** tool and select some text.
-2. Next to the selection, choose *Make Topic* (制作 Topic) or *Make Item* (制作 Item); or press Alt+X / Alt+Z.
+2. Next to the selection, choose *Create Topic* or *Create Item*; or press Alt+X / Alt+Z.
 3. Check the content and the source. For an Item, set the answer to recall or the area to hide.
 4. Save it; you will find it in flashcard management.
 
 Selecting text with the highlighter, the pen and similar tools does not offer cards. For an existing highlight or snapshot, click it and make a Topic from its menu.
 
-To put a whole book or a whole video into incremental reading, choose *Add to incremental reading* (加入渐进阅读) in the material's menu. KineX then suggests the first date, or you can choose *Start reading now* (现在开始阅读).
+To put a whole book or a whole video into incremental reading, choose *Add to incremental reading* in the material's menu. KineX then suggests the first date, or you can choose *Read now*.
 
 A new card does not necessarily appear in today's queue. To see it now, open it from the management list or use the reading entry offered when you added it.
 
@@ -471,10 +480,10 @@ Incremental reading suits long material you cannot finish in one sitting and wan
 
 1. **Queue it.** Choose *Add to incremental reading* in the material's menu: the whole book or video becomes a Topic. You can queue several books at once.
 2. **Read a part at a time.** When the Topic is due, read on from where you stopped, as much as you like; there is no need to finish.
-3. **Pull out what matters.** Select an important passage in the Topic and use *Extract* (摘录) on the toolbar to make a smaller Topic; for something you understand and must remember, use *Card* (制卡) to make an Item directly.
-4. **Grade to set the next time.** After the part, choose *Reread / Want / Normal / Slow* (重读 / 想读 / 一般 / 缓读) to decide when it comes back.
+3. **Pull out what matters.** Select an important passage in the Topic and use *Excerpt* on the toolbar to make a smaller Topic; for something you understand and must remember, use *Create card* to make an Item directly.
+4. **Grade to set the next time.** After the part, choose *Reread / Read soon / Normal / Read later* to decide when it comes back.
 5. **Refine step by step.** Each time a small Topic comes back, trim it further until it fits in an Item or two.
-6. **Let go when it is done.** When everything is extracted or no longer needed, mark the Topic *Digested* (已消化; *Finished*, 学完了, for media). It stops coming back; its content and source stay.
+6. **Let go when it is done.** When everything is extracted or no longer needed, mark the Topic *Learned* (*Finished* for media). It stops coming back; its content and source stay.
 
 ```mermaid
 flowchart TD
@@ -489,7 +498,7 @@ flowchart TD
     H --> B
 ```
 
-**Priority** decides which cards come first on a given day. Change it with the button showing, for example, “优先 50” in the review area: 0–100, higher comes first. It only affects future scheduling, never your history. With a backlog, give important books a high priority and the rest a lower one. The review settings can also give more important cards a higher retention target.
+**Priority** decides which cards come first on a given day. Change it with the button showing, for example, “Priority 50” in the review area: 0–100, higher comes first. It only affects future scheduling, never your history. With a backlog, give important books a high priority and the rest a lower one. The review settings can also give more important cards a higher retention target.
 
 <a id="incremental-writing"></a>
 
@@ -497,9 +506,9 @@ flowchart TD
 
 For reading notes, a review or an essay, switch a text Topic to writing mode and add a little each time it comes up.
 
-1. While reviewing a text Topic, click *Write* (写作) above the card. It becomes a writing Topic and comes back at shorter intervals than a reading Topic.
-2. Mark your progress with the stage menu: Draft → Revise → Final (草稿 → 修改 → 定稿).
-3. Bring related loose Topics in with *Merge…* (合并…): their text is appended under their titles, the merged Topics are marked Digested, and Items extracted from them keep their original source.
+1. While reviewing a text Topic, click *Writing* above the card. It becomes a writing Topic and comes back at shorter intervals than a reading Topic.
+2. Mark your progress with the stage menu: *Draft → Revise → Finalize*.
+3. Bring related loose Topics in with *Merge…*: their text is appended under their titles, the merged Topics are marked Learned, and Items extracted from them keep their original source.
 4. When you choose *Final*, either mark it Digested (no more reviews) or turn it back into a reading Topic (it comes back now and then at the “Slow” pace).
 
 ```mermaid
@@ -519,7 +528,7 @@ stateDiagram-v2
 
 ### Daily review
 
-Open *Flashcards* (闪卡) from the top bar. The home page may also show how many cards are due today.
+Open *Flashcards* from the top bar. The home page may also show how many cards are due today.
 
 ```mermaid
 flowchart LR
@@ -534,7 +543,7 @@ flowchart LR
     J -.->|when due| A
 ```
 
-- **Items:** recall first, then click *Show answer*. Grade honestly with *Again / Hard / Good / Easy* (遗忘 / 困难 / 一般 / 容易); under each button is roughly when you will see the card again, such as “in 10 minutes” or “in 3 days”, with the exact date in the button's tooltip.
+- **Items:** recall first, then click *Show answer*. Grade honestly with *Again / Hard / Good / Easy*; under each button is roughly when you will see the card again, such as “in 10 minutes” or “in 3 days”, with the exact date in the button's tooltip.
 - **Topics:** after reading, choose *Reread / Want / Normal / Slow* to decide when to continue.
 - **Not now:** skip it for this round, or postpone it.
 - **Wrong grade:** undo the last grade in the review area; on a touch screen, a two-finger tap also undoes it.
@@ -555,13 +564,16 @@ The defaults are a good start. If a backlog builds up, first lower the number of
 
 If a card keeps slipping, split it up or rewrite it. KineX's “needs rewriting” hint never deletes or excludes a card for you.
 
-![Top: a cloze Item made from selected text. Bottom: the four grades after showing the answer; the tree on the left holds an Item and a Topic.](assets/p06-item-editor.webp)
+![Top: a cloze Item made from selected text. Bottom: the four grades after showing the answer; the tree on the left holds an Item and a Topic.](assets/en/p06-item-editor.webp)
 
-![Top: a cloze Item made from selected text. Bottom: the four grades after showing the answer; the tree on the left holds an Item and a Topic.](assets/p06-review.webp)
+![Top: a cloze Item made from selected text. Bottom: the four grades after showing the answer; the tree on the left holds an Item and a Topic.](assets/en/p06-review.webp)
 
 *Top: a cloze Item made from selected text. Bottom: the four grades after showing the answer; the tree on the left holds an Item and a Topic.*
 
-<video controls preload="none" playsinline poster="assets/v03-make-item.jpg" src="assets/v03-make-item.mp4"></video>
+<video controls preload="none" playsinline poster="assets/en/v03-make-item.webp">
+  <source src="assets/en/v03-make-item-av1.mp4" type='video/mp4; codecs="av01.0.08M.08"'>
+  <source src="assets/en/v03-make-item-h264.mp4" type="video/mp4">
+</video>
 
 *Make an Item from a passage → set the answer and preview → review it early → show the answer → grade it.*
 
@@ -571,12 +583,12 @@ If a card keeps slipping, split it up or rewrite it. KineX's “needs rewriting�
 
 ### Adding local or online media
 
-Choose a source under the materials “＋” → *Add media source* (添加音视频来源), then open it like any other material.
+Choose a source under the materials “＋” → *Add media source*, then open it like any other material.
 
 With OpenList:
 
 1. Add a connection with its name, server address, and the account and password it needs.
-2. Click *Test and save* (测试并保存).
+2. Click *Test and save*.
 3. Browse the folders, tick files or folders, and add your selection.
 
 OpenList media keep their server address and file path, so playing them still needs access to that server. The connection details and any remembered password sync with the library, encrypted; each device keeps its own sign-in.
@@ -614,7 +626,7 @@ A clip Item needs subtitles in the range, or a supported way to hide part of the
 
 Frame annotations never change the video file. A–B ranges are kept on this device and do not sync with the theme.
 
-![The player: on-screen subtitles, the subtitle list grouped by chapter, an A–B range on the timeline, and the study row.](assets/p07-player.webp)
+![The player: on-screen subtitles, the subtitle list grouped by chapter, an A–B range on the timeline, and the study row.](assets/en/p07-player.webp)
 
 *The player: on-screen subtitles, the subtitle list grouped by chapter, an A–B range on the timeline, and the study row.*
 
@@ -622,7 +634,7 @@ Frame annotations never change the video file. A–B ranges are kept on this dev
 
 ## 8. Read-aloud and listening
 
-*Read aloud* (朗读) speaks text materials; *listen* (听读) plays a media material's own sound. Open audio or video and click *Listen* on the player; with subtitles you can step through and excerpt them sentence by sentence.
+*Read aloud* speaks text materials; *Listen* plays a media material's own sound. Open audio or video and click *Listen* on the player; with subtitles you can step through and excerpt them sentence by sentence.
 
 ### Starting read-aloud
 
@@ -637,9 +649,9 @@ A PDF needs extractable text: scanned pages without a text layer cannot be read 
 
 ### Choosing a voice
 
-Open *Settings → Read aloud* (设置 → 朗读), pick an engine and a voice, and click *Try*. By default KineX uses the device's system voices.
+Open *Settings → Read aloud*, pick an engine and a voice, and click *Preview*. By default KineX uses the device's system voices.
 
-KineX does not ship third-party speech engines or voice packs. For other voices, set up your own speech service and add it as a *read-aloud interface* (朗读接口).
+KineX does not ship third-party speech engines or voice packs. For other voices, set up your own speech service and add it under *Speech service*.
 
 ```mermaid
 flowchart TD
@@ -656,14 +668,14 @@ flowchart TD
 For a speech engine you have installed that offers a “forwarding service”.
 
 1. Install its voices as the engine describes and turn on its forwarding service.
-2. In KineX, *Settings → Read aloud*, find *Local forwarding service* (本机转发服务) and click *Add as interface* (加为朗读接口).
-3. If it is not found, click *Add interface…* (添加朗读接口…) and type the address the engine shows, such as `http://127.0.0.1:8774`. Use the port set in the engine.
+2. In KineX, *Settings → Read aloud*, find *Local relay service* and click *Add as speech endpoint*.
+3. If it is not found, click *Add speech service…* and type the address the engine shows, such as `http://127.0.0.1:8774`. Use the port set in the engine.
 4. Select it under the read-aloud engines and try it.
 
 ### Using your phone's voice on your computer
 
 1. Connect the phone and the computer to the same Wi-Fi, with the phone's forwarding service on.
-2. On the computer, open *Settings → Read aloud* and click *Find on local network* (在局域网里找).
+2. On the computer, open *Settings → Read aloud* and click *Find on local network*.
 3. If nothing is found, type the local address the phone shows, such as `http://192.168.1.23:8774`.
 4. Select that interface and try it.
 
@@ -673,26 +685,29 @@ An interface receives the text it reads, so only use addresses you trust. Using 
 
 ### Pronunciation dictionary and cache
 
-- **Pronunciation dictionary:** in *Settings → Read aloud → What to read* (朗读内容), set how names, words with several readings or terms are spoken. It changes the reading only, never the text, and its entries sync with the library.
+- **Pronunciation dictionary:** in *Settings → Read aloud → Read-aloud content*, set how names, words with several readings or terms are spoken. It changes the reading only, never the text, and its entries sync with the library.
 - **Read-aloud cache:** sound made by an interface is kept on this device and reused when you listen again. Manage its size or clear it in the read-aloud settings; the cache is not backed up or synced, and system voices do not use it.
 
 ### Mini window and lock screen
 
-The desktop app can pop the playback bar out into a *mini window* (弹出小窗), so you can listen while doing something else. The Android app plays in the background with lock-screen controls; whether it shows its own lock-screen page is a setting.
+The desktop app can pop the playback bar out into its own window (*Pop out window*), so you can listen while doing something else. The Android app plays in the background with lock-screen controls; whether it shows its own lock-screen page is a setting.
 
 In a browser, read-aloud is subject to the browser's background rules, so it may stop when the screen locks.
 
 If KineX and the forwarding engine run on the same Samsung device and pauses appear between sentences with the screen off, try turning off the engine's “prevent sleep” option. This may not apply when the phone only provides the voice for a computer.
 
-![Top: the sentence being read is underlined, with the playback bar at the bottom. Bottom: Settings › Read aloud.](assets/p08-read-aloud.webp)
+![Top: the sentence being read is underlined, with the playback bar at the bottom. Bottom: Settings › Read aloud.](assets/en/p08-read-aloud.webp)
 
-![Top: the sentence being read is underlined, with the playback bar at the bottom. Bottom: Settings › Read aloud.](assets/p08-settings.webp)
+![Top: the sentence being read is underlined, with the playback bar at the bottom. Bottom: Settings › Read aloud.](assets/en/p08-settings.webp)
 
 *Top: the sentence being read is underlined, with the playback bar at the bottom. Bottom: Settings › Read aloud.*
 
-<video controls preload="none" playsinline poster="assets/v04-read-aloud.jpg" src="assets/v04-read-aloud.mp4"></video>
+<video controls preload="none" playsinline poster="assets/en/v04-read-aloud.webp">
+  <source src="assets/en/v04-read-aloud-av1.mp4" type='video/mp4; codecs="av01.0.08M.08"'>
+  <source src="assets/en/v04-read-aloud-h264.mp4" type="video/mp4">
+</video>
 
-*Reading a PDF aloud with the voice engine on a tablet → next sentence → excerpt it to the board.*
+*Reading a PDF aloud with Ryan (UK English) through a read-aloud interface → next sentence → excerpt it to the board.*
 
 <a id="recording"></a>
 
@@ -705,7 +720,7 @@ The recording entry is in the theme workspace's top bar or under “⋯”. Kine
 3. Add a bookmark at important moments, or select something and link it to the current time by hand.
 4. Stop recording and wait for it to finish saving.
 
-While recording, supported note actions are linked to the recording time automatically. Select such a note and use *Play linked recording* (播放关联录音) to hear it from just before you wrote it. Links you added by hand are listed in the recording's links.
+While recording, supported note actions are linked to the recording time automatically. Select such a note and use *Play linked recording* to hear it from just before you wrote it. Links you added by hand are listed in the recording's links.
 
 ```mermaid
 sequenceDiagram
@@ -723,7 +738,7 @@ sequenceDiagram
 
 Closing the recording window does not stop the recording. In a browser, recording pauses when the page goes to the background, and you resume it by hand when you come back; check how your platform behaves before a long recording.
 
-![Recording: add bookmarks, or link the selected note to this moment.](assets/p09-recording.webp)
+![Recording: add bookmarks, or link the selected note to this moment.](assets/en/p09-recording.webp)
 
 *Recording: add bookmarks, or link the selected note to this moment.*
 
@@ -736,11 +751,11 @@ Closing the recording window does not stop the recording. In a browser, recordin
 | Where | How |
 |---|---|
 | The current material or board | Click it, then press Ctrl+F |
-| The whole library | Ctrl+Shift+F, or “⋯” → *Global search* (全局搜索) in the top bar |
+| The whole library | Ctrl+Shift+F, or “⋯” → *Global search* in the top bar |
 
 Start with plain keywords and narrow the scope as needed. Search understands quoted phrases, several words that must all match, excluded words and similar.
 
-Full-text search needs its index; see progress in *Settings → Search index* (设置 → 搜索索引). If nothing turns up, check the scope and the index progress. Search does not run text recognition on scanned pages or transcribe audio and video.
+Full-text search needs its index; see progress in *Settings → Search index*. If nothing turns up, check the scope and the index progress. Search does not run text recognition on scanned pages or transcribe audio and video.
 
 ### Two kinds of favourite
 
@@ -749,15 +764,15 @@ Full-text search needs its index; see progress in *Settings → Search index* (�
 
 Global favourites can be filtered by source, type, category and rating. If a favourite is missing, clear the filters you do not need.
 
-![Global search for “复习” (review): results in cards, annotations and material text.](assets/p10-search.webp)
+![Global search for “review”: results in cards, annotations and material text.](assets/en/p10-search.webp)
 
-*Global search for “复习” (review): results in cards, annotations and material text.*
+*Global search for “review”: results in cards, annotations and material text.*
 
 <a id="learning"></a>
 
 ## 11. Study statistics and points
 
-Open *Study statistics* (学习统计) from *Today's study* on the home page or from the top bar to see your reading, organising and review time. Each has its colour: reading follows the current colour scheme, organising is teal, review is amber.
+Open *Study statistics* from *Today's study* on the home page or from the top bar to see your reading, organising and review time. Each has its colour: reading follows the current colour scheme, organising is teal, review is amber.
 
 The calendar shows each day's time and when you studied; the charts show your recent habits. A daily time goal or a weekly books-finished goal helps set a rhythm.
 
@@ -784,7 +799,7 @@ flowchart LR
 
 With the library synced, study records add up across your devices.
 
-![Study statistics: calendar, the day’s timeline and progress.](assets/p15-stats.webp)
+![Study statistics: calendar, the day’s timeline and progress.](assets/en/p15-stats.webp)
 
 *Study statistics: calendar, the day’s timeline and progress.*
 
@@ -796,7 +811,7 @@ With the library synced, study records add up across your devices.
 
 Everything you do is saved on this device automatically. Cloud sync is set up separately.
 
-On desktops that support a library folder, choose a local folder when asked the first time, or later in *Settings → Data* (设置 → 数据). Materials are filed by theme, easy to find in your file manager.
+On desktops that support a library folder, choose a local folder when asked the first time, or later in *Settings → Data*. Materials are filed by theme, easy to find in your file manager.
 
 - `Themes/`: materials and readable copies of notes, by theme.
 - `Flashcards/`: readable copies of flashcards.
@@ -810,11 +825,11 @@ On the desktop you can create, open and switch between several libraries; each k
 
 ### Choosing how to sync
 
-Sync is set up in *Settings → Sync* (设置 → 同步). KineX has no public cloud: your data lives on your own server or storage, encrypted with your sync key before it is uploaded, so the server cannot read it.
+Sync is set up in *Settings → Sync*. KineX has no public cloud: your data lives on your own server or storage, encrypted with your sync key before it is uploaded, so the server cannot read it.
 
 | Type | When it fits | How fast changes reach another device |
 |---|---|---|
-| KineX Sync, real time (KineX 同步服务) | You have a NAS or a server and can run a Docker container | Almost immediately while the other device is online |
+| KineX sync service (real-time) | You have a NAS or a server and can run a Docker container | Almost immediately while the other device is online |
 | S3 (MinIO, R2, OSS…) | You already have object storage | With automatic sync, usually tens of seconds or more |
 | WebDAV | You already have a WebDAV drive or a NAS folder | Same as S3 |
 
@@ -842,20 +857,20 @@ S3 and WebDAV accept `http://` only for local-network or local addresses; use `h
 
 1. Open *Settings → Sync* and choose a type.
 2. Fill in the connection:
-   - S3 / WebDAV: the address and credentials from your storage provider, then *Save and test* (保存并测试);
-   - KineX Sync: server address, account, password and a name for this device, then *Sign in and test* (登录并测试).
-3. Choose *This is the first device: generate a key* (这是第一台设备：生成密钥).
-4. Keep the sync key somewhere outside KineX, such as a password manager, tick *I have saved this key* (我已保存这行密钥), then start syncing.
+   - S3 / WebDAV: the address and credentials from your storage provider, then *Save and test*;
+   - KineX Sync: server address, account, password and a name for this device, then *Sign in and test*.
+3. Choose *First device: generate a key*.
+4. Keep the sync key somewhere outside KineX, such as a password manager, tick *I have saved this key*, then start syncing.
 5. Wait for the first upload to finish and check the sync status.
 
-The sync key unlocks your cloud data; it is not the password of your storage or sync account. You need it to add devices, and without it a new device cannot open the existing cloud data. To see it again later, use *Show key (to add devices)* (显示密钥).
+The sync key unlocks your cloud data; it is not the password of your storage or sync account. You need it to add devices, and without it a new device cannot open the existing cloud data. To see it again later, use *Show key (add other devices)*.
 
 ### Other devices: joining the library
 
 1. Use an empty library; if the device already has its own data, back it up and sort it out separately first.
 2. Fill in the same sync target as on the first device and test the connection.
-3. Choose *I have a key: join the library* (已有密钥：加入资料库) and paste the same key.
-4. Click *Join and download* (加入并下载), and wait for it to finish or reopen KineX when asked.
+3. Choose *Already have a key: join library* and paste the same key.
+4. Click *Join and download*, and wait for it to finish or reopen KineX when asked.
 
 ```mermaid
 flowchart LR
@@ -879,7 +894,7 @@ Each device has its own connection and sync key setting. Do not generate a new k
 
 ### Everyday sync
 
-The *Library sync* window (资料库同步) syncs now and shows problems; connection, key and advanced actions are in Settings.
+The *Library sync* window syncs now and shows problems; connection, key and advanced actions are in Settings.
 
 | Sync mode | When it syncs | Available with |
 |---|---|---|
@@ -900,7 +915,7 @@ Device settings such as window positions, split layouts, file access permissions
 
 ### When there is a conflict
 
-Different changes from two devices are merged where possible. When the same thing was changed in ways that cannot be reconciled, the sync centre shows *Needs your decision* (需要你决定).
+Different changes from two devices are merged where possible. When the same thing was changed in ways that cannot be reconciled, the sync centre shows *Decisions needed*.
 
 ```mermaid
 flowchart TD
@@ -920,11 +935,11 @@ With KineX Sync, changes from devices that are both online are put in order in r
 
 For everyday use, just sync. *Replace this device with the cloud* and *Replace the cloud with this device* change which copy wins; use them only when you know exactly why.
 
-![The library sync window: with no cloud storage yet, click 去设置 (Set up).](assets/p11-sync-center.webp)
+![The library sync window: with no cloud storage yet, click *Open settings*.](assets/en/p11-sync-center.webp)
 
-*The library sync window: with no cloud storage yet, click 去设置 (Set up).*
+*The library sync window: with no cloud storage yet, click *Open settings*.*
 
-![Settings › Sync with the type KineX Sync (real time); the address is an example.](assets/p16-sync-settings.webp)
+![Settings › Sync with the type KineX Sync (real time); the address is an example.](assets/en/p16-sync-settings.webp)
 
 *Settings › Sync with the type KineX Sync (real time); the address is an example.*
 
@@ -1000,7 +1015,7 @@ The admin panel is in English.
 
 ### Connecting from KineX
 
-1. Open *Settings → Sync* and choose the type *KineX Sync (real time)* (KineX 同步服务（实时）).
+1. Open *Settings → Sync* and choose the type *KineX sync service (real-time)*.
 2. Fill in the server address (such as `http://192.168.1.2:8710` or your `https://` domain), account, password and a name for this device.
 3. Click *Sign in and test*. The password is used for this sign-in only; the device keeps a sign-in token.
 4. On the first device choose *This is the first device: generate a key*; on the others, *I have a key: join the library* and paste the same key. Then continue as in [chapter 12](#sync).
@@ -1043,11 +1058,14 @@ A server backup does not replace KineX's own export: it holds encrypted data tha
 - With real-time sync, *Replace this device with the cloud* is not available yet, and the actions to disable, clear or reclaim cloud space are not shown.
 - There is no guided switch from S3 / WebDAV to KineX Sync yet. Before switching, let every device finish syncing the old way and keep a full backup; then change the type in Settings, generate a key on the first device and join the others with it.
 
-![The kinex-sync admin panel’s users list (e-mail and ids masked).](assets/p17-admin.webp)
+![The kinex-sync admin panel’s users list (e-mail and ids masked).](assets/en/p17-admin.webp)
 
 *The kinex-sync admin panel’s users list (e-mail and ids masked).*
 
-<video controls preload="none" playsinline poster="assets/v06-realtime-sync.jpg" src="assets/v06-realtime-sync.mp4"></video>
+<video controls preload="none" playsinline poster="assets/en/v06-realtime-sync.webp">
+  <source src="assets/en/v06-realtime-sync-av1.mp4" type='video/mp4; codecs="av01.0.08M.08"'>
+  <source src="assets/en/v06-realtime-sync-h264.mp4" type="video/mp4">
+</video>
 
 *Two devices on the same KineX Sync: a card written on A appears on B right away.*
 
@@ -1081,32 +1099,32 @@ Sync spreads changes and deletions too, so keep separate backups. Markdown, PDF 
 
 Use the export entry in the board's top-right menu and choose the range and format.
 
-For PDF or paged images, *Avoid cutting* (避开切断) moves whole cards and groups to the next page where it can; *Along print lines* (沿印刷线) cuts the layout as it is, so the pages can be put together. Check the preview before exporting.
+For PDF or paged images, *Avoid cuts* moves whole cards and groups to the next page where it can; *Follow print lines* cuts the layout as it is, so the pages can be put together. Check the preview before exporting.
 
 ### Backing up a whole theme
 
-Export a theme from its menu on the home page, or with *Export data* (导出数据) in the theme's *Settings → Data → Local data and export* (本地数据与导出), and keep the `.kinex` file somewhere separate.
+Right-click the theme on the home page, choose *Export theme*, and keep the `.kinex` file somewhere separate.
 
 Keep the exported file and refresh it regularly; do not rely on a single copy on the same disk.
 
 ### Importing or merging
 
-After choosing a file in *Local data and export*, check the preview first: source theme, export time, data size and warnings.
+To bring a `.kinex` file back as a new theme, use *Settings → Data → Import reading theme*. To apply one to an existing theme, right-click that theme on the home page. Check the preview first: source theme, export time, data size and warnings.
 
-- **Import data:** replaces the current theme with the package's data.
-- **Merge data:** merges the package's content into the current theme.
+- **Replace from package…:** replaces the theme with the package's data.
+- **Merge package…:** merges the package's content into the theme.
 
-Make sure the right theme is open before you confirm. Before replacing or merging, KineX keeps a protective copy on this device under *Backups before restore* (恢复前备份); these copies do not sync to other devices.
+Make sure the right theme is open before you confirm. Before replacing or merging, KineX keeps a protective copy on this device under *Pre-restore backup*; these copies do not sync to other devices.
 
 ### Data history
 
-To bring the library back to an earlier state, look through the versions in *Data history* (数据历史) and restore one after confirming what it covers. Save anything important first.
+To bring the library back to an earlier state, look through the versions in *Data history* and restore one after confirming what it covers. Save anything important first.
 
 Data history keeps versions in tiers: recent ones close together, older ones further apart. Each version shows its time, source, full size, and the space it adds and would free; more is under *Technical details*. On a phone, versions are listed first; tap one for its details and *Back* at the top left returns to the list.
 
-![Top: data history. Bottom: Settings › Data.](assets/p12-data-history.webp)
+![Top: data history. Bottom: Settings › Data.](assets/en/p12-data-history.webp)
 
-![Top: data history. Bottom: Settings › Data.](assets/p12-settings-data.webp)
+![Top: data history. Bottom: Settings › Data.](assets/en/p12-settings-data.webp)
 
 *Top: data history. Bottom: Settings › Data.*
 
@@ -1116,15 +1134,15 @@ Data history keeps versions in tiers: recent ones close together, older ones fur
 
 Your KineX account confirms that this device can use every feature, redeems activation codes and lets you send feedback. It **does not hold your notes**: those stay on your devices and in the sync storage you set up.
 
-The account is in *Settings → Account* (设置 → 账号); builds without the account service do not show this page.
+The account is in *Settings → Account*; builds without the account service do not show this page.
 
 ### Signing in
 
 KineX signs you in with your e-mail, no password.
 
-1. Open *Settings → Account*, type your e-mail and click *Get code* (获取验证码). The button briefly says it is sending while KineX completes a quick security check in the background, usually in under a second.
+1. Open *Settings → Account*, type your e-mail and click *Get verification code*. The button briefly says it is sending while KineX completes a quick security check in the background, usually in under a second.
 2. Type the 6-digit code from the e-mail.
-3. The first time you use an e-mail, accept the Terms of Service and Privacy Policy, and that your account details (e-mail, devices) are stored on servers outside mainland China, then click *Agree and sign in* (同意并登录).
+3. The first time you use an e-mail, accept the Terms of Service and Privacy Policy, and that your account details (e-mail, devices) are stored on servers outside mainland China, then click *Agree and sign in*.
 4. If the account already has five devices, the page lists them: sign one out, then sign in on this device.
 
 If you mistype the code, the page says how many tries are left; an expired code is simply requested again. After too many attempts, wait an hour.
@@ -1136,7 +1154,7 @@ If you mistype the code, the page says how many tries are left; an expired code 
 | E-mail | Partly masked |
 | Status | Such as “All features · until <date>”, “All features · permanent” or “All features · beta until <date>”; with nothing active yet, “Account not activated yet” |
 | Devices (n/5) | Up to five devices per account. Sign out other devices here; the page shows how many more you can sign out this year |
-| Activation code | Type it and click *Redeem* (兑换) |
+| Activation code | Type it and click *Redeem* |
 | At the bottom | Sign out · Export account data · Delete account |
 
 ### Redeeming an activation code
@@ -1195,11 +1213,14 @@ The exact list follows the app and the arrangements announced for the full relea
 - **Export account data:** downloads the account's records, including devices and feedback.
 - **Delete account:** confirmed with an e-mail code. The account and its device records are deleted and any redeemed codes stop working; this cannot be undone. Data on your devices is not affected. Public suggestions you posted stay, without your name.
 
-![Settings › Account after redeeming an activation code.](assets/p18-account.webp)
+![Settings › Account after redeeming an activation code.](assets/en/p18-account.webp)
 
 *Settings › Account after redeeming an activation code.*
 
-<video controls preload="none" playsinline poster="assets/v07-account.jpg" src="assets/v07-account.mp4"></video>
+<video controls preload="none" playsinline poster="assets/en/v07-account.webp">
+  <source src="assets/en/v07-account-av1.mp4" type='video/mp4; codecs="av01.0.08M.08"'>
+  <source src="assets/en/v07-account-h264.mp4" type="video/mp4">
+</video>
 
 *Sign in with an e-mail code → accept the terms → redeem a code → the status changes to all features.*
 
@@ -1211,14 +1232,14 @@ Tell the developer about a problem or a feature you want, in the app or on the w
 
 ### Feedback in the app
 
-Open *Settings → Feedback* (设置 → 反馈). Without signing in you can browse public suggestions; to post or vote, sign in to your KineX account.
+Open *Settings → Feedback*. Without signing in you can browse public suggestions; to post or vote, sign in to your KineX account.
 
 | Entry | Use |
 |---|---|
-| Report a problem (报告问题) | Give a title and what happened. *Attach version and device* is ticked by default; *Attach recent errors* can be checked with *View* before you decide. Only you and the developer can see problem reports |
-| Suggest (提建议) | Similar suggestions appear as you type the title; if yours is there, just vote. Your first suggestion asks for a nickname and how to show it: in full, first character only, or anonymous. Suggestions are public after review |
-| My feedback (我的反馈) | Your reports and suggestions, and how they are going |
-| Public suggestions (公开建议) | Browse by *Popular / New* and vote for what you want |
+| Report a problem | Give a title and what happened. *Attach version and device* is ticked by default; *Attach recent errors* can be checked with *View* before you decide. Only you and the developer can see problem reports |
+| Suggest a feature | Similar suggestions appear as you type the title; if yours is there, just vote. Your first suggestion asks for a nickname and how to show it: in full, first character only, or anonymous. Suggestions are public after review |
+| My feedback | Your reports and suggestions, and how they are going |
+| Public suggestions | Browse by *Popular / Newest* and vote for what you want |
 | Nickname and notifications | Change your nickname and how it shows; e-mail me when my feedback moves |
 | See the roadmap → | Opens the roadmap on the website |
 
@@ -1274,7 +1295,7 @@ Click *Updates* at the top of [kinexnote.com](https://kinexnote.com/updates/) fo
 |---|---|
 | Roadmap | A board with Planned, In progress and Done, filtered by area (reading, board, flashcards and study, sync, tablet, other); open a card to see the suggestions behind it |
 | Changelog | New features, improvements and fixes in each version, by year and version on the left; the latest version links to its download |
-| Suggestions | The same as the app's public suggestions; sign in on the website to suggest, report problems and vote |
+| Ideas | The same as the app's public suggestions; sign in on the website to suggest, report problems and vote |
 
 The website also signs you in with an e-mail code and keeps you signed in for 30 days. Done items stay on the roadmap for 90 days.
 
@@ -1287,11 +1308,11 @@ flowchart LR
     E --> F["In the changelog<br/>followers get an e-mail"]
 ```
 
-![Settings › Feedback (my feedback and public suggestions); matching suggestions while you type; the website’s roadmap (demo data).](assets/p19-feedback.webp)
+![Settings › Feedback (my feedback and public suggestions); matching suggestions while you type; the website’s roadmap (demo data).](assets/en/p19-feedback.webp)
 
-![Settings › Feedback (my feedback and public suggestions); matching suggestions while you type; the website’s roadmap (demo data).](assets/p19-suggest.webp)
+![Settings › Feedback (my feedback and public suggestions); matching suggestions while you type; the website’s roadmap (demo data).](assets/en/p19-suggest.webp)
 
-![Settings › Feedback (my feedback and public suggestions); matching suggestions while you type; the website’s roadmap (demo data).](assets/p19-roadmap.webp)
+![Settings › Feedback (my feedback and public suggestions); matching suggestions while you type; the website’s roadmap (demo data).](assets/en/p19-roadmap.webp)
 
 *Settings › Feedback (my feedback and public suggestions); matching suggestions while you type; the website’s roadmap (demo data).*
 
@@ -1303,21 +1324,21 @@ flowchart LR
 
 KineX checks for a new version shortly after it starts and then once a day, sending only the platform and version number.
 
-To check by hand, open *Settings → General* (设置 → 通用): the *Version* card at the top shows your version and the last check; click *Check for updates* (检查更新).
+To check by hand, open *Settings → General*: the *Version* card at the top shows your version and the last check; click *Check for updates*.
 
 When there is a new version:
 
 - a note in the bottom-right corner says once that it is ready, with what is new, *Update* and ×; it shows once per version;
 - “New version” appears next to the version number at the bottom left of Settings;
-- the version card shows “New x.x.x · date · title”; *What's new* (更新内容) lists the new features, improvements and fixes of every version in between.
+- the version card shows “New x.x.x · date · title”; *What's new* lists the new features, improvements and fixes of every version in between.
 
 ### Installing a new version
 
 | Platform | Steps |
 |---|---|
-| Desktop app | Click *Update now* (立即更新) → keep working while it downloads, or cancel → when it is ready, click *Restart and update* (重启并更新). Or leave it and it updates the next time you open KineX. It restarts by itself afterwards; your data is untouched |
-| Android app | Click *Download and install* (下载并安装) → *Install* when it is done. The first time, Android asks whether KineX may install apps: allow it, go back to KineX and click *Install* again |
-| Browser | Click *Download from the website* (去官网下载) |
+| Desktop app | Click *Update now* → keep working while it downloads, or cancel → when it is ready, click *Restart and update*. Or leave it and it updates the next time you open KineX. It restarts by itself afterwards; your data is untouched |
+| Android app | Click *Download and install* → *Install* when it is done. The first time, Android asks whether KineX may install apps: allow it, go back to KineX and click *Install* again |
+| Browser | Click *Download from website* |
 
 The first time you open the updated app, the bottom-right corner shows the new version and its main changes.
 
@@ -1327,7 +1348,7 @@ In-app installation on Android has not been tested on real devices yet.
 
 ### Notifications
 
-Background tasks, sync problems and official announcements all go into *Notifications* (通知).
+Background tasks, sync problems and official announcements all go into *Notifications*.
 
 - **Computer:** the notification bar sits in the window; drag it, fold it or open it.
 - **Phone:** notifications fold into a small bell at the top right, with a dot when something is unread.
@@ -1336,7 +1357,7 @@ Everyday status never interrupts you; only errors and things that need your deci
 
 **Announcements** come from KineX and show a title, the word “Announcement”, text and a link button. The link only ever goes to kinexnote.com. Click × and the announcement no longer shows on this device; it also disappears when it expires or is withdrawn.
 
-![Settings › General: the version card with a new version, and What’s new.](assets/p20-version.webp)
+![Settings › General: the version card with a new version, and What’s new.](assets/en/p20-version.webp)
 
 *Settings › General: the version card with a new version, and What’s new.*
 
@@ -1348,17 +1369,17 @@ Everyday status never interrupts you; only errors and things that need your deci
 
 | Where | What you can change |
 |---|---|
-| Settings → General (通用) | Version and updates, and general options |
-| Settings → Reading (阅读) | Dictionary, keep screen on, TXT chapter rules, web extraction rules |
-| Settings → Read aloud (朗读) | Engine, voice, speed, pronunciation dictionary and cache |
-| Settings → Appearance (外观) | Light or dark, colour scheme, reading font, theme cover style |
-| Settings → Shortcuts (快捷键) | See, change or reset each area's keys |
-| Settings → Pen (手写笔) | What the side button and the eraser end do in each area; wet-ink settings on Android |
-| Settings → Touch gestures (触控手势) | How the board moves, and what multi-finger gestures do in each area |
-| Settings → Search index (搜索索引) | Full-text index progress and maintenance |
-| Settings → Sync (同步) | Sync type, connection, key and mode |
-| Settings → Data (数据) | Library folder, local data and export, backups before restore |
-| Settings → Account / Feedback (账号 / 反馈) | See chapters 15 and 16 (builds with the account service only) |
+| Settings → General | Version and updates, and general options |
+| Settings → Reading | Dictionary, keep screen on, TXT chapter rules, web extraction rules |
+| Settings → Read aloud | Engine, voice, speed, pronunciation dictionary and cache |
+| Settings → Appearance | Light or dark, colour scheme, reading font, theme cover style |
+| Settings → Shortcuts | See, change or reset each area's keys |
+| Settings → Pen | What the side button and the eraser end do in each area; wet-ink settings on Android |
+| Settings → Touch gestures | How the board moves, and what multi-finger gestures do in each area |
+| Settings → Search index | Full-text index progress and maintenance |
+| Settings → Sync | Sync type, connection, key and mode |
+| Settings → Data | Library folder, local data and export, backups before restore |
+| Settings → Account / Feedback | See chapters 15 and 16 (builds with the account service only) |
 
 Most appearance changes apply at once. Double-click a slider to reset it.
 
@@ -1366,7 +1387,7 @@ KineX has four colour schemes; the default is a neutral grey. Flashcards, board 
 
 ### Touch gestures
 
-*Settings → Touch gestures* sets gestures separately for five areas: board, reader, player, flashcards, and switching / global. Each gesture has a menu: a command of that area, a general command, *Record a key…* (录制按键…) or *Do nothing* (不做事). Delete commands are never offered.
+*Settings → Touch gestures* sets gestures separately for five areas: board, reader, player, flashcards, and switching / global. Each gesture has a menu: a command of that area, a general command, *Record key…* or *Do nothing*. Delete commands are never offered.
 
 Default gestures:
 
@@ -1386,7 +1407,7 @@ Default gestures:
 
 On a computer without a touch screen, the page says no touch screen was found.
 
-![Settings › Touch gestures: the board’s gestures.](assets/p21-gestures.webp)
+![Settings › Touch gestures: the board’s gestures.](assets/en/p21-gestures.webp)
 
 *Settings › Touch gestures: the board’s gestures.*
 

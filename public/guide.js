@@ -77,6 +77,7 @@
     const pick = e.target.closest('[data-set-lang]');
     if (!pick || (pick.dataset.setLang === 'en') === isEn()) return;
     const was = [...document.querySelectorAll('.lg-doc')].find(doc => doc.lang === (isEn() ? 'en' : 'zh-CN'));
+    was?.querySelectorAll('video').forEach(video => video.pause());
     const inView = was && [...was.querySelectorAll('.lg-body section[id]')].filter(s => s.getBoundingClientRect().top < innerHeight * .4).pop();
     requestAnimationFrame(() => {
       drawShown();

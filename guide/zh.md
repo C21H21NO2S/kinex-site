@@ -73,7 +73,10 @@ flowchart LR
 
 做完后，你就有了一份带来源的学习笔记。之后再按需要使用闪卡、朗读和同步。
 
-<video controls preload="none" playsinline poster="assets/v01-first-excerpt.jpg" src="assets/v01-first-excerpt.mp4"></video>
+<video controls preload="none" playsinline poster="assets/v01-first-excerpt.webp">
+  <source src="assets/v01-first-excerpt-av1.mp4" type='video/mp4; codecs="av01.0.08M.08"'>
+  <source src="assets/v01-first-excerpt-h264.mp4" type="video/mp4">
+</video>
 
 *新建主题 → 导入 PDF → 高亮一句 → 添加到白板 → 点摘录卡的来源回到原文。*
 
@@ -152,7 +155,10 @@ flowchart TD
 
 *手机：首页底部的标签栏（左），点页面中间出现的阅读条（右）。*
 
-<video class="phone" controls preload="none" playsinline poster="assets/v05-phone.jpg" src="assets/v05-phone.mp4"></video>
+<video class="phone" controls preload="none" playsinline poster="assets/v05-phone.webp">
+  <source src="assets/v05-phone-av1.mp4" type='video/mp4; codecs="av01.0.04M.08"'>
+  <source src="assets/v05-phone-h264.mp4" type="video/mp4">
+</video>
 
 *手机上打开主题 → 在顶部窄条上横滑切到白板 → 滑回阅读 → 点页面中间打开阅读条。*
 
@@ -341,7 +347,10 @@ flowchart LR
 
 *框选卡片后出现的选区工具条。*
 
-<video controls preload="none" playsinline poster="assets/v02-board.jpg" src="assets/v02-board.mp4"></video>
+<video controls preload="none" playsinline poster="assets/v02-board.webp">
+  <source src="assets/v02-board-av1.mp4" type='video/mp4; codecs="av01.0.08M.08"'>
+  <source src="assets/v02-board-h264.mp4" type="video/mp4">
+</video>
 
 *新建一张卡片 → 三张卡片排成一列 → 新建子白板 → 在旁边打开。*
 
@@ -559,7 +568,10 @@ flowchart LR
 
 *上：从选文制作挖空 Item；下：复习时显示答案后的四档评分，左侧管理树里有 Item 和 Topic。*
 
-<video controls preload="none" playsinline poster="assets/v03-make-item.jpg" src="assets/v03-make-item.mp4"></video>
+<video controls preload="none" playsinline poster="assets/v03-make-item.webp">
+  <source src="assets/v03-make-item-av1.mp4" type='video/mp4; codecs="av01.0.08M.08"'>
+  <source src="assets/v03-make-item-h264.mp4" type="video/mp4">
+</video>
 
 *从一段原文制作 Item → 设答案并预览 → 提前复习 → 显示答案 → 评分。*
 
@@ -688,7 +700,10 @@ flowchart TD
 
 *上：朗读时当前句加下划线，播放条在底部；下：设置 › 朗读。*
 
-<video controls preload="none" playsinline poster="assets/v04-read-aloud.jpg" src="assets/v04-read-aloud.mp4"></video>
+<video controls preload="none" playsinline poster="assets/v04-read-aloud.webp">
+  <source src="assets/v04-read-aloud-av1.mp4" type='video/mp4; codecs="av01.0.08M.08"'>
+  <source src="assets/v04-read-aloud-h264.mp4" type="video/mp4">
+</video>
 
 *用平板上的语音引擎朗读 PDF → 下一句 → 摘录本句到白板。*
 
@@ -1045,7 +1060,10 @@ sequenceDiagram
 
 *kinex-sync 管理面板的 users 列表（邮箱和编号已打码）。*
 
-<video controls preload="none" playsinline poster="assets/v06-realtime-sync.jpg" src="assets/v06-realtime-sync.mp4"></video>
+<video controls preload="none" playsinline poster="assets/v06-realtime-sync.webp">
+  <source src="assets/v06-realtime-sync-av1.mp4" type='video/mp4; codecs="av01.0.08M.08"'>
+  <source src="assets/v06-realtime-sync-h264.mp4" type="video/mp4">
+</video>
 
 *两台设备连接同一个 KineX 同步服务：在 A 上写一张卡片，B 上马上出现。*
 
@@ -1197,7 +1215,10 @@ flowchart LR
 
 *设置 › 账号：兑换激活码后的状态。*
 
-<video controls preload="none" playsinline poster="assets/v07-account.jpg" src="assets/v07-account.mp4"></video>
+<video controls preload="none" playsinline poster="assets/v07-account.webp">
+  <source src="assets/v07-account-av1.mp4" type='video/mp4; codecs="av01.0.08M.08"'>
+  <source src="assets/v07-account-h264.mp4" type="video/mp4">
+</video>
 
 *用邮箱验证码登录 → 勾选同意项 → 兑换激活码 → 状态变为“可使用全部功能”。*
 

@@ -25,7 +25,7 @@ const LANGS = [
   { id: 'zh', file: 'zh.md', lang: 'zh-CN', prefix: '', toc: '目录', kicker: 'KineX · 手册', drop: /待补图|待补视频/ },
   { id: 'en', file: 'en.md', lang: 'en', prefix: 'en-', toc: 'Contents', kicker: 'KineX · Guide', drop: /Image to add|Video to add/ },
 ];
-const CURVE = 'assets/fsrs-forgetting-curve.svg';
+const CURVE = 'assets/(?:en/)?fsrs-forgetting-curve\\.(?:svg|webp)';
 
 // ---------------------------------------------------------------- diagrams
 // Mermaid draws with these stand-in colours; each becomes a CSS variable of the page (guide.css, .dg).
