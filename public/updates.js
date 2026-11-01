@@ -142,7 +142,9 @@
       const year = beijing(r.releasedAt).slice(0, 4);
       const heading = years.length > 1 && year !== lastYear ? `<div class="yr">${year}</div>` : '';
       lastYear = year;
-      return `${heading}<article class="rel" id="${id(r.version)}"><div class="rel-h"><span class="v">${esc(r.version)}</span>${r === releases[0] ? latestBadge : ''}<span class="d">${date(r.releasedAt)}</span></div><h3>${esc(r.title)}</h3>${groups(r.notes || {})}${downloads(r)}</article>`;
+      // A673: the English page shows a version's English notes when it has them (titleEn / notesEn), otherwise the Chinese ones
+      const title = en() && r.titleEn ? r.titleEn : r.title, notes = en() && r.notesEn ? r.notesEn : r.notes;
+      return `${heading}<article class="rel" id="${id(r.version)}"><div class="rel-h"><span class="v">${esc(r.version)}</span>${r === releases[0] ? latestBadge : ''}<span class="d">${date(r.releasedAt)}</span></div><h3>${esc(title)}</h3>${groups(notes || {})}${downloads(r)}</article>`;
     }).join('');
     const mobile = `<div class="mobile-pick"><select aria-label="${t('versions')}">${years.map(year => `<optgroup label="${year}">${releases.filter(r => beijing(r.releasedAt).startsWith(year)).map(r => `<option value="${id(r.version)}">${esc(r.version)} · ${short(r.releasedAt)}${r === releases[0] ? `（${t('latest')}）` : ''}</option>`).join('')}</optgroup>`).join('')}</select></div>`;
     box.innerHTML = `<div class="log">${nav}<div class="log-body">${mobile}${body}</div></div>`;
