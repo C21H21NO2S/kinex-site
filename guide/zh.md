@@ -1517,3 +1517,5 @@ KineX 有四套配色，默认是中性灰。闪卡、白板卡片和学习统�
 
 **关掉的公告还能找回吗？**  
 不能。公告点 × 后在这台设备上不再显示；需要时可以到官网“动态”查看。
+
+<div class="qq-card zh-only"><div><h3>没找到答案？</h3><p>到 QQ 群里问一问，开发者和其他用户都在。</p></div><span class="qq"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5a8 7 0 1 1 3.4 5.7L4 18.5l1.1-3.1A6.8 6.8 0 0 1 4 11.5Z"/><path d="M9 11h.01M12 11h.01M15 11h.01" stroke-width="2.4"/></svg><span class="qq-k">KineX 交流群</span><button type="button" class="qq-num" data-qq-copy="1071892969" title="点击复制群号">1071892969</button><a class="qq-join" href="https://qm.qq.com/cgi-bin/qm/qr?_wv=1027&amp;k=22xGGy60bPCD_0LPQfkQ_I61M3l2UEPu&amp;authKey=RIe0msg9Y%2B7VYsyTNGRLLbkHLg2T1eULFhvxf6ZEFQMH4lkGHhfKWjSheJ0GDikF&amp;noverify=0&amp;group_code=1071892969" target="_blank" rel="noopener">加入</a></span></div>

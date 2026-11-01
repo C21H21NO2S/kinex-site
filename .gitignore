@@ -5,3 +5,5 @@ proposals/
 scripts/.font-src/
 # local Windows launcher, not part of the site
 *.bat
+# Codex hand-off notes and capture harnesses (local only)
+.codex_tmp/

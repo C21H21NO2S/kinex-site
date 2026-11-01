@@ -10,8 +10,19 @@ export function toast(msg) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('on'), 2800);
 }
 
+// the QQ group's number: a click copies it and says so in place for a moment (public/legal.js does the same on the
+// other pages)
+function copyQQ(el) {
+  const num = el.dataset.qqCopy;
+  const said = () => { if (el.dataset.was) return; el.dataset.was = el.textContent; el.textContent = el.dataset.qqDone || '已复制'; setTimeout(() => { el.textContent = el.dataset.was; delete el.dataset.was; }, 1600); };
+  const fallback = () => { const t = document.createElement('textarea'); t.value = num; t.style.cssText = 'position:fixed;opacity:0'; document.body.append(t); t.select(); try { document.execCommand('copy'); } catch (e) { /* nothing more to try */ } t.remove(); said(); };
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(num).then(said, fallback); else fallback();
+}
+
 export function initLinks() {
   document.addEventListener('click', e => {
+    const qq = e.target.closest('[data-qq-copy]');
+    if (qq) { e.preventDefault(); copyQQ(qq); return; }
     const el = e.target.closest('[data-link]');
     if (!el) return;
     const kind = el.dataset.link, url = LINKS[kind];

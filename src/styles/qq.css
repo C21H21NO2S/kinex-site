@@ -1,0 +1,28 @@
+/* The KineX QQ group (Chinese pages only): a pill with the group number (a click copies it) and a link that opens QQ's
+   join page; on its own in the home page's closing section, inside a card on the download page, at the end of the
+   guide's FAQ and above the ideas list; one line in the home page's footer. English hides all of it. */
+html[data-lang="en"] .zh-only { display: none !important; }
+
+.qq { display: inline-flex; align-items: center; gap: 12px; padding: 6px 6px 6px 16px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--rule-2);
+  background: color-mix(in oklab, var(--fg) 3%, transparent); color: var(--fg); font: 500 13.5px/1 var(--f-sans); white-space: nowrap; }
+.qq > svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; opacity: .8; }
+.qq .qq-k { color: var(--fg-2); }
+.qq .qq-num { padding: 4px 2px; font: 600 14px/1 var(--f-mono); letter-spacing: .04em; color: var(--fg); cursor: copy; border-radius: 6px; }
+.qq .qq-num:hover { text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--fg-3); }
+.qq .qq-join { display: inline-grid; place-items: center; height: 30px; padding: 0 14px; border-radius: 999px; background: var(--fg); color: var(--bg); font: 600 12.5px/1 var(--f-sans); transition: opacity .2s; }
+.qq .qq-join:hover { opacity: .85; }
+
+.qq-solo { display: flex; flex-direction: column; align-items: center; margin-top: 34px; }
+.qq-sub { margin-top: 12px; font-size: 12.5px; color: var(--fg-3); }
+.qq-card { margin: 28px 0 0; padding: 20px 22px; border-radius: 16px; box-shadow: inset 0 0 0 1px var(--rule-2); display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+/* (doubled class: the guide's own heading and paragraph margins must not reach in) */
+.qq-card.qq-card h3 { margin: 0 0 4px; font: 600 16px/1.4 var(--f-sans); color: var(--fg); }
+.qq-card.qq-card p { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--fg-2); }
+/* 动态: only under the 建议 tab, between its line and its list */
+.qq-ideas { display: none; margin: 26px 0 0; }
+.qq-ideas:has(+ #view-feedback:not([hidden])) { display: flex; }
+
+@media (max-width: 560px) {
+  .qq { flex-wrap: wrap; justify-content: center; white-space: normal; padding: 12px 14px; border-radius: 18px; row-gap: 10px; }
+  .qq-card { padding: 18px; }
+}
