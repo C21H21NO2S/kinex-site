@@ -32,7 +32,7 @@ export function initLinks() {
     // no URL yet: CTAs outside the join section just scroll there; everything else explains
     if (kind === 'beta' && el.getAttribute('href') === '#join' && !el.closest('#join')) return;
     e.preventDefault();
-    toast(kind === 'film' ? t('modal.film') : kind === 'beta' ? t('modal.beta') : '—');
+    toast(kind === 'beta' ? t('modal.beta') : '—');
   });
   // the buttons point where they go (open in a new tab, copy the link)
   if (LINKS.beta) document.querySelectorAll('[data-link="beta"]').forEach(a => { if (a.tagName === 'A') a.href = LINKS.beta; });

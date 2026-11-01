@@ -2,6 +2,7 @@ import { bindToggles, getLang, isDark } from './core/prefs.js';
 import { initScroll, gsap, ScrollTrigger, reduceMotion } from './core/scroll.js';
 import { initReveal } from './core/reveal.js';
 import { initLinks, initCursor } from './core/ui.js';
+import { initFilm } from './core/film.js';
 import { detectTier, hasWebGL, GL_ATTRS } from './core/quality.js';
 import { ALL_TEXT } from './hero/textures.js';
 import { sketch, shown } from './boot.js';
@@ -20,6 +21,7 @@ const scenePromise = hasWebGL() ? import('./hero/scene.js') : null;
 // ---------------------------------------------------------------- static bits (the logos and the copy: boot.js)
 bindToggles();
 initLinks();
+initFilm();
 history.scrollRestoration = 'manual';
 
 // ---------------------------------------------------------------- opening
@@ -81,6 +83,7 @@ async function bootScene(sketch) {
   scene.onStory = paintStory;
   scene.onDowngrade = () => { if (tier !== 'low' && !new URLSearchParams(location.search).get('q')) { try { sessionStorage.setItem('kx-q', 'low'); } catch (e) {} } };
   addEventListener('kx:lang', () => scene.refreshTextures());
+  addEventListener('kx:film', e => scene.hold(e.detail.open)); // nothing to draw under the film
   addEventListener('kx:theme', () => gsap.to(scene.T, { k: isDark() ? 1 : 0, duration: 1.1, ease: 'power2.inOut', onUpdate: () => scene.applyTheme(scene.T.k) }));
   // The time the pencil still needs goes to the steps left: the threads' layer, then the sections below the fold, one
   // per task. The develop itself must find this thread free: any work then shows as a stutter.

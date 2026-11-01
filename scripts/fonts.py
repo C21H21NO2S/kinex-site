@@ -50,7 +50,7 @@ def used_text():
 
 def hero_text():
     src = (ROOT / 'src' / 'i18n.js').read_text(encoding='utf-8')
-    return ''.join(v for _, v in HERO_KEYS.findall(src)) + '中KineX 跃知Windows · Android→▶'  # + what index.html writes itself
+    return ''.join(v for _, v in HERO_KEYS.findall(src)) + '中KineX 跃知Windows · Android→▶0123456789:'  # + what index.html writes itself (the film's running time too)
 
 def epub_text():
     src = (ROOT / 'src' / 'sections' / 'read.js').read_text(encoding='utf-8')

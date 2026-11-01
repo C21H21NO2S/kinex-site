@@ -12,7 +12,7 @@ export const DICT = {
     'hero.title': '知识<br><em>跃然</em>纸上',
     'hero.lede': '书、论文、网页和讲座，收进同一块不断延展的白板。划一句，写一笔，连一条线——记下的内容，都会赶在遗忘前适时重现。',
     'hero.cta': '加入内测',
-    'hero.film': '短片 1:39',
+    'hero.film': '观看宣传片',
     'hero.scroll': '向下滚动',
 
     'story.ink.idx': '真实笔迹',
@@ -88,14 +88,15 @@ export const DICT = {
     'final.kicker': 'Windows · Android',
     'final.title': '让读过的一切<br>真正化为<em>己有</em>',
     'final.body': '安装包即将发布。现在加入内测，率先体验 KineX。',
-    'final.cta': '加入内测', 'final.film': '看短片 1:39',
+    'final.cta': '加入内测', 'final.film': '观看宣传片',
 
-    'foot.product': '产品', 'foot.more': '更多', 'foot.film': '短片', 'foot.privacy': '隐私政策', 'foot.terms': '用户协议', 'foot.download': '下载', 'foot.top': '回到顶部',
+    'foot.product': '产品', 'foot.more': '更多', 'foot.film': '宣传片', 'foot.privacy': '隐私政策', 'foot.terms': '用户协议', 'foot.download': '下载', 'foot.top': '回到顶部',
     'foot.rights': '© 2026 KineX 跃知', 'foot.made': '献给认真读书的人',
 
-    'modal.film': '短片还在制作中，很快和你见面。',
     'modal.beta': '内测申请即将开放，敬请期待。',
     'modal.close': '关闭',
+
+    'film.title': 'KineX 宣传片', 'film.close': '关闭', 'film.note': '中文版还在制作，先为你播放英文版。',
   },
   en: {
     'meta.title': 'KineX — Learning, in motion.',
@@ -109,7 +110,7 @@ export const DICT = {
     'hero.title': 'Learning,<br><em>in motion.</em>',
     'hero.lede': 'Books, papers, web pages and lectures on one board that grows. Highlight, write, link — and it all comes back right before you’d forget.',
     'hero.cta': 'Join the beta',
-    'hero.film': 'Film 1:39',
+    'hero.film': 'Watch the film',
     'hero.scroll': 'Scroll',
 
     'story.ink.idx': 'Real ink',
@@ -185,13 +186,14 @@ export const DICT = {
     'final.kicker': 'Windows · Android',
     'final.title': 'Make what you read<br><em>your own.</em>',
     'final.body': 'Installers are on the way. Join the beta to be among the first on KineX.',
-    'final.cta': 'Join the beta', 'final.film': 'Watch the film 1:39',
+    'final.cta': 'Join the beta', 'final.film': 'Watch the film',
 
     'foot.product': 'Product', 'foot.more': 'More', 'foot.film': 'Film', 'foot.privacy': 'Privacy Policy', 'foot.terms': 'User Agreement', 'foot.download': 'Download', 'foot.top': 'Back to top',
     'foot.rights': '© 2026 KineX', 'foot.made': 'Made for people who read seriously',
 
-    'modal.film': 'The film is still in production — coming soon.',
     'modal.beta': 'Beta sign-ups open soon.',
     'modal.close': 'Close',
+
+    'film.title': 'The KineX film', 'film.close': 'Close', 'film.note': 'The English version is on its way. For now, here is the Chinese film.',
   },
 };

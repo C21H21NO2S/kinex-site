@@ -741,7 +741,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   }
 
   // ---------------------------------------------------------------- loop + quality watchdog
-  let running = false, raf = 0, frozen = null;
+  let running = false, raf = 0, frozen = null, held = false; // held: the film dialog covers the page
   // the scene clock starts with the first shown frame (so it opens exactly in the pose the sketch drew) and advances
   // by at most 50 ms a frame: after a stall the motion carries on from where it was instead of jumping
   let clock = 0;
@@ -749,7 +749,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
   const listeners = { downgrade: null };
   function loop(now) {
     raf = requestAnimationFrame(loop);
-    if (frozen) return;
+    if (frozen || held) return;
     const dt = lastT ? now - lastT : 16; lastT = now;
     if (samples < 150 && S.mode !== 'off') { samples++; if (dt > 34) slow++; if (samples === 150 && slow > 60 && listeners.downgrade) listeners.downgrade(); }
     if (S.mode === 'off') return;
@@ -812,6 +812,7 @@ export async function createScene({ canvas, context, tier = 'high', getLang, isD
     set onDowngrade(fn) { listeners.downgrade = fn; },
     seek(p, t, intro = 1) { warmLines(); frozen = true; S.intro = 1; S.links = intro; frame(t, p); },
     unfreeze() { frozen = null; },
+    hold(on) { held = on; lastT = 0; }, // stop drawing, keeping the last frame on screen
     dispose() { cancelAnimationFrame(raf); renderer.dispose(); },
   };
 }

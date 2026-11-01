@@ -33,7 +33,15 @@ GitHub 侧：账号 Settings → Pages 里 `kinexnote.com` 已验证；仓库 Se
 
 ## 上线前要填的
 
-- `src/config.js`：内测报名链接 `beta`、短片链接 `film`、`github`、`privacy`。留空时按钮会提示“即将开放”，GitHub 和隐私链接会自动隐藏。
+- `src/config.js`：内测报名链接 `beta`、`github`、`privacy`。留空时按钮会提示“即将开放”，GitHub 和隐私链接会自动隐藏。
+
+## 宣传片
+
+- 首页的“观看宣传片”按钮（首屏、页尾、页脚）打开弹窗播放器（`src/core/film.js`、`src/styles/film.css`）。弹窗第一次打开时才创建 `<video>`，之前不产生视频流量。
+- 视频配置在 `src/config.js` 的 `PROMO`：按语言各一份，`en: null` 时英文页面也播中文版，并在视频下方提示英文版在制作中。
+- 文件放两处，文件名一样：东京服务器 `https://media.kinexnote.com/promo/`（服务器上是 `/srv/kinex-media/promo/`，用 `scp` 上传；Caddy 站点写在 kinex-account 的 `scripts/server/setup.sh`）和本仓库的 `public/media/`（GitHub Pages 备用）。东京那份出错、或 10 秒内没加载出来，播放器自动换到备用，并从同一秒继续。
+- 文件名带日期和内容哈希（例如 `kinex-promo-zh-20261102-390b6632.webm`），服务器给一年的长缓存；换新版时用新文件名，再改 `PROMO` 里的名字。
+- 加英文版：把 webm、mp4、封面 webp（字幕没烧进画面的话再加 vtt）传到服务器同一目录并放进 `public/media/`，然后把 `PROMO.en` 填成和 `zh` 一样的结构（`subtitles` 填 `{ file, srclang: 'en', label: 'English' }` 或 `null`）。
 - `index.html` 里的 `og:image` / `og:url` / `canonical`：都指向 https://kinexnote.com/ ，换域名时一起改。
 
 ## 改文案
