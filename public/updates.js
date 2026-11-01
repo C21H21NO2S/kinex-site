@@ -46,6 +46,12 @@
     profileTitle: ['昵称与通知', 'Name & email'], mailOn: ['反馈有进展时给我发邮件', 'Email me when my feedback moves'], save: ['保存', 'Save'], saved: ['已保存', 'Saved'],
     unsubTitle: ['退订反馈邮件', 'Unsubscribe'], unsubPost: ['以后这条反馈有进展时不再给你发邮件。', 'You won’t get emails about this item any more.'], unsubAll: ['以后不再收到任何反馈邮件；可以随时在“昵称与通知”里打开。', 'You won’t get any feedback emails; you can turn them back on under Name & email.'],
     unsubDo: ['确认退订', 'Unsubscribe'], unsubDone: ['已退订', 'Unsubscribed'],
+    // A667: a nickname is unique and set once
+    nicknameRule: ['昵称设置后不能修改；不能含广告、辱骂、色情等违法和不良信息，也不能冒充他人或官方。', 'Once set, a nickname cannot be changed. It must not contain advertising, insults, sexual content or other illegal or harmful information, or impersonate anyone or KineX.'],
+    nicknameFixed: ['设置后不能修改', 'cannot be changed'],
+    nickname_taken: ['这个昵称已经有人用了，换一个吧', 'This nickname is taken — please choose another'],
+    nickname_locked: ['昵称设置后不能修改', 'A nickname cannot be changed once it is set'],
+    nickname_blocked: ['这个昵称不能使用，换一个吧', 'This nickname cannot be used — please choose another'],
     errors: ['出错了，请稍后再试', 'Something went wrong — please try again'], tooShort: ['标题太短', 'The title is too short'], needNick: ['先起个昵称', 'Pick a name first'],
     rate_limited: ['操作太频繁，请稍后再试', 'Too many tries — please wait a little'], code_wrong: ['验证码不对', 'Wrong code'], code_expired: ['验证码已失效，请重新获取', 'The code has expired — get a new one'],
     pow_invalid: ['安全校验没通过，请再试一次', 'The check failed — please try again'], bad_email: ['请输入正确的邮箱', 'Please enter a valid email'], forbidden: ['这个账号暂时不能提交反馈', 'This account can’t send feedback right now']
@@ -342,7 +348,7 @@
         <div class="similar" hidden></div>
         <label class="field"><span>${t('bodyLabel')}<small>${t('optional')}</small></span><textarea class="in" name="body" maxlength="2000"></textarea></label>
         <label class="field"><span>${t('tagLabel')}</span><select class="in" name="tag"><option value="">${t('noTag')}</option>${Object.keys(TAGS).map(tag => `<option value="${tag}">${esc(pick(TAGS[tag]))}</option>`).join('')}</select></label>
-        ${needNick ? `<label class="field"><span>${t('nickname')}<small>${t('nicknameHint')}</small></span><input class="in" name="nickname" maxlength="20" required></label>
+        ${needNick ? `<label class="field"><span>${t('nickname')}<small>${t('nicknameHint')}</small></span><input class="in" name="nickname" maxlength="20" required><small class="hint">${t('nicknameRule')}</small></label>
           <label class="field"><span>${t('display')}</span><select class="in" name="display"><option value="full">${t('displayFull')}</option><option value="initial">${t('displayInitial')}</option><option value="anonymous">${t('displayAnon')}</option></select></label>` : ''}
         <p class="err" hidden></p>
         <div class="row-b"><button class="btn ghost" type="button" data-close>${t('cancel')}</button><button class="btn" type="submit">${t('submit')}</button></div>
@@ -385,7 +391,7 @@
     sheet(`
       <h2>${t('profileTitle')}</h2>
       <form data-form>
-        <label class="field"><span>${t('nickname')}<small>${t('nicknameHint')}</small></span><input class="in" name="nickname" maxlength="20" value="${esc(profile.nickname)}"></label>
+        <label class="field"><span>${t('nickname')}<small>${profile.nickname ? t('nicknameFixed') : t('nicknameHint')}</small></span><input class="in" name="nickname" maxlength="20" value="${esc(profile.nickname)}"${profile.nickname ? ' readonly' : ''}>${profile.nickname ? '' : `<small class="hint">${t('nicknameRule')}</small>`}</label>
         <label class="field"><span>${t('display')}</span><select class="in" name="display">${[['full', 'displayFull'], ['initial', 'displayInitial'], ['anonymous', 'displayAnon']].map(([value, key]) => `<option value="${value}"${profile.nameDisplay === value ? ' selected' : ''}>${t(key)}</option>`).join('')}</select></label>
         <label class="check"><input type="checkbox" name="mail"${profile.feedbackMail ? ' checked' : ''}>${t('mailOn')}</label>
         <p class="err" hidden></p>
