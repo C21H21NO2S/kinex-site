@@ -3,8 +3,16 @@
   "phase": "beta-open",
   "betaEndsAt": null,
   "announceFrom": null,
-  "update": null,
+  "update": {
+    "latest": "0.1.0-beta.2",
+    "minVersion": null,
+    "from": null
+  },
   "loginVersion": null,
-  "download": null,
+  "download": {
+    "page": "https://kinexnote.com/download/",
+    "main": null,
+    "cn": "https://wwaxj.lanzouu.com/b0ummnqod"
+  },
   "message": null
 }
