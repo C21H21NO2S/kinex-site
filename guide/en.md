@@ -15,7 +15,7 @@ flowchart LR
     D -.->|Source link| B
 ```
 
-This guide describes KineX as of 25 October 2026. KineX is still in beta, so buttons may move or be renamed.
+This guide describes KineX as of 5 November 2026. KineX is still in beta, so buttons may move or be renamed.
 
 <!-- md-only -->
 The diagrams are written in Mermaid: Typora, Obsidian, GitHub and VS Code show them as pictures; other readers show the text, which reads fine on its own. Web version: kinexnote.com/guide/.
@@ -33,7 +33,7 @@ The diagrams are written in Mermaid: Typora, Obsidian, GitHub and VS Code show t
 9. [Recordings linked to notes](#recording)
 10. [Search and favourites](#search)
 11. [Study statistics and points](#learning)
-12. [Library and sync across devices](#sync)
+12. [Workspace and sync across devices](#sync)
 13. [Self-hosting KineX Sync](#self-hosted-sync)
 14. [Export, backup and restore](#backup)
 15. [Your KineX account and activation codes](#account)
@@ -90,7 +90,7 @@ You now have a study note with its source attached. Bring in flashcards, read-al
 
 | Name | What it is for |
 |---|---|
-| Library | Holds a full set of themes, materials, boards, flashcards and study records |
+| Workspace | Holds a full set of themes, materials, boards, flashcards and study records |
 | Reading theme | Organises material around a book, a course or a question |
 | Material | A book, document, web page, audio or video in a theme |
 | Reader | Where you read, play media, annotate and excerpt |
@@ -101,7 +101,7 @@ How they fit together:
 
 ```mermaid
 flowchart TD
-    L["Library"] --> T1["Reading theme A"]
+    L["Workspace"] --> T1["Reading theme A"]
     L --> T2["Reading theme B"]
     L --> F["Flashcards"]
     L --> S["Study records"]
@@ -118,7 +118,7 @@ On a computer, click a theme to select it and double-click to open it; on a touc
 
 Search, statistics, sync and other entries not shown in the top bar are under “⋯”. On the desktop you can pin the ones you use most to the top bar.
 
-**On a phone**, the home page has a tab bar at the bottom: Overview · Library · Favourites · Recent · More. *More* slides out the full navigation from the left, with tags, unfiled, missing materials, archive and folders.
+**On a phone**, the home page has a tab bar at the bottom: Overview · Repository · Favourites · Recent · More. *More* slides out the full navigation from the left, with tags, unfiled, missing materials, archive and folders.
 
 ### The theme workspace
 
@@ -200,14 +200,14 @@ When you add local audio or video, KineX asks how to keep it.
 
 | Option | What happens to the file | When to use it |
 |---|---|---|
-| Reference original file | Only its location is recorded; the file is not copied into the library | Large files you mostly use on this device |
-| Import into database | The file becomes part of the library and goes with its backups and sync | You want to play it on other devices directly |
+| Reference original file | Only its location is recorded; the file is not copied into the workspace | Large files you mostly use on this device |
+| Import into database | The file becomes part of the workspace and goes with its backups and sync | You want to play it on other devices directly |
 
 ```mermaid
 flowchart TD
     Q1{"Play it on other<br/>devices directly?"} -->|Yes| Q2{"Is the file small enough<br/>to upload with sync?"}
     Q1 -->|No| R1["Link to the original"]
-    Q2 -->|Yes| R2["Import into the library"]
+    Q2 -->|Yes| R2["Import into the workspace"]
     Q2 -->|Too large| R3["Link to the original<br/>play it over the local network<br/>or link a local copy"]
 ```
 
@@ -217,7 +217,7 @@ A linked file is never uploaded to the cloud. On another device, link that devic
 
 Material folders suit chapters, courses or sources; tags cut across folders, for example “read closely” or “key concept”. A material can carry several tags.
 
-KineX keeps one tag tree for the whole library. Add or edit tags from a material's menu, or arrange them in tag management. The tag entry on the home page finds everything with a tag.
+KineX keeps one tag tree for the whole workspace. Add or edit tags from a material's menu, or arrange them in tag management. The tag entry on the home page finds everything with a tag.
 
 ![The materials panel’s “＋” menu.](assets/en/p03-add-menu.webp)
 
@@ -591,7 +591,7 @@ With OpenList:
 2. Click *Test and save*.
 3. Browse the folders, tick files or folders, and add your selection.
 
-OpenList media keep their server address and file path, so playing them still needs access to that server. The connection details and any remembered password sync with the library, encrypted; each device keeps its own sign-in.
+OpenList media keep their server address and file path, so playing them still needs access to that server. The connection details and any remembered password sync with the workspace, encrypted; each device keeps its own sign-in.
 
 A multi-part course can go into incremental reading in order. Check the order before you confirm, so file names do not shuffle the lessons.
 
@@ -685,7 +685,7 @@ An interface receives the text it reads, so only use addresses you trust. Using 
 
 ### Pronunciation dictionary and cache
 
-- **Pronunciation dictionary:** in *Settings → Read aloud → Read-aloud content*, set how names, words with several readings or terms are spoken. It changes the reading only, never the text, and its entries sync with the library.
+- **Pronunciation dictionary:** in *Settings → Read aloud → Read-aloud content*, set how names, words with several readings or terms are spoken. It changes the reading only, never the text, and its entries sync with the workspace.
 - **Read-aloud cache:** sound made by an interface is kept on this device and reused when you listen again. Manage its size or clear it in the read-aloud settings; the cache is not backed up or synced, and system voices do not use it.
 
 ### Mini window and lock screen
@@ -746,12 +746,12 @@ Closing the recording window does not stop the recording. In a browser, recordin
 
 ## 10. Search and favourites
 
-### Finding things in a material or the whole library
+### Finding things in a material or the whole workspace
 
 | Where | How |
 |---|---|
 | The current material or board | Click it, then press Ctrl+F |
-| The whole library | Ctrl+Shift+F, or “⋯” → *Global search* in the top bar |
+| The whole workspace | Ctrl+Shift+F, or “⋯” → *Global search* in the top bar |
 
 Start with plain keywords and narrow the scope as needed. Search understands quoted phrases, several words that must all match, excluded words and similar.
 
@@ -797,7 +797,7 @@ flowchart LR
 - **Under 25 minutes** carries over to the next day and counts once a full batch is reached.
 - **How points are calculated** can be expanded on the page.
 
-With the library synced, study records add up across your devices.
+With the workspace synced, study records add up across your devices.
 
 ![Study statistics: calendar, the day’s timeline and progress.](assets/en/p15-stats.webp)
 
@@ -805,23 +805,84 @@ With the library synced, study records add up across your devices.
 
 <a id="sync"></a>
 
-## 12. Library and sync across devices
+## 12. Workspace and sync across devices
 
-### Saved on this device, and the library folder
+### What a workspace is
+
+A workspace is one full set of themes, materials, boards, flashcards and study records. You can keep separate ones for separate purposes, say “Work” and “Reading”: their data never mixes, and each keeps its own sync connection.
+
+What used to be called a “library” is now a workspace. The name changed; the contents did not.
+
+### Saved on this device, and the workspace folder
 
 Everything you do is saved on this device automatically. Cloud sync is set up separately.
 
-On desktops that support a library folder, choose a local folder when asked the first time, or later in *Settings → Data*. Materials are filed by theme, easy to find in your file manager.
+The Windows desktop app can keep a workspace in a local folder: create or open one when asked at first start, or later on the *Workspace* card in *Settings → Data*. Materials are filed by theme, easy to find in File Explorer.
 
 - `Themes/`: materials and readable copies of notes, by theme.
 - `Flashcards/`: readable copies of flashcards.
-- `.kinex/`: what KineX needs to run the library; do not change it by hand.
+- `.kinex/`: what KineX needs to run the workspace; do not change it by hand.
 
 The readable copies of notes and flashcards are for looking at outside KineX; editing them does not change KineX. Copying only these files is not a full backup.
 
 Choose a local folder, not one inside OneDrive, Dropbox or another folder that a cloud drive syncs live. To use KineX on several devices, set up KineX's own sync.
 
-On the desktop you can create, open and switch between several libraries; each keeps its own data and sync connection. Phones and tablets use one library for now.
+### Creating, opening and switching (Windows)
+
+All of this is on the *Workspace* card in *Settings → Data*.
+
+| Action | How | Good to know |
+|---|---|---|
+| Create | Click *New workspace…*, enter the name and choose the folder in the same window, then click *Create workspace* | The name follows the folder's until you type your own. A new workspace starts empty, and its sync is set up separately |
+| Open | Click *Open workspace…* and choose an existing workspace folder | It joins the list |
+| Switch | Click *Switch* in the *Other workspaces* list | The window closes and opens again, usually within a second or two |
+
+Once you choose a folder for a new workspace, the window tells you what it found:
+
+- **Other files already there:** tick *Use this folder* to go on; your files stay as they are.
+- **Already a workspace:** click *Open this workspace*.
+- **Synced by a cloud drive:** it cannot be used; choose a local folder.
+
+The very first time you create a workspace, before any folder has been set, what you have now is saved into it. Workspaces you create after that start empty.
+
+Each workspace keeps its own data on this computer, so a switch saves and loads nothing in full, which is why it is quick. The first time a workspace is opened on this computer, it is loaded from its folder once. That takes a little longer, and the window shows *Opening “name”* with its progress.
+
+To keep a workspace you use often at the top of the list, click *Pin*.
+
+### Saving to the folder automatically
+
+A workspace's latest state goes into its folder in the background while you keep working.
+
+- **When you pause:** after about 2 minutes without input, with at least 15 minutes between saves. While you keep working without a pause it does not save midway; it saves when you stop.
+- **When KineX closes:** once more, waiting 3 seconds at most. If that is not enough the window closes anyway; the changes stay on this computer and are saved after you next open this workspace.
+
+Switching workspaces does not save to the folder either; the changes stay on this computer in the same way. The *Workspace* card shows the last save, for example “Saved to the workspace folder 5 minutes ago”.
+
+### When the folder has a newer version
+
+If the folder holds a newer version than this computer, usually because it was saved on another computer, KineX shows *The folder has a newer version* and asks which one to use. It never overwrites either by itself.
+
+| Situation | Choose | What happens |
+|---|---|---|
+| You last edited on this computer | *Keep this computer’s* | This computer's content is saved to the folder; the folder's previous version goes into version history |
+| You last edited on another computer | *Use the folder’s* | The content changes to the folder's; this computer's previous data goes into version history, marked *Automatic protection before restore* |
+| You are not sure yet | *Later* | Nothing changes for now, and KineX asks again at the next start. Until you decide, changes on this computer are not saved to the folder |
+
+The version you did not choose is not lost: find it in [Data history](#backup).
+
+### Removing a workspace
+
+Click *Remove record* in the *Other workspaces* list. The workspace that is open is not in that list; to remove it, switch to another one first.
+
+Removing only takes it off the list. Its folder and the materials in it stay, and *Open workspace…* brings it back.
+
+When you confirm, you can also tick *Also delete its data on this computer (the folder and materials stay)*, which is off by default. If it has changes that are not in its folder yet, KineX first opens it to save them, then comes back and deletes. If they cannot be saved, or its folder has a newer version, nothing is deleted and *Notifications* says why.
+
+A workspace without a folder, and the workspace that was open before you upgraded, do not offer this option; they can only be taken off the list.
+
+### Phones and tablets
+
+Phones and tablets have one workspace for now and need no folder. To work across devices, use sync, as described below.
 
 ### Choosing how to sync
 
@@ -865,11 +926,11 @@ S3 and WebDAV accept `http://` only for local-network or local addresses; use `h
 
 The sync key unlocks your cloud data; it is not the password of your storage or sync account. You need it to add devices, and without it a new device cannot open the existing cloud data. To see it again later, use *Show key (add other devices)*.
 
-### Other devices: joining the library
+### Other devices: joining the workspace
 
-1. Use an empty library; if the device already has its own data, back it up and sort it out separately first.
+1. Use an empty workspace; if the device already has its own data, back it up and sort it out separately first.
 2. Fill in the same sync target as on the first device and test the connection.
-3. Choose *Already have a key: join library* and paste the same key.
+3. Choose *Already have a key: join workspace* and paste the same key.
 4. Click *Join and download*, and wait for it to finish or reopen KineX when asked.
 
 ```mermaid
@@ -883,7 +944,7 @@ flowchart LR
     end
     subgraph S2["Other devices"]
         direction TB
-        B1["Empty library<br/>same sync target"] --> B2["I have a key:<br/>join the library"]
+        B1["Empty workspace<br/>same sync target"] --> B2["Already have a key:<br/>join workspace"]
         B2 --> B3["Paste the same key"]
         B3 --> B4["Join and download"]
     end
@@ -894,7 +955,7 @@ Each device has its own connection and sync key setting. Do not generate a new k
 
 ### Everyday sync
 
-The *Library sync* window syncs now and shows problems; connection, key and advanced actions are in Settings.
+The *Sync* window syncs now and shows problems; connection, key and advanced actions are in Settings.
 
 | Sync mode | When it syncs | Available with |
 |---|---|---|
@@ -905,11 +966,11 @@ The *Library sync* window syncs now and shows problems; connection, key and adva
 
 Before switching devices, make sure this one has finished syncing. Force-quitting the app is not a reliable sync on close.
 
-With S3 or WebDAV, trusted devices of the same library can speed up transfers over the local network (*LAN sync acceleration*); the cloud still stores and coordinates the library.
+With S3 or WebDAV, trusted devices of the same workspace can speed up transfers over the local network (*LAN sync acceleration*); the cloud still stores and coordinates the workspace.
 
 ### What comes along?
 
-Themes, boards, materials kept in the library, annotations, flashcards, study records, reading positions, tags, the pronunciation dictionary, OpenList connections and some common settings sync with the library.
+Themes, boards, materials kept in the workspace, annotations, flashcards, study records, reading positions, tags, the pronunciation dictionary, OpenList connections and some common settings sync with the workspace.
 
 Device settings such as window positions, split layouts, file access permissions, review toolbar preferences and dismissed announcements usually stay on each device. Read-aloud interfaces and voices are set per device and the read-aloud cache does not sync; linked local media files are not uploaded by sync.
 
@@ -935,9 +996,9 @@ With KineX Sync, changes from devices that are both online are put in order in r
 
 For everyday use, just sync. *Replace this device with the cloud* and *Replace the cloud with this device* change which copy wins; use them only when you know exactly why.
 
-![The library sync window: with no cloud storage yet, click *Open settings*.](assets/en/p11-sync-center.webp)
+![The Sync window: with no cloud storage yet, click *Open settings*.](assets/en/p11-sync-center.webp)
 
-*The library sync window: with no cloud storage yet, click *Open settings*.*
+*The Sync window: with no cloud storage yet, click *Open settings*.*
 
 ![Settings › Sync with the type KineX Sync (real time); the address is an example.](assets/en/p16-sync-settings.webp)
 
@@ -950,7 +1011,7 @@ For everyday use, just sync. *Replace this device with the cloud* and *Replace t
 KineX Sync (kinex-sync) is a real-time sync server you run yourself. It comes as a Docker container for fnOS, Synology or any Linux host.
 
 - **Real time:** when one device changes something, the others online receive it almost at once, with far fewer conflicts than S3 / WebDAV.
-- **Several accounts:** give each family member an account; their libraries are separate.
+- **Several accounts:** give each family member an account; their workspaces are separate.
 - **Encrypted data only:** the sync key stays on your devices; neither the administrator nor the server can read your notes.
 - **Admin panel included:** create accounts, set space limits, remove devices and schedule backups in a web page.
 
@@ -1010,7 +1071,7 @@ The admin panel is in English.
 | Suspend an account | users → tick `suspended`: no sign-in or sync, data kept |
 | See usage | users: `usedGB`; libraries: size, entries and last change |
 | Remove a lost device | Collections → devices → find it → tick `revoked`: it disconnects at once and cannot sync again |
-| Delete a cloud library you no longer need | Collections → libraries → delete: only the server's copy goes; devices keep their data |
+| Delete a cloud workspace you no longer need | Collections → libraries → delete: only the server's copy goes; devices keep their data |
 | Scheduled backups | Settings → Backups: on a schedule, optionally to S3 |
 
 ### Connecting from KineX
@@ -1018,9 +1079,9 @@ The admin panel is in English.
 1. Open *Settings → Sync* and choose the type *KineX sync service (real-time)*.
 2. Fill in the server address (such as `http://192.168.1.2:8710` or your `https://` domain), account, password and a name for this device.
 3. Click *Sign in and test*. The password is used for this sign-in only; the device keeps a sign-in token.
-4. On the first device choose *This is the first device: generate a key*; on the others, *I have a key: join the library* and paste the same key. Then continue as in [chapter 12](#sync).
+4. On the first device choose *This is the first device: generate a key*; on the others, *Already have a key: join workspace* and paste the same key. Then continue as in [chapter 12](#sync).
 
-Once connected, the sync settings show the account, server and space used; the library sync window says “Real-time sync · KineX Sync · Online: …”. There are two sync modes: real time and manual.
+Once connected, the sync settings show the account, server and space used; the Sync window says “Real-time sync · KineX Sync · Online: …”. There are two sync modes: real time and manual.
 
 *Sign out* in the settings stops sync on this device; the server's data and other devices are not affected.
 
@@ -1080,7 +1141,7 @@ A server backup does not replace KineX's own export: it holds encrypted data tha
 | Share notes, or move them to another notes app | Content export, such as Markdown |
 | Keep the layout to print or send to someone | PDF or image export |
 | Keep a complete theme you can import again | A `.kinex` theme package |
-| Keep editing on several devices | Library sync |
+| Keep editing on several devices | Sync |
 | Get earlier content back | Data history, or a full backup you already have |
 
 ```mermaid
@@ -1089,7 +1150,7 @@ flowchart TD
     B -->|Yes| C["PDF or image export"]
     B -->|Text is enough| D["Markdown or other<br/>content export"]
     A -->|Restore it fully later| E["Export a .kinex package<br/>to another disk"]
-    A -->|Use it on several devices| F["Library sync<br/>and still export backups"]
+    A -->|Use it on several devices| F["Sync<br/>and still export backups"]
     A -->|Undo a recent change| G["Data history"]
 ```
 
@@ -1118,7 +1179,7 @@ Make sure the right theme is open before you confirm. Before replacing or mergin
 
 ### Data history
 
-To bring the library back to an earlier state, look through the versions in *Data history* and restore one after confirming what it covers. Save anything important first.
+To bring the workspace back to an earlier state, look through the versions in *Data history* and restore one after confirming what it covers. Save anything important first.
 
 Data history keeps versions in tiers: recent ones close together, older ones further apart. Each version shows its time, source, full size, and the space it adds and would free; more is under *Technical details*. On a phone, versions are listed first; tap one for its details and *Back* at the top left returns to the list.
 
@@ -1187,7 +1248,7 @@ If redeeming fails, the page says why: the code is wrong, already used, expired 
 
 Once you are signed in, each device renews itself once a day when it is online; each renewal lasts 14 days.
 
-- As long as one device on the account goes online often, it renews the others too, and library sync carries that renewal across. For example, a tablet that only syncs on the home network stays active while the computer goes online every day.
+- As long as one device on the account goes online often, it renews the others too, and sync carries that renewal across. For example, a tablet that only syncs on the home network stays active while the computer goes online every day.
 - When renewal is due within three days, a quiet note in the bottom-right corner says the device needs to go online once and will then renew itself; *Settings → General* also shows the last check with *Check now*.
 - Past the deadline without going online, some features say to connect to the network to continue; they come back by themselves once online.
 
@@ -1195,7 +1256,7 @@ Once you are signed in, each device renews itself once a day when it is online; 
 flowchart LR
     PC["Computer<br/>online every day"] -->|renews, and gets renewals<br/>for the account's other devices| ACC["Account service"]
     ACC --> PC
-    PC -->|library sync| TAB["Tablet<br/>local network only"]
+    PC -->|sync| TAB["Tablet<br/>local network only"]
     TAB -->|applies it automatically| OK["Tablet stays active"]
 ```
 
@@ -1378,7 +1439,7 @@ Everyday status never interrupts you; only errors and things that need your deci
 | Settings → Touch gestures | How the board moves, and what multi-finger gestures do in each area |
 | Settings → Search index | Full-text index progress and maintenance |
 | Settings → Sync | Sync type, connection, key and mode |
-| Settings → Data | Library folder, local data and export, backups before restore |
+| Settings → Data | Workspace folder, local data and export, backups before restore |
 | Settings → Account / Feedback | See chapters 15 and 16 (builds with the account service only) |
 
 Most appearance changes apply at once. Double-click a slider to reset it.
@@ -1485,8 +1546,14 @@ Check the scope, filters and index progress. Text that has not been indexed yet,
 
 ### Sync and backup
 
-**Can I just copy the library's Markdown as a backup?**  
-The readable copies are for looking at; they cannot bring back boards, schedules and attachments. To restore a theme, keep a full `.kinex` package; to restore the library, use a full backup or data history.
+**Where did my library go after the upgrade?**  
+It is still there, now called a workspace. Nothing needs migrating or setting up again, and the folder on your disk needn't be renamed. Look at the *Workspace* card in *Settings → Data*: the one that was open before the upgrade is the current workspace, and the others you used recently are under *Other workspaces*. The first time you switch to one, it is loaded from its folder once.
+
+**Can the workspace folder be in a cloud drive?**  
+No. Cloud drives and sync tools upload, download or replace files while KineX is reading and writing them, which can damage materials or leave conflict copies. KineX refuses a location synced by OneDrive, Dropbox, Google Drive, Nutstore and the like. If a folder comes under sync later, KineX shows *Workspace folder disabled*; follow it to move to a local folder. To work across devices, use KineX's own sync (see [chapter 12](#sync)). For backups, incremental tools such as Kopia only read the files and are fine.
+
+**Can I just copy the workspace's Markdown as a backup?**  
+The readable copies are for looking at; they cannot bring back boards, schedules and attachments. To restore a theme, keep a full `.kinex` package; to restore the whole workspace, use a full backup or data history.
 
 **Sync shows a problem.**  
 Read the message in the sync window, then check the connection, storage permissions and key; for a conflict, open *Needs your decision*. Don't overwrite this device or the cloud just to make the message go away.

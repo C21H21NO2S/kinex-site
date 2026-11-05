@@ -53,6 +53,7 @@
     nickname_locked: ['昵称设置后不能修改', 'A nickname cannot be changed once it is set'],
     nickname_blocked: ['这个昵称不能使用，换一个吧', 'This nickname cannot be used — please choose another'],
     errors: ['出错了，请稍后再试', 'Something went wrong — please try again'], tooShort: ['标题太短', 'The title is too short'], needNick: ['先起个昵称', 'Pick a name first'],
+    signup_closed: ['暂未开放注册，已有账号可以正常登录', 'Sign-up is not open yet; existing accounts can sign in as usual'],
     rate_limited: ['操作太频繁，请稍后再试', 'Too many tries — please wait a little'], code_wrong: ['验证码不对', 'Wrong code'], code_expired: ['验证码已失效，请重新获取', 'The code has expired — get a new one'],
     pow_invalid: ['安全校验没通过，请再试一次', 'The check failed — please try again'], bad_email: ['请输入正确的邮箱', 'Please enter a valid email'], forbidden: ['这个账号暂时不能提交反馈', 'This account can’t send feedback right now']
   };
