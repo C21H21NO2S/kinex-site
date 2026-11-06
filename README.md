@@ -35,6 +35,12 @@ GitHub 侧：账号 Settings → Pages 里 `kinexnote.com` 已验证；仓库 Se
 
 - `src/config.js`：内测报名链接 `beta`、`github`、`privacy`。留空时按钮会提示“即将开放”，GitHub 和隐私链接会自动隐藏。
 
+## 全局网盘下载
+
+- 下载页的蓝奏云和百度网盘链接、密码统一放在 `download/index.html` 的网盘区域，所有版本共用。换包时更新网盘中的安装包即可。
+- `public/download.js` 会对两个全局入口去重，版本下载卡片只补充其他独立备用地址。
+- 百度网盘提取码随链接显示，网盘入口在版本列表读取失败时仍可使用。
+
 ## 宣传片
 
 - 首页的“观看宣传片”按钮（首屏、页尾、页脚）打开弹窗播放器（`src/core/film.js`、`src/styles/film.css`）。弹窗第一次打开时才创建 `<video>`，之前不产生视频流量。

@@ -19,12 +19,12 @@
       box.innerHTML = `<p class="dl-note">${en() ? 'The beta installers are being prepared and will appear here once published. What is being worked on: <a class="inline-link" href="../updates/">Updates</a>.' : '内测安装包正在准备，发布后就在这里下载。正在做什么，可以在<a class="inline-link" href="../updates/">动态</a>里看。'}</p>`;
       return;
     }
-    const sharedMirror = document.querySelector('[data-download-mirror]')?.href;
+    const sharedMirrors = new Set([...document.querySelectorAll('[data-download-mirror]')].map(link => link.href));
     const card = (name, file, kind, needs) => `<article class="dl-card">
       <h2>${name}</h2>
       <div class="meta"><span>KineX ${esc(latest.version)}</span><span class="dot"></span><span>${date(latest.releasedAt)}</span><span class="dot"></span><span>${size(file.size)}</span></div>
       <p class="fine">${needs}</p>
-      <div class="row-b"><a class="btn" href="${esc(file.url)}">${en() ? `Download ${kind}` : `下载${kind}`}</a>${files.mirror && files.mirror !== sharedMirror ? `<a class="btn ghost" href="${esc(files.mirror)}" rel="noopener">${en() ? 'Mirror (China)' : '国内备用'}</a>` : ''}</div>
+      <div class="row-b"><a class="btn" href="${esc(file.url)}">${en() ? `Download ${kind}` : `下载${kind}`}</a>${files.mirror && !sharedMirrors.has(files.mirror) ? `<a class="btn ghost" href="${esc(files.mirror)}" rel="noopener">${en() ? 'Mirror (China)' : '国内备用'}</a>` : ''}</div>
       <p class="hash">SHA-256 ${esc(file.sha256)}</p>
     </article>`;
     box.innerHTML = `<div class="dl-grid">
