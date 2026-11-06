@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # A683: the changelog is written into /updates/ at build time; a daily build picks up versions published without a push
+  schedule:
+    - cron: '30 20 * * *'
 
 permissions:
   contents: read

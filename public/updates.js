@@ -118,8 +118,10 @@
   async function showChangelog() {
     const box = $('view-changelog');
     if (!state.releases) {
-      box.innerHTML = `<p class="loading">${t('loading')}</p>`;
-      try { state.releases = (await call('/v1/releases')).releases; } catch { box.innerHTML = `<p class="offline">${t('offline')}</p>`; return; }
+      // A683: the build wrote the versions into the page; they stay up while the live list loads, or if it cannot
+      const built = box.querySelector('.static-log') && !en();
+      if (!built) box.innerHTML = `<p class="loading">${t('loading')}</p>`;
+      try { state.releases = (await call('/v1/releases')).releases; } catch { if (!built) box.innerHTML = `<p class="offline">${t('offline')}</p>`; return; }
     }
     const releases = state.releases;
     if (!releases.length) { box.innerHTML = `<p class="empty">${t('noReleases')} <a class="inline-link" href="../download/">${en() ? 'Download' : '下载页'}</a></p>`; return; }
@@ -326,7 +328,9 @@
         const err = s.querySelector('.err'), terms = s.querySelector('[data-terms]').checked, abroad = s.querySelector('[data-abroad]').checked;
         if (needConsent && !(terms && abroad)) { err.textContent = en() ? 'Please agree to both first.' : '请先勾选两项同意。'; err.hidden = false; return; }
         try {
-          await call('/v1/auth/web/verify', { email, code: s.querySelector('input').value.trim(), ...(needConsent ? { consents: { terms, crossBorder: abroad, version: '1' } } : {}) });
+          // A697: the device's time zone, for the account's region (a proxy hides the address's country, not the time zone's)
+          let tz; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || undefined; } catch { /* the address decides */ }
+          await call('/v1/auth/web/verify', { email, code: s.querySelector('input').value.trim(), tz, ...(needConsent ? { consents: { terms, crossBorder: abroad, version: '1' } } : {}) });
           close();
           await refreshSession();
           if (state.view === 'feedback') showFeedback();
@@ -429,6 +433,7 @@
   function render() {
     document.querySelectorAll('.tabs a').forEach(a => { if (a.dataset.view === state.view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     for (const view of ['roadmap', 'changelog', 'feedback']) $(`view-${view}`).hidden = view !== state.view;
+    $('view-changelog').removeAttribute('data-static');
     $('lead').innerHTML = esc(t(state.view === 'roadmap' ? 'leadRoadmap' : state.view === 'changelog' ? 'leadChangelog' : 'leadFeedback'));
     if (state.view === 'roadmap') showRoadmap();
     else if (state.view === 'changelog') showChangelog();

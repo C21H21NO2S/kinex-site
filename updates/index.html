@@ -21,6 +21,7 @@
     r.dataset.theme = theme === 'light' ? 'light' : 'dark';
     r.dataset.lang = lang === 'en' ? 'en' : 'zh';
     r.lang = lang === 'en' ? 'en' : 'zh-CN';
+    r.dataset.js = ''; // A683: the build's plain changelog stays out of sight until updates.js picks the tab
   })();
 </script>
 <link rel="preload" href="/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>

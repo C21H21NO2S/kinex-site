@@ -90,6 +90,8 @@ html[data-lang="en"] .lead { line-height: 1.7; }
 .tabs a[aria-current] { color: var(--fg); }
 .tabs a[aria-current]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -29px; height: 2px; background: var(--fg); }
 .view { padding-top: 26px; }
+/* A683: the changelog written into the page by the build shows only without scripts; updates.js takes it over */
+html[data-js] .view[data-static] { display: none; }
 /* 动态: no big title (the top bar already says where you are); the tabs sit first with their own rule */
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .tabs-head { padding-bottom: 0; border-bottom: 0; }
@@ -180,7 +182,7 @@ html[data-lang="en"] .lead { line-height: 1.7; }
 .rel h3 { margin: 12px 0 20px; font: 600 18px/1.4 var(--f-sans); }
 .grp { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 4px 18px; }
 .grp + .grp { margin-top: 16px; }
-.grp > span { padding-top: 3px; font: 500 12px/1.6 var(--f-mono); letter-spacing: .06em; color: var(--fg-3); }
+.grp > span, .grp > h4 { margin: 0; padding-top: 3px; font: 500 12px/1.6 var(--f-mono); letter-spacing: .06em; color: var(--fg-3); }
 .grp ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
 .grp li { font-size: 14.5px; line-height: 1.75; color: var(--fg-body); overflow-wrap: anywhere; }
 .dl { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
