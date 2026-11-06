@@ -22,7 +22,7 @@
     noItems: ['暂时没有', 'Nothing yet'], toLog: ['每个版本改了什么', 'What each version changed'], toLogLink: ['看更新日志 →', 'Read the changelog →'],
     offline: ['暂时连不上，稍后再看。', 'Can’t connect right now — please try again later.'], loading: ['读取中…', 'Loading…'],
     versions: ['版本', 'Versions'], latest: ['最新', 'Latest'], added: ['新功能', 'New'], improved: ['改进', 'Improved'], fixed: ['修复', 'Fixed'],
-    noReleases: ['第一个公开版本还没发布。', 'The first public version isn’t out yet.'], mirror: ['国内备用下载', 'Mirror (China)'], hashes: ['校验值（SHA-256）', 'Checksums (SHA-256)'],
+    noReleases: ['第一个公开版本还没发布。', 'The first public version isn’t out yet.'], lanzou: ['蓝奏云（密码 1234）', 'Lanzou (code 1234)'], baidu: ['百度云盘（提取码 1234）', 'Baidu Netdisk (code 1234)'], mirror: ['国内备用下载', 'Mirror (China)'], hashes: ['校验值（SHA-256）', 'Checksums (SHA-256)'],
     hot: ['热门', 'Top'], newest: ['最新', 'Newest'], allTags: ['全部分类', 'All topics'], mine: ['我的反馈', 'My feedback'], publicIdeas: ['公开建议', 'Public ideas'],
     suggest: ['提建议', 'Suggest'], signIn: ['登录', 'Sign in'], signOut: ['退出', 'Sign out'], signedInAs: ['已登录 {0}', 'Signed in as {0}'], settings: ['昵称与通知', 'Name & email'],
     noIdeas: ['还没有公开的建议，来提第一条。', 'No public ideas yet — be the first.'], noMine: ['你还没有提过反馈。', 'You haven’t sent any feedback yet.'],
@@ -134,10 +134,20 @@
     }).join('')}</nav>`;
     const groups = notes => [['added', notes.added], ['improved', notes.improved], ['fixed', notes.fixed]].filter(([, items]) => items?.length)
       .map(([key, items]) => `<div class="grp"><span>${t(key)}</span><ul>${items.map(item => `<li>${esc(item)}</li>`).join('')}</ul></div>`).join('');
+    const LANZOU = 'https://wwaxj.lanzouu.com/b0ummnqod', BAIDU = 'https://pan.baidu.com/s/1f8e1llzsdWdysfVNkYYW8g?pwd=1234';
     const downloads = r => {
       const d = r.downloads;
       if (!d) return '';
-      const links = [d.windows && `<a href="${esc(d.windows.url)}">Windows</a>`, d.android && `<a href="${esc(d.android.url)}">Android</a>`, d.mirror && `<a href="${esc(d.mirror)}" rel="noopener">${t('mirror')}</a>`, (d.windows || d.android) && `<a href="../download/">${t('hashes')}</a>`].filter(Boolean);
+      const hasCloud = Boolean(d.mirror || d.windows || d.android);
+      const customMirror = d.mirror && d.mirror !== LANZOU && d.mirror !== BAIDU ? d.mirror : null;
+      const links = [
+        d.windows && `<a href="${esc(d.windows.url)}">Windows</a>`,
+        d.android && `<a href="${esc(d.android.url)}">Android</a>`,
+        hasCloud && `<a href="${LANZOU}" target="_blank" rel="noopener noreferrer">${t('lanzou')}</a>`,
+        hasCloud && `<a href="${BAIDU}" target="_blank" rel="noopener noreferrer">${t('baidu')}</a>`,
+        customMirror && `<a href="${esc(customMirror)}" target="_blank" rel="noopener noreferrer">${t('mirror')}</a>`,
+        (d.windows || d.android) && `<a href="../download/">${t('hashes')}</a>`
+      ].filter(Boolean);
       return links.length ? `<div class="dl">${links.join('')}</div>` : '';
     };
     let lastYear = '';
