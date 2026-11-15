@@ -9,6 +9,7 @@
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   // plain text with its line breaks; web addresses (http, https only) become links
   const rich = value => esc(value).replace(/https?:\/\/[^\s<>"']+/g, url => `<a href="${url}" target="_blank" rel="noopener noreferrer nofollow">${url}</a>`);
+  const releaseText = value => esc(value).replace(/\[([^\]\n]+)\]\((https:\/\/[A-Za-z0-9.\-_/]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>');
   const beijing = ms => new Date(ms + 8 * 3_600_000).toISOString();
   const date = ms => beijing(ms).slice(0, 10);
   const short = ms => beijing(ms).slice(5, 10);
@@ -133,7 +134,7 @@
       return `<div class="year"${index === 0 ? ' data-open' : ''}><button type="button"><span>${year}</span><small>${list.length}</small></button><ol>${list.map(r => `<li><a href="#${id(r.version)}" data-version="${id(r.version)}"><span class="v">${esc(r.version)}</span>${r === releases[0] ? latestBadge : ''}<small>${short(r.releasedAt)}</small></a></li>`).join('')}</ol></div>`;
     }).join('')}</nav>`;
     const groups = notes => [['added', notes.added], ['improved', notes.improved], ['fixed', notes.fixed]].filter(([, items]) => items?.length)
-      .map(([key, items]) => `<div class="grp"><span>${t(key)}</span><ul>${items.map(item => `<li>${esc(item)}</li>`).join('')}</ul></div>`).join('');
+      .map(([key, items]) => `<div class="grp"><span>${t(key)}</span><ul>${items.map(item => `<li>${releaseText(item)}</li>`).join('')}</ul></div>`).join('');
     const LANZOU = 'https://wwaxj.lanzouu.com/b0ummnqod', BAIDU = 'https://pan.baidu.com/s/1f8e1llzsdWdysfVNkYYW8g?pwd=1234';
     const downloads = r => {
       const d = r.downloads;
